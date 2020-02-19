@@ -1,0 +1,13 @@
+@import '../constants.scss';
+
+.app-header {
+  background-color: env(REACT_APP_BACKGROUND_COLOR);
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  color: white;
+}

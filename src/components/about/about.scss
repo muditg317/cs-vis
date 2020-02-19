@@ -1,0 +1,16 @@
+.about {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    padding: 0 20px;
+
+    p {
+        margin-top: 0;
+    }
+
+    h1,h2 {
+        margin-bottom: 0; 
+    }
+}

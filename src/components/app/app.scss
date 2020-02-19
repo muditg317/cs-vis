@@ -1,0 +1,25 @@
+@import './constants.scss';
+
+html {
+    overflow: hidden;
+}
+
+html, body, #root, .app {
+    height: 100%;
+}
+
+.app {
+    background-color: #fff;
+    position: relative;
+    // overflow-y: hidden;
+}
+
+.app-content {
+    position: relative;
+    margin-top: $nav-bar-height;
+    margin-bottom: $footer-height;
+    height: -webkit-fill-available;
+    // overflow-y: scroll;
+
+    // padding: 1em;
+}

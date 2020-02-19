@@ -1,0 +1,121 @@
+@import '../../app/constants.scss';
+
+.control-bar {
+    // overflow: hidden;
+    background-clip: border-box;
+    background-color: #f7f7f7;
+}
+
+.controls {
+    display: flex;
+    flex-flow: row wrap;
+
+    >.control-group {
+        margin-left: 10px;
+
+        >.control-group {
+            margin-top: 10px;
+        }
+    }
+
+}
+
+.control-group {
+    display: flex;
+    flex-flow: row wrap;
+    // overflow: hidden;
+}
+
+.control-group>.control-group {
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-between;
+    margin-top: 1em;
+    // :not(>.control-group) {
+    //     @for $num_children from 1 through 5 {
+    //         >:first-child:nth-last-child(#{$num_children}),
+    //         >:first-child:nth-last-child(#{$num_children}) ~ *, {
+    //             height: 100% / $num_children;
+    //         }
+    //     }
+    // }
+}
+
+.control-group>.control-group>.control-group {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    // justify-content: space-between;
+    @for $num_children from 1 through 5 {
+        >:first-child:nth-last-child(#{$num_children}),
+        >:first-child:nth-last-child(#{$num_children}) ~ *, {
+            width: 100% / $num_children;
+        }
+    }
+}
+
+.control-container {
+    margin: 0;
+    padding: 1em;
+
+    box-sizing: border-box;
+    width: 100%;
+
+    background-clip: border-box;
+    background-color: #f7f7f7;
+
+}
+.control-container#main-control {
+    // text-align: center;
+    width: fit-content;
+}
+.control-container#default-control {
+    position: absolute;
+    bottom: 0;
+}
+
+.control-label {
+    margin: 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+input {
+    margin: 0 10px;
+    height: 2em;
+    padding: 0 0.5em;
+    // padding-top: 0.4em;
+    // vertical-align: middle;
+    // text-align: center;
+    border: none;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: thin;
+    border-color: #aaa;
+    background-color: #fffd;
+    transition: box-shadow .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+input:hover {
+    background-color: #fffe;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
+}
+
+input:focus {
+    outline: none;
+    border-color: #546de5;
+    background-color: #fff;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.2);
+}
+
+input[type="button" i] {
+
+}
+
+input[type="button" i]:hover {
+    // background-color: #ddd;
+}
+
+input[type="text" i] {
+}

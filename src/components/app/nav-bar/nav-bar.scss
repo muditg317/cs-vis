@@ -1,0 +1,179 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+@import '../constants.scss';
+
+
+.nav-bar {
+    background-color: $nav-bkgd-color1;
+    background-image: linear-gradient(62deg, $nav-bkgd-color1 0%, $nav-bkgd-color2 100%);
+    display: flex;
+    align-items: baseline;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: $nav-bar-height;
+    z-index: 5;
+    overflow: visible;
+
+    >#nav-logo {
+        display: inline-block;
+        align-self: center;
+        height: $logo-height;
+        min-height: $logo-height;
+        max-height: $logo-height;
+        margin-left: $horizontal-border;
+        margin-right: $horizontal-border;
+        box-sizing: content-box;
+        // width: inherit;
+        // max-width: 40px;
+        >img {
+            height: $logo-height;
+            min-height: $logo-height;
+            max-height: $logo-height;
+            // max-width: 40px;
+        }
+    }
+
+
+
+    >.nav-bar-item {
+        float: right;
+        cursor: pointer;
+        // height: $nav-bar-height;
+        display: flex;
+        flex-flow: column nowrap;
+        position: relative;
+
+        >.nav-bar-drop-down {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            // background-color: $nav-drop-bkgd-color;
+            background-color: $nav-bkgd-color1;
+            background-image: linear-gradient(118deg, $nav-bkgd-color1 0%, $nav-bkgd-color2 100%);
+            position: absolute;
+            top: $nav-bar-height;
+            z-index: 6;
+            overflow: visible;
+            width: max-content;
+
+            >.nav-bar-drop-down-item {
+                min-width: 100%;
+                // height: $nav-bar-height;
+                position: relative;
+
+                >.nav-bar-side-pane {
+                    display: flex;
+                    flex-flow: column nowrap;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    background-color: $nav-side-bkgd-color;
+                    position: absolute;
+                    left: 100%;
+                    top: 0;
+                    z-index: 7;
+                    width: max-content;
+
+                    >.nav-bar-side-item {
+                        min-width: 100%;
+                    }
+                }
+            }
+        }
+    }
+
+    .nav-item-title {
+        color: $nav-text-color;
+        text-align: left;
+        text-decoration: none;
+        font-size: 17px;
+        min-height: $nav-bar-height;
+        height: $nav-bar-height;
+        max-height: $nav-bar-height;
+        box-sizing: border-box;
+        background-clip: border-box;
+        border-left-width: $horizontal-border;
+        border-right-width: $horizontal-border;
+        border-style: solid;
+        border-color: #00000000;
+
+
+        display: flex;
+        align-items: center;
+
+    }
+
+    .nav-item.active {
+        >.nav-item-title {
+            // background-color: $nav-active-bkgd-color;
+            // color: $nav-hovor-text-color;
+        }
+    }
+
+    .nav-bar-item:hover, .nav-bar-item.active {
+        background-color: $nav-hovor-bkgd-color;
+        .nav-bar-item-title {
+            color: $nav-hovor-text-color;
+        }
+    }
+
+    .nav-item {
+        :hover,.active {
+            // flex: 1;
+            >.nav-item-title {
+                background-color: $nav-hovor-bkgd-color;
+                color: $nav-hovor-text-color;
+            }
+        }
+    }
+
+    // .nav-item .nav-item-title i {
+    //     background-color: $nav-bkgd-color;
+    // }
+
+    >#top-nav-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: $nav-bar-height;
+        flex-flow: row nowrap;
+        align-items: center;
+    }
+
+}
+
+@media screen and (max-width: 535px) {
+    .nav-bar {
+        justify-content: space-between;
+
+        *:not(:first-child) {
+            display: none;
+        }
+
+        #top-nav-menu {
+            display: flex;
+        }
+    }
+
+    .nav-bar.responsive {
+        flex-direction: column;
+        align-items: flex-start;
+
+        #nav-logo {
+            margin-top: ($nav-bar-height - $logo-height)/2;
+        }
+
+        *:first-child {
+            align-self: flex-start;
+        }
+
+        *:not(:last-child) {
+            display: initial;
+            width: inherit;
+            float: left;
+            text-align: right;
+        }
+    }
+}
