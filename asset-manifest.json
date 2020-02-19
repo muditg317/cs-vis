@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "muditg317.github.io/cs-vis/static/css/main.7d4a48d3.chunk.css",
+    "main.js": "muditg317.github.io/cs-vis/static/js/main.85ac383b.chunk.js",
+    "main.js.map": "muditg317.github.io/cs-vis/static/js/main.85ac383b.chunk.js.map",
+    "runtime-main.js": "muditg317.github.io/cs-vis/static/js/runtime-main.41ae695d.js",
+    "runtime-main.js.map": "muditg317.github.io/cs-vis/static/js/runtime-main.41ae695d.js.map",
+    "static/js/2.9776881a.chunk.js": "muditg317.github.io/cs-vis/static/js/2.9776881a.chunk.js",
+    "static/js/2.9776881a.chunk.js.map": "muditg317.github.io/cs-vis/static/js/2.9776881a.chunk.js.map",
+    "index.html": "muditg317.github.io/cs-vis/index.html",
+    "precache-manifest.74067c42eadb3a18dea7ec8db1a650b5.js": "muditg317.github.io/cs-vis/precache-manifest.74067c42eadb3a18dea7ec8db1a650b5.js",
+    "service-worker.js": "muditg317.github.io/cs-vis/service-worker.js",
+    "static/css/main.7d4a48d3.chunk.css.map": "muditg317.github.io/cs-vis/static/css/main.7d4a48d3.chunk.css.map",
+    "static/js/2.9776881a.chunk.js.LICENSE.txt": "muditg317.github.io/cs-vis/static/js/2.9776881a.chunk.js.LICENSE.txt",
+    "static/media/logo.svg": "muditg317.github.io/cs-vis/static/media/logo.2d46fc74.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.41ae695d.js",
+    "static/js/2.9776881a.chunk.js",
+    "static/css/main.7d4a48d3.chunk.css",
+    "static/js/main.85ac383b.chunk.js"
+  ]
+}
