@@ -1,9 +1,9 @@
-import './arraylist-visualizer.scss';
+import './arraylist.scss';
 
-import Visualizer from '../../visualizer';
-import { ControlBuilder } from '../../../utils';
+import Visualizer from 'components/visualizer';
+import { ControlBuilder } from 'utils';
 
-import { ArrayList } from '../../../animation';
+import { ArrayList } from 'animation';
 
 export default class ArrayListVisualizer extends Visualizer {
 

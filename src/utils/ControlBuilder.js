@@ -68,6 +68,7 @@ export function createSlider(min, max, defaultValue, step) {
     slider.setAttribute("max", max);
     slider.setAttribute("step", step === 0 ? "1e-18" : step);
     slider.setAttribute("defaultValue", defaultValue);
+    slider.value = defaultValue;
 
     return slider;
 };

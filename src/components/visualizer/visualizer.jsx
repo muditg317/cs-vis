@@ -4,21 +4,28 @@ import './visualizer.scss';
 
 import ControlBar from './controlBar';
 
-import { ControlBuilder } from '../../utils';
-import { Animator } from '../../animation';
+import { ControlBuilder } from 'utils';
+import { Animator } from 'animation';
 
 export default class Visualizer extends Component {
+
+    static INITIAL_SPEED = 50;
+    static MAX_SPEED = 20;
+    static SPEED_SLIDER_DEGREE = 1.5;
+
+    static maxAnimationSpeed() {
+        return Math.pow(Visualizer.MAX_SPEED, Visualizer.SPEED_SLIDER_DEGREE);
+    }
+
     constructor(props) {
         super(props);
 
         //FUNCTION BINDING
         this.setup = this.setup.bind(this);
         this.draw = this.draw.bind(this);
+        this.mousePressed = this.mousePressed.bind(this);
+        this.mouseReleased = this.mouseReleased.bind(this);
         this.windowResized = this.windowResized.bind(this);
-
-        //config
-        this.INITIAL_SPEED = 5;
-        this.SPEED_SLIDER_DEGREE = 1.5;
 
 
         this.controlBar = new ControlBar();
@@ -27,7 +34,7 @@ export default class Visualizer extends Component {
         this.controls = [];
 
         this.state = {
-            animationSpeed: this.INITIAL_SPEED,
+            animationSpeed: Visualizer.INITIAL_SPEED,
         }
 
         this.disableUI = this.disableUI.bind(this);
@@ -44,7 +51,7 @@ export default class Visualizer extends Component {
     }
 
     addDefaultControls() {
-        this.speedSlider = ControlBuilder.createSlider(1, 20, Math.pow(this.INITIAL_SPEED,1/this.SPEED_SLIDER_DEGREE), 0);
+        this.speedSlider = ControlBuilder.createSlider(1, Visualizer.MAX_SPEED, Math.pow(Visualizer.INITIAL_SPEED,1/Visualizer.SPEED_SLIDER_DEGREE), 0);
         this.defaultControlGroup = ControlBuilder.createControlGroup("default", this.speedSlider);
         this.controlBar.setDefaultsLabel("Animation controls");
     }
@@ -114,24 +121,40 @@ export default class Visualizer extends Component {
         // this.state.visualization = new ArrayList();
         // window.visualization = this.state.visualization;
         // this.setState({isSetup: true,});
+        //
+        document.addEventListener("resize", (event) => {
+            console.log("resize");
+        });
     }
     draw(p5) {
         //inputs
-        this.setState({animationSpeed: Math.pow(this.speedSlider.value,this.SPEED_SLIDER_DEGREE)});
+        this.setState({animationSpeed: Math.pow(this.speedSlider.value,Visualizer.SPEED_SLIDER_DEGREE)});
 
         p5.background(255);
 
         //objects
-        this.visualization.update(this.state.animationSpeed);
+        this.visualization.update(this.state.animationSpeed, p5);
         this.visualization.draw(p5);
+    }
+    mousePressed(p5) {
+        if (this.visualization.mousePressed) {
+            this.visualization.mousePressed(p5);
+        }
+    }
+    mouseReleased(p5) {
+        if (this.visualization.mouseReleased) {
+            this.visualization.mouseReleased(p5);
+        }
     }
     windowResized(p5) {
         //config
+        //
         let height = document.querySelector(".app-content").getBoundingClientRect().height
                 - document.querySelector("#main-control").getBoundingClientRect().height
                 - document.querySelector("#default-control").getBoundingClientRect().height;
         // height = document.querySelector(".react-p5").getBoundingClientRect().height;
         document.querySelector(".canvas-container").style.height = height+"px";
+        height = document.querySelector(".canvas-container").getBoundingClientRect().height;
         // console.log(height);
         // p5.resizeCanvas(p5.windowWidth, p5.height);
 
@@ -144,9 +167,14 @@ export default class Visualizer extends Component {
         return (
                 <div className={`visualizer ${this.class}`}>
                     {this.controlBar.render()}
-                    <div className="canvas-container">
-                        <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} />
-                    </div>
+                    {
+                        !this.visualization || this.visualization.constructor.USE_CANVAS ?
+                                <div className="canvas-container">
+                                    <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased}/>
+                                </div>
+                            :
+                                this.visualization.render()
+                    }
                 </div>
             );
     }

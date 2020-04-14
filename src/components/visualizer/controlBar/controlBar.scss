@@ -70,8 +70,8 @@
     width: fit-content;
 }
 .control-container#default-control {
-    position: absolute;
-    bottom: 0;
+    position: fixed;
+    bottom: $footer-height;
 }
 
 .control-label {
@@ -82,6 +82,10 @@
 }
 
 input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
     margin: 0 10px;
     height: 2em;
     padding: 0 0.5em;

@@ -5,9 +5,9 @@ import './universal.scss';
 
 import AppHeader from './app-header';
 import AppFooter from './app-footer';
-import Home from '../home';
-import About from '../about';
-import DataStructures from '../datastructures';
+import Home from 'components/home';
+import About from 'components/about';
+import DataStructures from 'components/datastructures';
 
 export default function App() {
     return (

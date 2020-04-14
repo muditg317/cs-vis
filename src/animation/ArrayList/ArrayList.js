@@ -1,6 +1,8 @@
-import AnimatedObject from './AnimatedObject';
+import AnimatedObject from 'animation/AnimatedObject';
 
 export default class ArrayList extends AnimatedObject {
+
+    static USE_CANVAS = true;
 
     constructor(animator) {
         super();
@@ -16,7 +18,7 @@ export default class ArrayList extends AnimatedObject {
         this.backingArray = {};
         this.backingArray.length = 9;
         for (let i = 0; i < this.backingArray.length; i++) {
-            this.backingArray[i] = new ArrayElement("", this.ELEMENT_SIZE*i,0, this.ELEMENT_SIZE);
+            this.backingArray[i] = new ArrayElement("", this.ELEMENT_SIZE);
         }
         this.size = 0;
 
@@ -102,11 +104,9 @@ export default class ArrayList extends AnimatedObject {
         this.backingArray = {};
         this.backingArray.length = 9;
         for (let i = 0; i < this.backingArray.length; i++) {
-            this.backingArray[i] = new ArrayElement("", this.ELEMENT_SIZE*i,0, this.ELEMENT_SIZE);
+            this.backingArray[i] = new ArrayElement("", this.ELEMENT_SIZE);
         }
         this.size = 0;
-        this.animationHistory = [];
-        this.animationQueue = [];
     }
 
 
@@ -168,14 +168,18 @@ export default class ArrayList extends AnimatedObject {
 
     shiftElementIndex(index, direction) {
         // console.log("index",index,JSON.stringify(this.backingArray));
-        console.log(index+direction, this.backingArray[index].data);
+        // console.log(index+direction, this.backingArray[index].data);
         this.backingArray[index+direction].data = this.backingArray[index].data;
         this.backingArray[index].data = "";
     }
 
 
     resetElement(index) {
-        this.backingArray[index].data = "";
+        if (this.backingArray[index]) {
+            this.backingArray[index].data = "";
+        } else {
+            this.backingArray[index] = new ArrayElement("", this.ELEMENT_SIZE);
+        }
     }
 
     addAnimation(animation) {
@@ -184,7 +188,7 @@ export default class ArrayList extends AnimatedObject {
         this.animationQueue.push({method:this.animator.emit,scope:this.animator,params:["anim-end",],});
     }
 
-    update(animationSpeed) {
+    update(animationSpeed, p5) {
         super.update();
         for (let i = 0; i < this.backingArray.length; i++) {
             if (this.backingArray[i]) {
@@ -263,6 +267,9 @@ export default class ArrayList extends AnimatedObject {
                 }
                 x = nextX;
                 y = nextY;
+                if (y >= document.querySelector(".canvas-container").getBoundingClientRect().height - this.ELEMENT_SIZE) {
+                    // this.windowResized(p5, document.querySelector(".canvas-container").getBoundingClientRect().height);
+                }
             }
         }
 
@@ -289,10 +296,8 @@ export default class ArrayList extends AnimatedObject {
 
 
 class ArrayElement extends AnimatedObject {
-    constructor(data, x,y, SIZE) {
+    constructor(data, SIZE) {
         super();
-        // this.x = x;
-        // this.y = y;
 
         this.data = data;
 
@@ -300,7 +305,7 @@ class ArrayElement extends AnimatedObject {
     }
 
     shift(direction) {
-        super.travel();
+        super.travel(direction);
     }
 
     update(animationSpeed) {

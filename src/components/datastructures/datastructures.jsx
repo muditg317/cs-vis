@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch, Route, useRouteMatch } from "react-router-dom";
 import './datastructures.scss';
 
-import Lists from '../lists';
+import Lists from 'components/lists';
 
 
 export default function DataStructures() {

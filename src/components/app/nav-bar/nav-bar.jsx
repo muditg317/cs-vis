@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import './nav-bar.scss';
 
-import logo from '../../../res/images/logo.svg';
+import logo from 'res/images/logo.svg';
 
 
 export default class NavBar extends Component {
