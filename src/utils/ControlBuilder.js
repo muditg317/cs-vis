@@ -31,7 +31,7 @@ export function createField(prompt, ...validators) {
 
 export function validatorIntOnly() {
     return (field) => {
-        let regex = /-?[0-9]*/g;
+        let regex = /^(-[0-9])?[0-9]*/g;
         field.value = field.value.match(regex).reduce((sum, char) => sum + char);
     }
 };
