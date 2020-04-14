@@ -31,7 +31,7 @@ export function createField(prompt, ...validators) {
 
 export function validatorIntOnly() {
     return (field) => {
-        let regex = /[0-9]*/g;
+        let regex = /-?[0-9]*/g;
         field.value = field.value.match(regex).reduce((sum, char) => sum + char);
     }
 };
@@ -91,11 +91,37 @@ export function setTabControl(control, nextControl) {
         console.log("cannot link undefined controls");
         return;
     }
+    enableShift();
     control.addEventListener("keydown", (event) => {
-        if (event.key === "Tab") {
+        if (event.key === "Tab" && (window.shifted !== undefined && !window.shifted)) {
             event.preventDefault();
             control.blur();
             nextControl.focus();
         }
     });
+    nextControl.addEventListener("keydown", (event) => {
+        if (event.key === "Tab" && window.shifted) {
+            event.preventDefault();
+            nextControl.blur();
+            control.focus();
+        }
+    });
+};
+
+function enableShift() {
+    if (window.shifted === undefined) {
+        window.shifted = false;
+        window.addEventListener("keydown", (event) => {
+            if (event.key === "Shift") {
+                event.preventDefault();
+                window.shifted = true;
+            }
+        });
+        window.addEventListener("keyup", (event) => {
+            if (event.key === "Shift") {
+                event.preventDefault();
+                window.shifted = false;
+            }
+        });
+    }
 };

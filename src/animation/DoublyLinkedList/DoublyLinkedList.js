@@ -2,15 +2,15 @@ import AttractedDraggableObject from 'animation/AttractedDraggableObject';
 import Visualizer from 'components/visualizer';
 import { Utils } from 'utils';
 
-export default class SinglyLinkedList {
+export default class DoublyLinkedList {
     static USE_CANVAS = true;
 
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
     static POINTER_WIDTH = 15;
-    static ITEM_WIDTH = SinglyLinkedList.ELEMENT_WIDTH + SinglyLinkedList.POINTER_WIDTH;
+    static ITEM_WIDTH = DoublyLinkedList.ELEMENT_WIDTH + 2 * DoublyLinkedList.POINTER_WIDTH;
     static SPACING = 50;
-    static ELEMENT_SIZE = SinglyLinkedList.ITEM_WIDTH + SinglyLinkedList.SPACING;
+    static ELEMENT_PADDED_WIDTH = DoublyLinkedList.ITEM_WIDTH + DoublyLinkedList.SPACING;
 
     static MAX_DIST_REMOVE = 300;
 
@@ -45,15 +45,30 @@ export default class SinglyLinkedList {
             return false;
         }
         let animation = [];
-        let node = null;
-        let nextNode = this.head;
-        for (let i = 0; i < index; i++) {
-            animation.push({method:this.moveHighlight,params:[node,nextNode,],});
-            node = nextNode;
-            nextNode = nextNode.next;
+        let node;
+        let nextNode;
+        let highlighted;
+        if (index < this.size / 2) {
+            node = null;
+            nextNode = this.head;
+            for (let i = 0; i < index; i++) {
+                animation.push({method:this.moveHighlight,params:[node,nextNode,],});
+                node = nextNode;
+                nextNode = nextNode.next;
+            }
+            highlighted = node;
+        } else {
+            node = this.tail;
+            nextNode = null;
+            for (let i = this.size - 1; i > index-1; i--) {
+                animation.push({method:this.moveHighlight,params:[nextNode,node,],});
+                nextNode = node;
+                node = node.prev;
+            }
+            highlighted = nextNode;
         }
         animation.push({method:this.makeNode,params:[index,data,],});
-        animation.push({method:this.moveHighlight,params:[node,null,],});
+        animation.push({method:this.moveHighlight,params:[highlighted,null,],});
         animation.push({method:this.setTempNodeBefore,params:[nextNode,],});
         animation.push({method:this.setTempNodePrev,params:[node,],});
         if (index < this.size) {
@@ -92,24 +107,41 @@ export default class SinglyLinkedList {
             prev = null;
             toDelete = this.head;
             next = toDelete.next;
+        } else if (index === this.size - 1) {
+            next = null;
+            toDelete = this.tail;
+            prev = toDelete.prev;
         } else {
-            let node = this.head;
-            animation.push({method:this.moveHighlight,params:[null,node,],});
-            for (let i = 0; i < index - 1; i++) {
-                animation.push({method:this.moveHighlight,params:[node,node.next,],});
-                node = node.next;
+            if (index < this.size / 2) {
+                let node = this.head;
+                animation.push({method:this.moveHighlight,params:[null,node,],});
+                for (let i = 0; i < index; i++) {
+                    animation.push({method:this.moveHighlight,params:[node,node.next,],});
+                    node = node.next;
+                }
+                prev = node.prev;
+                toDelete = node;
+                next = node.next;
+            } else {
+                let node = this.tail;
+                animation.push({method:this.moveHighlight,params:[null,node,],});
+                for (let i = this.size - 1; i > index; i--) {
+                    animation.push({method:this.moveHighlight,params:[node,node.prev,],});
+                    node = node.prev;
+                }
+                prev = node.prev;
+                toDelete = node;
+                next = node.next;
             }
-            prev = node;
-            toDelete = prev.next;
-            next = toDelete.next;
         }
         let data = toDelete.data;
-        animation.push({method:this.markNodeForDeletion,params:[prev,toDelete,],});
+        animation.push({method:this.markNodeForDeletion,params:[toDelete,toDelete,],});
         animation.push({method:this.unmakeNode,params:[toDelete,],customEnd:true,});
         if (index < this.size - 1) {
             animation.push({method:this.shiftIntoNode,params:[next,],});
         }
-        animation.push({method:this.skipTempNode,params:[prev,],});
+        animation.push({method:this.skipTempNodePrev,params:[prev,],});
+        animation.push({method:this.skipTempNodeNext,params:[next,],});
         animation.push({method:this.sizeDecr,params:[],});
         this.addAnimation(animation);
         this.animationHistory.push(animation)
@@ -127,6 +159,7 @@ export default class SinglyLinkedList {
 
     reset() {
         this.head = null;
+        this.tail = null;
         this.size = 0;
         this.nodes = [];
         this.tempNode = null;
@@ -135,25 +168,30 @@ export default class SinglyLinkedList {
 
 
     makeNode(index, data) {
-        this.tempNode = new SinglyLinkedListNode({data: data, index: index, x:20,y:20,},);
+        this.tempNode = new DoublyLinkedListNode({data: data, index: index, x:20,y:20,},);
     }
 
     setTempNodeBefore(next) {
         this.tempNode.next = next;
+        if (next) {
+            next.prev = this.tempNode;
+        }
     }
 
     setTempNodePrev(prev) {
         if (prev) {
             prev.next = this.tempNode;
-        } else {
-            // this.head = this.tempNode;
         }
+        this.tempNode.prev = prev;
     }
 
     insertTempNode(index) {
         this.nodes.splice(index, 0, this.tempNode);
         if (index === 0) {
             this.head = this.tempNode;
+        }
+        if (index === this.size) {
+            this.tail = this.tempNode;
         }
         this.tempNode.shift(...this.getNodePosition(index));
         this.tempNode = null;
@@ -183,11 +221,19 @@ export default class SinglyLinkedList {
         });
     }
 
-    skipTempNode(prev) {
+    skipTempNodePrev(prev) {
         if (prev) {
             prev.next = this.tempNode.next;
         } else {
             this.head = this.head.next;
+        }
+    }
+
+    skipTempNodeNext(next) {
+        if (next) {
+            next.prev = this.tempNode.prev;
+        } else {
+            this.tail = this.tail.prev;
         }
         this.tempNode = null;
     }
@@ -229,10 +275,10 @@ export default class SinglyLinkedList {
     }
 
     getNodePosition(index) {
-        let maxPerRow = Math.floor(this.width / SinglyLinkedList.ELEMENT_SIZE);
-        let x = SinglyLinkedList.ELEMENT_SIZE * index;
-        let y = 50 + Math.floor(index / maxPerRow) * 2 * SinglyLinkedList.ELEMENT_HEIGHT;
-        x = (index % maxPerRow) * SinglyLinkedList.ELEMENT_SIZE;
+        let maxPerRow = Math.floor(this.width / DoublyLinkedList.ELEMENT_PADDED_WIDTH);
+        let x = DoublyLinkedList.ELEMENT_PADDED_WIDTH * index;
+        let y = 50 + Math.floor(index / maxPerRow) * 2 * DoublyLinkedList.ELEMENT_HEIGHT;
+        x = (index % maxPerRow) * DoublyLinkedList.ELEMENT_PADDED_WIDTH;
         return [x + this.x,y + this.y];
     }
 
@@ -302,7 +348,7 @@ export default class SinglyLinkedList {
     }
 
     draw(p5) {
-        // let maxPerRow = Math.floor(this.width / SinglyLinkedList.ELEMENT_SIZE);
+        // let maxPerRow = Math.floor(this.width / DoublyLinkedList.ELEMENT_PADDED_WIDTH);
         // let rows = Math.ceil(this.nodes.length / maxPerRow);
 
         p5.push();
@@ -338,12 +384,12 @@ export default class SinglyLinkedList {
     }
 
     windowResized(p5, height) {
-        // let maxPerRow = Math.floor(this.width / SinglyLinkedList.ELEMENT_SIZE);
+        // let maxPerRow = Math.floor(this.width / DoublyLinkedList.ELEMENT_PADDED_WIDTH);
         // let rows = Math.ceil(this.nodes.length / maxPerRow);
 
         let width = p5.windowWidth;
-        if ((this.getNodePosition(this.size-1)[1] + SinglyLinkedList.ELEMENT_HEIGHT) > (height - (2*this.y))) {
-            height = (this.getNodePosition(this.size-1)[1] + SinglyLinkedList.ELEMENT_HEIGHT + (3*this.y))
+        if ((this.getNodePosition(this.size-1)[1] + DoublyLinkedList.ELEMENT_HEIGHT) > (height - (2*this.y))) {
+            height = (this.getNodePosition(this.size-1)[1] + DoublyLinkedList.ELEMENT_HEIGHT + (3*this.y))
             width -= 16;
             document.querySelector(".canvas-container").classList.add("overflow");
         } else {
@@ -367,13 +413,14 @@ export default class SinglyLinkedList {
 }
 
 
-class SinglyLinkedListNode extends AttractedDraggableObject {
+class DoublyLinkedListNode extends AttractedDraggableObject {
     constructor({data, index, x,y} = {}) {
         super(x,y);
 
         this.data = data;
         this.index = index;
         this.next = null;
+        this.prev = null;
 
         this.toDelete = false;
         this.handBroken = false;
@@ -387,7 +434,7 @@ class SinglyLinkedListNode extends AttractedDraggableObject {
     }
 
     containsPos(x,y) {
-        return ((this.currentX <= x && x <= (this.currentX + SinglyLinkedList.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + SinglyLinkedList.ELEMENT_HEIGHT)))
+        return ((this.currentX <= x && x <= (this.currentX + DoublyLinkedList.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + DoublyLinkedList.ELEMENT_HEIGHT)))
     }
 
     highlight() {
@@ -415,12 +462,12 @@ class SinglyLinkedListNode extends AttractedDraggableObject {
 
     unpin() {
         super.unpin();
-        return this.displacement() > SinglyLinkedList.MAX_DIST_REMOVE;
+        return this.displacement() > DoublyLinkedList.MAX_DIST_REMOVE;
     }
 
     update(animationSpeed, p5) {
         let dist = super.update(animationSpeed, p5);
-        return this.pinnedToMouse && !this.handBroken && dist > SinglyLinkedList.MAX_DIST_REMOVE;
+        return this.pinnedToMouse && !this.handBroken && dist > DoublyLinkedList.MAX_DIST_REMOVE;
     }
 
     draw(p5) {
@@ -428,19 +475,30 @@ class SinglyLinkedListNode extends AttractedDraggableObject {
         p5.push();
         p5.fill(255);
         p5.stroke(...this.color);
-        p5.rect(this.currentX, this.currentY, SinglyLinkedList.ITEM_WIDTH, SinglyLinkedList.ELEMENT_HEIGHT);
-        p5.line(this.currentX + SinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + SinglyLinkedList.ELEMENT_WIDTH, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT);
+        p5.rect(this.currentX, this.currentY, DoublyLinkedList.ITEM_WIDTH, DoublyLinkedList.ELEMENT_HEIGHT);
+        p5.line(this.currentX + DoublyLinkedList.POINTER_WIDTH, this.currentY, this.currentX + DoublyLinkedList.POINTER_WIDTH, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT);
+        p5.line(this.currentX + DoublyLinkedList.POINTER_WIDTH + DoublyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + DoublyLinkedList.POINTER_WIDTH + DoublyLinkedList.ELEMENT_WIDTH, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT);
         p5.textAlign(p5.CENTER, p5.CENTER);
         p5.fill(...this.color);
-        p5.text(this.data.toString(), this.currentX,this.currentY, SinglyLinkedList.ELEMENT_WIDTH,SinglyLinkedList.ELEMENT_HEIGHT);
+        p5.text(this.data.toString(), this.currentX + DoublyLinkedList.POINTER_WIDTH,this.currentY, DoublyLinkedList.ELEMENT_WIDTH,DoublyLinkedList.ELEMENT_HEIGHT);
+        if (this.prev) {
+            p5.stroke(...Utils.addArray(this.color, [0,0,255]));
+            p5.fill(...Utils.addArray(this.color, [0,0,255]));
+            p5.circle(this.currentX + DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3, 5);
+            p5.line(this.currentX + DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3, this.prev.currentX + DoublyLinkedList.ITEM_WIDTH, this.prev.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3)
+            p5.rect(this.prev.currentX + DoublyLinkedList.ITEM_WIDTH - 3, this.prev.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3 - 3, 6,6);
+        } else {
+            p5.line(this.currentX, this.currentY, this.currentX + DoublyLinkedList.POINTER_WIDTH, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT);
+        }
         if (this.next) {
             p5.stroke(...Utils.addArray(this.color, [0,0,255]));
             p5.fill(...Utils.addArray(this.color, [0,0,255]));
-            p5.circle(this.currentX + SinglyLinkedList.ELEMENT_WIDTH + SinglyLinkedList.POINTER_WIDTH / 2, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2, 5);
-            p5.line(this.currentX + SinglyLinkedList.ELEMENT_WIDTH + SinglyLinkedList.POINTER_WIDTH / 2, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2)
-            p5.rect(this.next.currentX - 3, this.next.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2 - 3, 6,6);
+            p5.circle(this.currentX + DoublyLinkedList.ITEM_WIDTH - DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3, 5);
+            p5.line(this.currentX + DoublyLinkedList.ITEM_WIDTH - DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3, this.next.currentX, this.next.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3)
+            p5.rect(this.next.currentX - 3, this.next.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3 - 3, 6,6);
         } else {
-            p5.line(this.currentX + SinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + SinglyLinkedList.ITEM_WIDTH, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT);
+            p5.stroke(...this.color);
+            p5.line(this.currentX + DoublyLinkedList.POINTER_WIDTH + DoublyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + DoublyLinkedList.ITEM_WIDTH, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT);
         }
         p5.pop();
     }

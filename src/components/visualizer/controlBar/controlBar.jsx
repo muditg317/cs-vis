@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import './controlBar.scss';
 
-export default class ControlBar extends Component {
+export default class ControlBar extends PureComponent {
 
     constructor(props) {
         super(props);
@@ -12,10 +12,12 @@ export default class ControlBar extends Component {
 
     setDefaultsLabel(label) {
         this.defaultsLabel = label;
+        this.forceUpdate();
     }
 
     setMainLabel(label) {
         this.mainLabel = label;
+        this.forceUpdate();
     }
 
     addDefaultGroup(controlGroup) {
@@ -27,10 +29,6 @@ export default class ControlBar extends Component {
     }
 
     render() {
-        // this.controlBar.forEach((control) => {
-        //     if (control.classList.)
-        // });
-
         return (
                 <div className="control-bar">
                     <div className="control-container" id="main-control">

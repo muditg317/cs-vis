@@ -2,15 +2,15 @@ import AttractedDraggableObject from 'animation/AttractedDraggableObject';
 import Visualizer from 'components/visualizer';
 import { Utils } from 'utils';
 
-export default class SinglyLinkedList {
+export default class CircularSinglyLinkedList {
     static USE_CANVAS = true;
 
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
     static POINTER_WIDTH = 15;
-    static ITEM_WIDTH = SinglyLinkedList.ELEMENT_WIDTH + SinglyLinkedList.POINTER_WIDTH;
+    static ITEM_WIDTH = CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH;
     static SPACING = 50;
-    static ELEMENT_SIZE = SinglyLinkedList.ITEM_WIDTH + SinglyLinkedList.SPACING;
+    static ELEMENT_SIZE = CircularSinglyLinkedList.ITEM_WIDTH + CircularSinglyLinkedList.SPACING;
 
     static MAX_DIST_REMOVE = 300;
 
@@ -135,7 +135,7 @@ export default class SinglyLinkedList {
 
 
     makeNode(index, data) {
-        this.tempNode = new SinglyLinkedListNode({data: data, index: index, x:20,y:20,},);
+        this.tempNode = new CircularSinglyLinkedListNode({data: data, index: index, x:20,y:20,},);
     }
 
     setTempNodeBefore(next) {
@@ -229,10 +229,10 @@ export default class SinglyLinkedList {
     }
 
     getNodePosition(index) {
-        let maxPerRow = Math.floor(this.width / SinglyLinkedList.ELEMENT_SIZE);
-        let x = SinglyLinkedList.ELEMENT_SIZE * index;
-        let y = 50 + Math.floor(index / maxPerRow) * 2 * SinglyLinkedList.ELEMENT_HEIGHT;
-        x = (index % maxPerRow) * SinglyLinkedList.ELEMENT_SIZE;
+        let maxPerRow = Math.floor(this.width / CircularSinglyLinkedList.ELEMENT_SIZE);
+        let x = CircularSinglyLinkedList.ELEMENT_SIZE * index;
+        let y = 50 + Math.floor(index / maxPerRow) * 2 * CircularSinglyLinkedList.ELEMENT_HEIGHT;
+        x = (index % maxPerRow) * CircularSinglyLinkedList.ELEMENT_SIZE;
         return [x + this.x,y + this.y];
     }
 
@@ -302,7 +302,7 @@ export default class SinglyLinkedList {
     }
 
     draw(p5) {
-        // let maxPerRow = Math.floor(this.width / SinglyLinkedList.ELEMENT_SIZE);
+        // let maxPerRow = Math.floor(this.width / CircularSinglyLinkedList.ELEMENT_SIZE);
         // let rows = Math.ceil(this.nodes.length / maxPerRow);
 
         p5.push();
@@ -338,12 +338,12 @@ export default class SinglyLinkedList {
     }
 
     windowResized(p5, height) {
-        // let maxPerRow = Math.floor(this.width / SinglyLinkedList.ELEMENT_SIZE);
+        // let maxPerRow = Math.floor(this.width / CircularSinglyLinkedList.ELEMENT_SIZE);
         // let rows = Math.ceil(this.nodes.length / maxPerRow);
 
         let width = p5.windowWidth;
-        if ((this.getNodePosition(this.size-1)[1] + SinglyLinkedList.ELEMENT_HEIGHT) > (height - (2*this.y))) {
-            height = (this.getNodePosition(this.size-1)[1] + SinglyLinkedList.ELEMENT_HEIGHT + (3*this.y))
+        if ((this.getNodePosition(this.size-1)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT) > (height - (2*this.y))) {
+            height = (this.getNodePosition(this.size-1)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT + (3*this.y))
             width -= 16;
             document.querySelector(".canvas-container").classList.add("overflow");
         } else {
@@ -367,7 +367,7 @@ export default class SinglyLinkedList {
 }
 
 
-class SinglyLinkedListNode extends AttractedDraggableObject {
+class CircularSinglyLinkedListNode extends AttractedDraggableObject {
     constructor({data, index, x,y} = {}) {
         super(x,y);
 
@@ -387,7 +387,7 @@ class SinglyLinkedListNode extends AttractedDraggableObject {
     }
 
     containsPos(x,y) {
-        return ((this.currentX <= x && x <= (this.currentX + SinglyLinkedList.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + SinglyLinkedList.ELEMENT_HEIGHT)))
+        return ((this.currentX <= x && x <= (this.currentX + CircularSinglyLinkedList.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT)))
     }
 
     highlight() {
@@ -415,12 +415,12 @@ class SinglyLinkedListNode extends AttractedDraggableObject {
 
     unpin() {
         super.unpin();
-        return this.displacement() > SinglyLinkedList.MAX_DIST_REMOVE;
+        return this.displacement() > CircularSinglyLinkedList.MAX_DIST_REMOVE;
     }
 
     update(animationSpeed, p5) {
         let dist = super.update(animationSpeed, p5);
-        return this.pinnedToMouse && !this.handBroken && dist > SinglyLinkedList.MAX_DIST_REMOVE;
+        return this.pinnedToMouse && !this.handBroken && dist > CircularSinglyLinkedList.MAX_DIST_REMOVE;
     }
 
     draw(p5) {
@@ -428,19 +428,19 @@ class SinglyLinkedListNode extends AttractedDraggableObject {
         p5.push();
         p5.fill(255);
         p5.stroke(...this.color);
-        p5.rect(this.currentX, this.currentY, SinglyLinkedList.ITEM_WIDTH, SinglyLinkedList.ELEMENT_HEIGHT);
-        p5.line(this.currentX + SinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + SinglyLinkedList.ELEMENT_WIDTH, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT);
+        p5.rect(this.currentX, this.currentY, CircularSinglyLinkedList.ITEM_WIDTH, CircularSinglyLinkedList.ELEMENT_HEIGHT);
+        p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT);
         p5.textAlign(p5.CENTER, p5.CENTER);
         p5.fill(...this.color);
-        p5.text(this.data.toString(), this.currentX,this.currentY, SinglyLinkedList.ELEMENT_WIDTH,SinglyLinkedList.ELEMENT_HEIGHT);
+        p5.text(this.data.toString(), this.currentX,this.currentY, CircularSinglyLinkedList.ELEMENT_WIDTH,CircularSinglyLinkedList.ELEMENT_HEIGHT);
         if (this.next) {
             p5.stroke(...Utils.addArray(this.color, [0,0,255]));
             p5.fill(...Utils.addArray(this.color, [0,0,255]));
-            p5.circle(this.currentX + SinglyLinkedList.ELEMENT_WIDTH + SinglyLinkedList.POINTER_WIDTH / 2, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2, 5);
-            p5.line(this.currentX + SinglyLinkedList.ELEMENT_WIDTH + SinglyLinkedList.POINTER_WIDTH / 2, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2)
-            p5.rect(this.next.currentX - 3, this.next.currentY + SinglyLinkedList.ELEMENT_HEIGHT / 2 - 3, 6,6);
+            p5.circle(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2, 5);
+            p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2)
+            p5.rect(this.next.currentX - 3, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2 - 3, 6,6);
         } else {
-            p5.line(this.currentX + SinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + SinglyLinkedList.ITEM_WIDTH, this.currentY + SinglyLinkedList.ELEMENT_HEIGHT);
+            p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + CircularSinglyLinkedList.ITEM_WIDTH, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT);
         }
         p5.pop();
     }

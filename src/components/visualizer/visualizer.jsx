@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import Sketch from 'react-p5';
 import './visualizer.scss';
 
@@ -7,7 +7,7 @@ import ControlBar from './controlBar';
 import { ControlBuilder } from 'utils';
 import { Animator } from 'animation';
 
-export default class Visualizer extends Component {
+export default class Visualizer extends PureComponent {
 
     static INITIAL_SPEED = 50;
     static MAX_SPEED = 20;
@@ -28,7 +28,7 @@ export default class Visualizer extends Component {
         this.windowResized = this.windowResized.bind(this);
 
 
-        this.controlBar = new ControlBar();
+        this.controlBarRef = React.createRef();
 
         this.controlGroups = [];
         this.controls = [];
@@ -53,11 +53,11 @@ export default class Visualizer extends Component {
     addDefaultControls() {
         this.speedSlider = ControlBuilder.createSlider(1, Visualizer.MAX_SPEED, Math.pow(Visualizer.INITIAL_SPEED,1/Visualizer.SPEED_SLIDER_DEGREE), 0);
         this.defaultControlGroup = ControlBuilder.createControlGroup("default", this.speedSlider);
-        this.controlBar.setDefaultsLabel("Animation controls");
+        this.defaultsLabel = "Animation controls";
     }
 
     addControlLabel(label) {
-        this.controlBar.setMainLabel(label);
+        this.mainLabel = label;
     }
 
     addControlGroups(...controlGroups) {
@@ -99,6 +99,9 @@ export default class Visualizer extends Component {
     }
 
     componentDidMount() {
+        this.controlBar = this.controlBarRef.current;
+        this.controlBar.setMainLabel(this.mainLabel);
+        this.controlBar.setDefaultsLabel(this.defaultsLabel);
         this.controlBar.addDefaultGroup(this.defaultControlGroup);
         this.controlGroups.forEach((controlGroup, i) => {
             this.controlBar.addControlGroup(controlGroup);
@@ -110,6 +113,13 @@ export default class Visualizer extends Component {
         let height = document.querySelector(".app-content").getBoundingClientRect().height
                 - document.querySelector("#main-control").getBoundingClientRect().height
                 - document.querySelector("#default-control").getBoundingClientRect().height;
+
+        this.mobile = window.ontouchstart !== undefined;
+        if (this.mobile) {
+            height = 1000;
+            // document.querySelector(".canvas-container").style.height = height + "px";
+            document.querySelector(".canvas-container").classList.add("mobile");
+        }
 
         //config
         p5.createCanvas(p5.windowWidth
@@ -138,20 +148,24 @@ export default class Visualizer extends Component {
     }
     mousePressed(p5) {
         if (this.visualization.mousePressed) {
-            this.visualization.mousePressed(p5);
+            return this.visualization.mousePressed(p5);
         }
+        return true;
     }
     mouseReleased(p5) {
         if (this.visualization.mouseReleased) {
-            this.visualization.mouseReleased(p5);
+            return this.visualization.mouseReleased(p5);
         }
+        return true;
     }
     windowResized(p5) {
         //config
-        //
         let height = document.querySelector(".app-content").getBoundingClientRect().height
                 - document.querySelector("#main-control").getBoundingClientRect().height
                 - document.querySelector("#default-control").getBoundingClientRect().height;
+        if (this.mobile) {
+            // height = 1000;
+        }
         // height = document.querySelector(".react-p5").getBoundingClientRect().height;
         document.querySelector(".canvas-container").style.height = height+"px";
         height = document.querySelector(".canvas-container").getBoundingClientRect().height;
@@ -166,11 +180,11 @@ export default class Visualizer extends Component {
     render() {
         return (
                 <div className={`visualizer ${this.class}`}>
-                    {this.controlBar.render()}
+                    <ControlBar ref={this.controlBarRef}/>
                     {
                         !this.visualization || this.visualization.constructor.USE_CANVAS ?
                                 <div className="canvas-container">
-                                    <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased}/>
+                                    <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} />
                                 </div>
                             :
                                 this.visualization.render()

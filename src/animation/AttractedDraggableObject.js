@@ -1,7 +1,7 @@
 export default class AttractedDraggableObject {
 
     static ATTRACTION = 0.3;
-    static MIN_DISTANCE = 10;
+    static MIN_DISTANCE = 5;
 
     constructor(x,y) {
         this.currentX = x;
@@ -55,13 +55,18 @@ export default class AttractedDraggableObject {
                     angle += Math.PI;
                 }
                 let magnitude = AttractedDraggableObject.ATTRACTION * animationSpeed;
+                let prevAngle = Math.atan(this.vy/this.vx);
+                if (this.vx < 0) {
+                    prevAngle += Math.PI;
+                }
                 this.vx += magnitude * Math.cos(angle);
                 this.vy += magnitude * Math.sin(angle);
 
                 this.vx *= 0.75;
                 this.vy *= 0.75;
 
-                if (Math.floor(Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2))) <= AttractedDraggableObject.MIN_DISTANCE) {
+                if (Math.floor(Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2))) <= AttractedDraggableObject.MIN_DISTANCE
+                        || Math.abs(Math.abs(prevAngle - angle) - Math.PI) < (Math.PI/12)) {
                     this.currentX = this.desiredX;
                     this.vx = 0;
                     this.currentY = this.desiredY;
