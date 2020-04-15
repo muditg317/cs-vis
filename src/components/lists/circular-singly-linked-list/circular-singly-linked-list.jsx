@@ -6,6 +6,7 @@ import { ControlBuilder } from 'utils';
 import { CircularSinglyLinkedList } from 'animation';
 
 export default class CircularSinglyLinkedListVisualizer extends Visualizer {
+    static VISUALIZATION_CLASS = CircularSinglyLinkedList;
 
     constructor(props) {
         super(props);
@@ -77,10 +78,10 @@ export default class CircularSinglyLinkedListVisualizer extends Visualizer {
     }
 
     componentDidMount() {
-        super.componentDidMount();
         this.list = new CircularSinglyLinkedList(this.animator);
         super.visualization = this.list;
         window.list = this.list;
+        super.componentDidMount();
     }
 
 

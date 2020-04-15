@@ -37,14 +37,15 @@ export default class Visualizer extends PureComponent {
             animationSpeed: Visualizer.INITIAL_SPEED,
         }
 
-        this.disableUI = this.disableUI.bind(this);
-        this.enableUI = this.enableUI.bind(this);
+        this.onAnimStart = this.onAnimStart.bind(this);
+        this.onAnimEnd = this.onAnimEnd.bind(this);
+        this.animating = false;
 
         this.focusedElement = null;
 
         this.animator = new Animator();
-        this.animator.on("anim-start", this.disableUI);
-        this.animator.on("anim-end", this.enableUI);
+        this.animator.on("anim-start", this.onAnimStart);
+        this.animator.on("anim-end", this.onAnimEnd);
 
 
         this.addDefaultControls();
@@ -78,6 +79,22 @@ export default class Visualizer extends PureComponent {
         });
     }
 
+    onAnimStart() {
+        this.disableUI();
+        if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
+            this.animator.loop();
+        }
+        this.animating = true;
+    }
+
+    onAnimEnd() {
+        this.enableUI();
+        if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
+            this.animator.noLoop();
+        }
+        this.animating = false;
+    }
+
     disableUI() {
         // console.log("disable");
         this.controls.forEach((control) => {
@@ -98,7 +115,10 @@ export default class Visualizer extends PureComponent {
         });
     }
 
-    componentDidMount() {
+    componentDidMount(callForward) {
+        if (callForward) {
+            callForward();
+        }
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);
         this.controlBar.setDefaultsLabel(this.defaultsLabel);
@@ -140,8 +160,14 @@ export default class Visualizer extends PureComponent {
         document.addEventListener("resize", (event) => {
             console.log("resize");
         });
+        this.animator.noLoop = p5.noLoop.bind(p5);
+        this.animator.loop = p5.loop.bind(p5);
+        if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
+            this.animator.noLoop();
+        }
     }
     draw(p5) {
+        console.log("drawing");
         //inputs
         this.setState({animationSpeed: Math.pow(this.speedSlider.value,Visualizer.SPEED_SLIDER_DEGREE)});
 
@@ -150,6 +176,11 @@ export default class Visualizer extends PureComponent {
         //objects
         this.visualization.update(this.state.animationSpeed, p5);
         this.visualization.draw(p5);
+        // if (!this.animating) {
+        //     if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
+        //         this.animator.noLoop();
+        //     }
+        // }
     }
     mousePressed(p5) {
         if (this.visualization.mousePressed) {
@@ -187,12 +218,12 @@ export default class Visualizer extends PureComponent {
                 <div className={`visualizer ${this.class}`}>
                     <ControlBar ref={this.controlBarRef}/>
                     {
-                        !this.visualization || this.visualization.constructor.USE_CANVAS ?
+                        this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
                                 <div className="canvas-container">
                                     <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} />
                                 </div>
                             :
-                                this.visualization.render()
+                                <this.visualization.VISUALIZATION_CLASS />
                     }
                 </div>
             );

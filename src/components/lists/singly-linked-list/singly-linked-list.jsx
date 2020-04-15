@@ -6,6 +6,7 @@ import { ControlBuilder } from 'utils';
 import { SinglyLinkedList } from 'animation';
 
 export default class SinglyLinkedListVisualizer extends Visualizer {
+    static VISUALIZATION_CLASS = SinglyLinkedList;
 
     constructor(props) {
         super(props);
@@ -77,10 +78,10 @@ export default class SinglyLinkedListVisualizer extends Visualizer {
     }
 
     componentDidMount() {
-        super.componentDidMount();
         this.list = new SinglyLinkedList(this.animator);
         super.visualization = this.list;
         window.list = this.list;
+        super.componentDidMount();
     }
 
 

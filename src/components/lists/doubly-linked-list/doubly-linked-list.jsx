@@ -6,6 +6,7 @@ import { ControlBuilder } from 'utils';
 import { DoublyLinkedList } from 'animation';
 
 export default class DoublyLinkedListVisualizer extends Visualizer {
+    static VISUALIZATION_CLASS = DoublyLinkedList;
 
     constructor(props) {
         super(props);
@@ -77,10 +78,10 @@ export default class DoublyLinkedListVisualizer extends Visualizer {
     }
 
     componentDidMount() {
-        super.componentDidMount();
         this.list = new DoublyLinkedList(this.animator);
         super.visualization = this.list;
         window.list = this.list;
+        super.componentDidMount();
     }
 
 

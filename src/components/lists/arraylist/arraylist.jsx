@@ -6,6 +6,7 @@ import { ControlBuilder } from 'utils';
 import { ArrayList } from 'animation';
 
 export default class ArrayListVisualizer extends Visualizer {
+    static VISUALIZATION_CLASS = ArrayList;
 
     constructor(props) {
         super(props);
@@ -77,10 +78,10 @@ export default class ArrayListVisualizer extends Visualizer {
     }
 
     componentDidMount() {
-        super.componentDidMount();
         this.list = new ArrayList(this.animator);
         super.visualization = this.list;
         window.list = this.list;
+        super.componentDidMount();
     }
 
 

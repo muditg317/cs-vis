@@ -11,6 +11,7 @@ export default class AttractedDraggableObject {
         this.vx = 0;
         this.vy = 0;
         this.pinnedToMouse = false;
+        this.onStop = [];
     }
 
     shift(x,y) {
@@ -34,8 +35,18 @@ export default class AttractedDraggableObject {
         this.vy = 0;
     }
 
-    setOnStop(callback) {
-        this.onStop = callback;
+    addOnStop(callback) {
+        this.onStop.push(callback);
+    }
+
+    stop() {
+        this.currentX = this.desiredX;
+        this.vx = 0;
+        this.currentY = this.desiredY;
+        this.vy = 0;
+        while (this.onStop.length > 0) {
+            this.onStop.shift()();
+        }
     }
 
     update(animationSpeed, p5) {
@@ -66,22 +77,12 @@ export default class AttractedDraggableObject {
                 this.vy *= 0.75;
 
                 if (Math.abs(Math.abs(prevAngle - angle) - Math.PI) < (Math.PI/12)) {
-                    this.currentX = this.desiredX;
-                    this.vx = 0;
-                    this.currentY = this.desiredY;
-                    this.vy = 0;
-                    if (this.onStop) {
-                        this.onStop();
-                        this.onStop = null;
-                    }
+                    this.stop();
                 }
                 this.currentX += this.vx;
                 this.currentY += this.vy;
             } else {
-                if (this.onStop) {
-                    this.onStop();
-                    this.onStop = null;
-                }
+                this.stop();
             }
         }
         return Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));

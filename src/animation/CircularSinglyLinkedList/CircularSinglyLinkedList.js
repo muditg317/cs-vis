@@ -1,9 +1,12 @@
+import { Visualization } from 'animation';
 import AttractedDraggableObject from 'animation/AttractedDraggableObject';
-import Visualizer from 'components/visualizer';
 import { Utils } from 'utils';
 
-export default class CircularSinglyLinkedList {
+export default class CircularSinglyLinkedList extends Visualization {
     static USE_CANVAS = true;
+    static SET_BOUNDS = true;
+    static SUPPORTS_CUSTOM_END = true;
+    static MAX_ANIM_TIME = 5000;
 
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
@@ -15,19 +18,9 @@ export default class CircularSinglyLinkedList {
     static MAX_DIST_REMOVE = 300;
 
     constructor(animator) {
-
-        this.x = 20;
-        this.y = 20;
+        super(animator);
 
         this.reset();
-
-        this.animator = animator;
-
-        this.animationHistory = [];
-        this.animationQueue = [];
-        this.animating = false;
-
-        console.log(this);
     }
 
 
@@ -224,8 +217,8 @@ export default class CircularSinglyLinkedList {
     unmakeNode(node) {
         this.tempNode = node;//this.nodes.splice(node.index, 1)[0];
         this.tempNode.shift(20,20);
-        this.tempNode.setOnStop(() => {
-            this.doneAnimating();
+        this.tempNode.addOnStop(() => {
+            this.doneAnimating(0);
         });
     }
 
@@ -264,7 +257,7 @@ export default class CircularSinglyLinkedList {
 
     customNodeShift(node, x, y) {
         node.shift(x,y);
-        node.setOnStop(() => {
+        node.addOnStop(() => {
             this.doneAnimating(0);
         });
     }
@@ -275,22 +268,6 @@ export default class CircularSinglyLinkedList {
 
     sizeDecr() {
         this.size--;
-    }
-
-    addAnimation(animation) {
-        this.animationQueue.push({method:this.animator.emit,scope:this.animator,params:["anim-start",],});
-        this.animationQueue.push(...animation);
-        this.animationQueue.push({method:this.animator.emit,scope:this.animator,params:["anim-end",],});
-    }
-
-    doneAnimating(time = 250) {
-        if (time === 0) {
-            this.animating = false;
-            return;
-        }
-        setTimeout(() => {
-            this.animating = false;
-        }, time);
     }
 
     getNodePosition(index) {
@@ -343,39 +320,22 @@ export default class CircularSinglyLinkedList {
     }
 
     update(animationSpeed, p5) {
-        this.width = p5.width - 2 * this.x;
-        this.height = p5.height - 2 * this.y;
-        let node = this.head;
-        while (node) {
-            this.updateNode(node, animationSpeed, p5);
-            node = node.next;
-            if (node === this.head) {
-                break;
-            }
-        }
-        if (this.tempNode) {
-            this.updateNode(this.tempNode, animationSpeed, p5);
-        }
-        if (!this.animating) {
-            if (this.animationQueue.length > 0) {
-                let animation = this.animationQueue.shift();
-                this.animating = true;
-                animation.method.apply(animation.scope || this, animation.params);
-                if (!animation.customEnd) {
-                    if (animationSpeed >= Math.floor(Visualizer.maxAnimationSpeed())) {
-                        this.animating = false;
-                    } else {
-                        this.doneAnimating(5000 / animationSpeed);
-                    }
+        super.update(() => {
+            let node = this.head;
+            while (node) {
+                this.updateNode(node, animationSpeed, p5);
+                node = node.next;
+                if (node === this.head) {
+                    break;
                 }
             }
-        }
+            if (this.tempNode) {
+                this.updateNode(this.tempNode, animationSpeed, p5);
+            }
+        }, animationSpeed, p5);
     }
 
     draw(p5) {
-        // let maxPerRow = Math.floor(this.width / CircularSinglyLinkedList.ELEMENT_SIZE);
-        // let rows = Math.ceil(this.nodes.length / maxPerRow);
-
         p5.push();
 
         p5.textAlign(p5.CENTER,p5.CENTER);
@@ -412,26 +372,8 @@ export default class CircularSinglyLinkedList {
     }
 
     windowResized(p5, height) {
-        // let maxPerRow = Math.floor(this.width / CircularSinglyLinkedList.ELEMENT_SIZE);
-        // let rows = Math.ceil(this.nodes.length / maxPerRow);
+        super.windowResized(p5, height, this.getNodePosition(this.size-1)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT);
 
-        let width = p5.windowWidth;
-        if ((this.getNodePosition(this.size-1)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT) > (height - (2*this.y))) {
-            height = (this.getNodePosition(this.size-1)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT + (3*this.y))
-            width -= 16;
-            document.querySelector(".canvas-container").classList.add("overflow");
-        } else {
-            document.querySelector(".canvas-container").classList.remove("overflow");
-        }
-
-        if (height > p5.height) {
-            p5.resizeCanvas(width, height);
-        } else {
-            p5.resizeCanvas(width, p5.height);
-        }
-
-        this.width = p5.width - 2 * this.x;
-        this.height = p5.height - 2 * this.y;
         let node = this.head;
         while (node) {
             node.shift(...this.getNodePosition(node.index));

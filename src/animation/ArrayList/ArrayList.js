@@ -1,33 +1,16 @@
+import { Visualization } from 'animation';
 import AnimatedObject from 'animation/AnimatedObject';
 
-export default class ArrayList extends AnimatedObject {
-
+export default class ArrayList extends Visualization {
     static USE_CANVAS = true;
 
+    static ELEMENT_SIZE = 50;
+    static INITIAL_CAPACITY = 9;
+
     constructor(animator) {
-        super();
+        super(animator);
 
-        this.x = 20;
-        this.y = 20;
-
-
-        //config
-        this.ELEMENT_SIZE = 50;
-
-        this.INITIAL_CAPACITY = 9;
-        this.backingArray = {};
-        this.backingArray.length = 9;
-        for (let i = 0; i < this.backingArray.length; i++) {
-            this.backingArray[i] = new ArrayElement("", this.ELEMENT_SIZE);
-        }
-        this.size = 0;
-
-        this.animator = animator;
-
-        this.animationHistory = [];
-        this.animationQueue = [];
-        this.animating = false;
-
+        this.reset();
     }
 
 
@@ -102,9 +85,9 @@ export default class ArrayList extends AnimatedObject {
 
     reset() {
         this.backingArray = {};
-        this.backingArray.length = 9;
+        this.backingArray.length = ArrayList.INITIAL_CAPACITY;
         for (let i = 0; i < this.backingArray.length; i++) {
-            this.backingArray[i] = new ArrayElement("", this.ELEMENT_SIZE);
+            this.backingArray[i] = new ArrayElement("");
         }
         this.size = 0;
     }
@@ -178,54 +161,31 @@ export default class ArrayList extends AnimatedObject {
         if (this.backingArray[index]) {
             this.backingArray[index].data = "";
         } else {
-            this.backingArray[index] = new ArrayElement("", this.ELEMENT_SIZE);
+            this.backingArray[index] = new ArrayElement("", ArrayList.ELEMENT_SIZE);
         }
-    }
-
-    addAnimation(animation) {
-        this.animationQueue.push({method:this.animator.emit,scope:this.animator,params:["anim-start",],});
-        this.animationQueue.push(...animation);
-        this.animationQueue.push({method:this.animator.emit,scope:this.animator,params:["anim-end",],});
     }
 
     update(animationSpeed, p5) {
-        super.update();
-        for (let i = 0; i < this.backingArray.length; i++) {
-            if (this.backingArray[i]) {
-                this.backingArray[i].update(animationSpeed);
+        super.update(() => {
+            for (let i = 0; i < this.backingArray.length; i++) {
+                if (this.backingArray[i]) {
+                    this.backingArray[i].update(animationSpeed);
+                }
             }
-        }
-        let foundAnimElement = false;
-        for (let i = 0; i < this.size; i++) {
-            if (!this.backingArray[i].inPosition()) {
-                foundAnimElement = true;
-                break;
+            let foundAnimElement = false;
+            for (let i = 0; i < this.size; i++) {
+                if (!this.backingArray[i].inPosition()) {
+                    foundAnimElement = true;
+                    break;
+                }
             }
-        }
-        this.animating = foundAnimElement;
-        if (!this.animating) {
-            if (this.animationQueue.length > 0) {
-                let animation = this.animationQueue.shift();
-                this.animating = true;
-                animation.method.apply(animation.scope || this, animation.params);
-            }
-        }
+            this.animating = foundAnimElement;
+        }, animationSpeed, p5);
     }
 
     draw(p5) {
-        let maxPerRow = Math.floor((p5.width - 2 * this.x) / this.ELEMENT_SIZE);
+        let maxPerRow = Math.floor((p5.width - 2 * this.x) / ArrayList.ELEMENT_SIZE);
         let rows = Math.ceil(this.backingArray.length / maxPerRow);
-
-        // let width = p5.height;
-        // let height = p5.height;
-        // if (rows*2*this.ELEMENT_SIZE > (height - (2*this.y))) {
-        //     height = (rows*2*this.ELEMENT_SIZE + (3*this.y))
-        //     width -= 16;
-        //     document.querySelector(".canvas-container").classList.add("overflow");
-        //     p5.resizeCanvas(width, height);
-        // } else {
-        //     document.querySelector(".canvas-container").classList.remove("overflow");
-        // }
 
         p5.push();
         p5.translate(this.x,this.y);
@@ -235,39 +195,39 @@ export default class ArrayList extends AnimatedObject {
                     : (this.backingArray.length % maxPerRow === 0 ? maxPerRow : (this.backingArray.length % maxPerRow));
             p5.noStroke();
             p5.fill(200);
-            p5.rect(this.ELEMENT_SIZE/10,this.ELEMENT_SIZE/10 + (2 * this.ELEMENT_SIZE * row),this.ELEMENT_SIZE*numElements,this.ELEMENT_SIZE,this.ELEMENT_SIZE/20);
+            p5.rect(ArrayList.ELEMENT_SIZE/10,ArrayList.ELEMENT_SIZE/10 + (2 * ArrayList.ELEMENT_SIZE * row),ArrayList.ELEMENT_SIZE*numElements,ArrayList.ELEMENT_SIZE,ArrayList.ELEMENT_SIZE/20);
 
             p5.stroke(0);
             p5.fill(255);
-            p5.rect(0,(2 * this.ELEMENT_SIZE * row), this.ELEMENT_SIZE*numElements,this.ELEMENT_SIZE);
+            p5.rect(0,(2 * ArrayList.ELEMENT_SIZE * row), ArrayList.ELEMENT_SIZE*numElements,ArrayList.ELEMENT_SIZE);
         }
 
         p5.textAlign(p5.CENTER,p5.CENTER);
-        p5.textSize(this.ELEMENT_SIZE/3 - 2);
+        p5.textSize(ArrayList.ELEMENT_SIZE/3 - 2);
 
         let i = 0;
         for (let row = 0; row < rows; row++) {
             let numElements = row !== rows-1 ? maxPerRow
                     : (this.backingArray.length % maxPerRow === 0 ? maxPerRow : (this.backingArray.length % maxPerRow));
             let x = 0;
-            let y = 2 * row * this.ELEMENT_SIZE;
+            let y = 2 * row * ArrayList.ELEMENT_SIZE;
             for (let block = 0; block < numElements; block++) {
                 p5.stroke(0);
-                p5.line(x,y, x, y+this.ELEMENT_SIZE);
+                p5.line(x,y, x, y+ArrayList.ELEMENT_SIZE);
 
                 p5.noStroke();
                 p5.fill(0,0,255);
-                p5.text(i.toString(), x,y+this.ELEMENT_SIZE, this.ELEMENT_SIZE,this.ELEMENT_SIZE);
+                p5.text(i.toString(), x,y+ArrayList.ELEMENT_SIZE, ArrayList.ELEMENT_SIZE,ArrayList.ELEMENT_SIZE);
 
                 let element = this.backingArray[i++];
-                let nextX = block < (numElements - 1) ? x + this.ELEMENT_SIZE : 0;
-                let nextY = block < (numElements - 1) ? y : (y + (this.ELEMENT_SIZE*2));
+                let nextX = block < (numElements - 1) ? x + ArrayList.ELEMENT_SIZE : 0;
+                let nextY = block < (numElements - 1) ? y : (y + (ArrayList.ELEMENT_SIZE*2));
                 if (element.data) {
                     element.draw(p5, x,y,nextX,nextY);
                 }
                 x = nextX;
                 y = nextY;
-                if (y >= document.querySelector(".canvas-container").getBoundingClientRect().height - this.ELEMENT_SIZE) {
+                if (y >= document.querySelector(".canvas-container").getBoundingClientRect().height - ArrayList.ELEMENT_SIZE) {
                     // this.windowResized(p5, document.querySelector(".canvas-container").getBoundingClientRect().height);
                 }
             }
@@ -278,30 +238,16 @@ export default class ArrayList extends AnimatedObject {
     }
 
     windowResized(p5, height) {
-        let maxPerRow = Math.floor((p5.width - 2 * this.x) / this.ELEMENT_SIZE);
-        let rows = Math.ceil(this.backingArray.length / maxPerRow);
-
-        let width = p5.windowWidth;
-        // let height = p5.height;
-        if (rows*2*this.ELEMENT_SIZE > (height - (2*this.y))) {
-            height = (rows*2*this.ELEMENT_SIZE + (3*this.y))
-            width -= 16;
-            document.querySelector(".canvas-container").classList.add("overflow");
-        } else {
-            document.querySelector(".canvas-container").classList.remove("overflow");
-        }
-        p5.resizeCanvas(width, height);
+        super.windowResized(p5, height, (Math.ceil(this.backingArray.length / (Math.floor((p5.width - 2 * this.x) / ArrayList.ELEMENT_SIZE))))*2*ArrayList.ELEMENT_SIZE);
     }
 }
 
 
 class ArrayElement extends AnimatedObject {
-    constructor(data, SIZE) {
+    constructor(data) {
         super();
 
         this.data = data;
-
-        this.SIZE = SIZE;
     }
 
     shift(direction) {
@@ -320,9 +266,9 @@ class ArrayElement extends AnimatedObject {
         if (!this.inPosition()) {
             let posX = (toX-x)*this.xProgress + x;
             let posY = (toY-y)*this.yProgress + y;
-            p5.text(this.data.toString(), posX,posY, this.SIZE,this.SIZE);
+            p5.text(this.data.toString(), posX,posY, ArrayList.ELEMENT_SIZE,ArrayList.ELEMENT_SIZE);
         } else {
-            p5.text(this.data.toString(), x,y, this.SIZE,this.SIZE)
+            p5.text(this.data.toString(), x,y, ArrayList.ELEMENT_SIZE,ArrayList.ELEMENT_SIZE)
         }
         p5.pop();
     }
