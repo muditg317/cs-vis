@@ -122,8 +122,13 @@ export default class Visualizer extends PureComponent {
         }
 
         //config
-        p5.createCanvas(p5.windowWidth
-            ,height).parent(canvasParentRef);
+        let canvas = p5.createCanvas(p5.windowWidth
+            ,height);
+        canvas.parent(canvasParentRef);
+
+        canvas.touchStarted(event => {
+            event.preventDefault();
+        });
         // p5.background(200);
         // p5.frameRate(8);
 

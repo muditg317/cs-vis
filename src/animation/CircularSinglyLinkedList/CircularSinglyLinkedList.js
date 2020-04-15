@@ -45,22 +45,38 @@ export default class CircularSinglyLinkedList {
             return false;
         }
         let animation = [];
-        let node = null;
-        let nextNode = this.head;
-        for (let i = 0; i < index; i++) {
-            animation.push({method:this.moveHighlight,params:[node,nextNode,],});
-            node = nextNode;
-            nextNode = nextNode.next;
+        if (this.size > 0 && (index === 0 || index === this.size)) {
+            animation.push({method:this.makeNode,params:[index === 0 ? 1 : index,this.head.data,],});
+            animation.push({method:this.setTempNodeBefore,params:[this.head.next,],});
+            animation.push({method:this.setTempNodePrev,params:[this.head,],});
+            animation.push({method:this.changeHeadData,params:[data],});
+            if (this.size >= 2) {
+                animation.push({method:this.shiftForNode,params:[this.head.next,],});
+            }
+            animation.push({method:this.insertTempNode,params:[1,],});
+            animation.push({method:this.sizeIncr,params:[],});
+            if (index === this.size) {
+                animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2,],});
+                animation.push({method:this.resetHead,params:[],});
+            }
+        } else {
+            let node = null;
+            let nextNode = this.head;
+            for (let i = 0; i < index; i++) {
+                animation.push({method:this.moveHighlight,params:[node,nextNode,],});
+                node = nextNode;
+                nextNode = nextNode.next;
+            }
+            animation.push({method:this.makeNode,params:[index,data,],});
+            animation.push({method:this.moveHighlight,params:[node,null,],});
+            animation.push({method:this.setTempNodeBefore,params:[nextNode,],});
+            animation.push({method:this.setTempNodePrev,params:[node,],});
+            if (index < this.size) {
+                animation.push({method:this.shiftForNode,params:[nextNode,],});
+            }
+            animation.push({method:this.insertTempNode,params:[index,],});
+            animation.push({method:this.sizeIncr,params:[],});
         }
-        animation.push({method:this.makeNode,params:[index,data,],});
-        animation.push({method:this.moveHighlight,params:[node,null,],});
-        animation.push({method:this.setTempNodeBefore,params:[nextNode,],});
-        animation.push({method:this.setTempNodePrev,params:[node,],});
-        if (index < this.size) {
-            animation.push({method:this.shiftForNode,params:[nextNode,],});
-        }
-        animation.push({method:this.insertTempNode,params:[index,],});
-        animation.push({method:this.sizeIncr,params:[],});
         this.addAnimation(animation);
         this.animationHistory.push(animation);
         return true;
@@ -85,25 +101,28 @@ export default class CircularSinglyLinkedList {
             return false;
         }
         let animation = [];
+        let data;
+        if (index === 0) {
+            data = this.head.data;
+            animation.push({method:this.moveHighlight,params:[null,this.head,],});
+            animation.push({method:this.changeHeadData,params:[this.head.next.data],});
+            index = 1;
+        }
         let prev;
         let toDelete;
         let next;
-        if (index === 0) {
-            prev = null;
-            toDelete = this.head;
-            next = toDelete.next;
-        } else {
-            let node = this.head;
-            animation.push({method:this.moveHighlight,params:[null,node,],});
-            for (let i = 0; i < index - 1; i++) {
-                animation.push({method:this.moveHighlight,params:[node,node.next,],});
-                node = node.next;
-            }
-            prev = node;
-            toDelete = prev.next;
-            next = toDelete.next;
+        let node = this.head;
+        animation.push({method:this.moveHighlight,params:[null,node,],});
+        for (let i = 0; i < index - 1; i++) {
+            animation.push({method:this.moveHighlight,params:[node,node.next,],});
+            node = node.next;
         }
-        let data = toDelete.data;
+        prev = node;
+        toDelete = prev.next;
+        next = toDelete.next;
+        if (!data) {
+            data = toDelete.data;
+        }
         animation.push({method:this.markNodeForDeletion,params:[prev,toDelete,],});
         animation.push({method:this.unmakeNode,params:[toDelete,],customEnd:true,});
         if (index < this.size - 1) {
@@ -139,7 +158,15 @@ export default class CircularSinglyLinkedList {
     }
 
     setTempNodeBefore(next) {
-        this.tempNode.next = next;
+        if (next) {
+            this.tempNode.next = next;
+        } else {
+            if (this.head) {
+                this.tempNode.next = this.head;
+            } else {
+                this.tempNode.next = this.tempNode;
+            }
+        }
     }
 
     setTempNodePrev(prev) {
@@ -147,6 +174,24 @@ export default class CircularSinglyLinkedList {
             prev.next = this.tempNode;
         } else {
             // this.head = this.tempNode;
+        }
+    }
+
+    changeHeadData(data) {
+        this.head.data = data;
+    }
+
+    resetHead() {
+        this.head = this.head.next;
+        let node = this.head;
+        let i = 0;
+        while (node) {
+            node.index = i;
+            node.shift(...this.getNodePosition(i++));
+            node = node.next;
+            if (node === this.head) {
+                break;
+            }
         }
     }
 
@@ -176,7 +221,7 @@ export default class CircularSinglyLinkedList {
     }
 
     unmakeNode(node) {
-        this.tempNode = this.nodes.splice(node.index, 1)[0];
+        this.tempNode = node;//this.nodes.splice(node.index, 1)[0];
         this.tempNode.shift(20,20);
         this.tempNode.setOnStop(() => {
             this.doneAnimating();
@@ -196,6 +241,9 @@ export default class CircularSinglyLinkedList {
         while (node) {
             this.shiftNode(node, 1);
             node = node.next;
+            if (node === this.head) {
+                break;
+            }
         }
     }
 
@@ -203,6 +251,9 @@ export default class CircularSinglyLinkedList {
         while (node) {
             this.shiftNode(node, -1);
             node = node.next;
+            if (node === this.head) {
+                break;
+            }
         }
     }
 
@@ -224,8 +275,10 @@ export default class CircularSinglyLinkedList {
         this.animationQueue.push({method:this.animator.emit,scope:this.animator,params:["anim-end",],});
     }
 
-    doneAnimating() {
-        this.animating = false;
+    doneAnimating(time = 250) {
+        setTimeout(() => {
+            this.animating = false;
+        }, time);
     }
 
     getNodePosition(index) {
@@ -243,6 +296,9 @@ export default class CircularSinglyLinkedList {
                 return node;
             }
             node = node.next;
+            if (node === this.head) {
+                break;
+            }
         }
         if (this.tempNode && this.tempNode.containsPos(x,y)) {
             return this.tempNode;
@@ -278,6 +334,9 @@ export default class CircularSinglyLinkedList {
         while (node) {
             this.updateNode(node, animationSpeed, p5);
             node = node.next;
+            if (node === this.head) {
+                break;
+            }
         }
         if (this.tempNode) {
             this.updateNode(this.tempNode, animationSpeed, p5);
@@ -291,10 +350,7 @@ export default class CircularSinglyLinkedList {
                     if (animationSpeed >= Math.floor(Visualizer.maxAnimationSpeed())) {
                         this.animating = false;
                     } else {
-                        let time = 5000 / animationSpeed;
-                        setTimeout(() => {
-                            this.animating = false;
-                        }, time);
+                        this.doneAnimating(5000 / animationSpeed);
                     }
                 }
             }
@@ -312,8 +368,11 @@ export default class CircularSinglyLinkedList {
 
         let node = this.head;
         while (node) {
-            node.draw(p5);
+            node.draw(p5, node.next === this.head);
             node = node.next;
+            if (node === this.head) {
+                break;
+            }
         }
         if (this.tempNode) {
             this.tempNode.draw(p5);
@@ -362,6 +421,9 @@ export default class CircularSinglyLinkedList {
         while (node) {
             node.shift(...this.getNodePosition(node.index));
             node = node.next;
+            if (node === this.head) {
+                break;
+            }
         }
     }
 }
@@ -423,7 +485,7 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
         return this.pinnedToMouse && !this.handBroken && dist > CircularSinglyLinkedList.MAX_DIST_REMOVE;
     }
 
-    draw(p5) {
+    draw(p5, pointsToHead = false) {
         // console.log(this);
         p5.push();
         p5.fill(255);
@@ -437,7 +499,24 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
             p5.stroke(...Utils.addArray(this.color, [0,0,255]));
             p5.fill(...Utils.addArray(this.color, [0,0,255]));
             p5.circle(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2, 5);
-            p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2)
+            if (pointsToHead) {
+                p5.push();
+                p5.noFill();
+                p5.curveTightness(0.8);
+                p5.beginShape();
+                p5.curveVertex(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+                p5.curveVertex(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+
+                p5.curveVertex(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2);
+                p5.curveVertex(15, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2);
+
+                p5.curveVertex(this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+                p5.curveVertex(this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+                p5.endShape();
+                p5.pop();
+            } else {
+                p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+            }
             p5.rect(this.next.currentX - 3, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2 - 3, 6,6);
         } else {
             p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + CircularSinglyLinkedList.ITEM_WIDTH, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT);

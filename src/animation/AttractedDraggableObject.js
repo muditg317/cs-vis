@@ -65,8 +65,7 @@ export default class AttractedDraggableObject {
                 this.vx *= 0.75;
                 this.vy *= 0.75;
 
-                if (Math.floor(Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2))) <= AttractedDraggableObject.MIN_DISTANCE
-                        || Math.abs(Math.abs(prevAngle - angle) - Math.PI) < (Math.PI/12)) {
+                if (Math.abs(Math.abs(prevAngle - angle) - Math.PI) < (Math.PI/12)) {
                     this.currentX = this.desiredX;
                     this.vx = 0;
                     this.currentY = this.desiredY;
