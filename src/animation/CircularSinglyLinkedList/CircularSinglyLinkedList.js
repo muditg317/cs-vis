@@ -56,7 +56,8 @@ export default class CircularSinglyLinkedList {
             animation.push({method:this.insertTempNode,params:[1,],});
             animation.push({method:this.sizeIncr,params:[],});
             if (index === this.size) {
-                animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2,],});
+                animation.push({method:this.customNodeShift,params:[this.head, this.head.currentX - 10, this.getNodePosition(this.size)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2,],customEnd:true});
+                // animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2,],});
                 animation.push({method:this.resetHead,params:[],});
             }
         } else {
@@ -261,6 +262,13 @@ export default class CircularSinglyLinkedList {
         node.shift(...this.getNodePosition(node.index + direction), direction);
     }
 
+    customNodeShift(node, x, y) {
+        node.shift(x,y);
+        node.setOnStop(() => {
+            this.doneAnimating(0);
+        });
+    }
+
     sizeIncr() {
         this.size++;
     }
@@ -276,6 +284,10 @@ export default class CircularSinglyLinkedList {
     }
 
     doneAnimating(time = 250) {
+        if (time === 0) {
+            this.animating = false;
+            return;
+        }
         setTimeout(() => {
             this.animating = false;
         }, time);
@@ -312,7 +324,7 @@ export default class CircularSinglyLinkedList {
     }
 
     unpin() {
-        if (this.pinnedNode.unpin()) {
+        if (this.pinnedNode.unpin() && this.animationQueue.length === 0) {
             this.removeFromIndex(this.pinnedNode.index);
             this.pinnedNode.markBroken();
         }
@@ -320,10 +332,13 @@ export default class CircularSinglyLinkedList {
     }
 
     updateNode(node, animationSpeed, p5) {
-        if (node.update(animationSpeed, p5)) {
-            node.highlightForDeletion();
-        } else if (node.pinnedToMouse && !node.toDelete) {
-            node.unHighlight();
+        let update = node.update(animationSpeed, p5);
+        if (this.animationQueue.length === 0) {
+            if (update) {
+                node.highlightForDeletion();
+            } else if (node.pinnedToMouse && !node.toDelete) {
+                node.unHighlight();
+            }
         }
     }
 
