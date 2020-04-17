@@ -4,7 +4,7 @@ import './visualizer.scss';
 
 import ControlBar from './controlBar';
 
-import { ControlBuilder } from 'utils';
+import { ControlBuilder, Utils } from 'utils';
 import { Animator } from 'animation';
 
 export default class Visualizer extends PureComponent {
@@ -43,10 +43,17 @@ export default class Visualizer extends PureComponent {
 
         this.focusedElement = null;
 
-        this.animator = new Animator();
+        this.animator = new Proxy(new Animator(), {
+            get: function (target, propertyName, receiver) {
+                if (!target[propertyName]) {
+                    return () => target.emit(propertyName);
+                } else {
+                    return target[propertyName];
+                }
+            }
+        });
         this.animator.on("anim-start", this.onAnimStart);
         this.animator.on("anim-end", this.onAnimEnd);
-
 
         this.addDefaultControls();
     }
@@ -65,7 +72,11 @@ export default class Visualizer extends PureComponent {
         // console.log("control added");
         this.controlGroups.push(...controlGroups);
         controlGroups.forEach((controlGroup) => {
-            this.registerControlGroup(controlGroup);
+            if (controlGroup.tagName === "INPUT") {
+                this.controls.push(controlGroup);
+            } else {
+                this.registerControlGroup(controlGroup);
+            }
         });
     }
 
@@ -116,8 +127,9 @@ export default class Visualizer extends PureComponent {
     }
 
     componentDidMount(callForward) {
-        if (callForward) {
-            callForward();
+        callForward();
+        if (Utils.isDev()) {
+            window[this.class] = this.visualization;
         }
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);
@@ -160,14 +172,17 @@ export default class Visualizer extends PureComponent {
         document.addEventListener("resize", (event) => {
             console.log("resize");
         });
-        this.animator.noLoop = p5.noLoop.bind(p5);
-        this.animator.loop = p5.loop.bind(p5);
+        this.animator.on("noLoop", () => {
+            p5.noLoop();
+        });
+        this.animator.on("loop", () => {
+            p5.loop();
+        });
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
             this.animator.noLoop();
         }
     }
     draw(p5) {
-        console.log("drawing");
         //inputs
         this.setState({animationSpeed: Math.pow(this.speedSlider.value,Visualizer.SPEED_SLIDER_DEGREE)});
 

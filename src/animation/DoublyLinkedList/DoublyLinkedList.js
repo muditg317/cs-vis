@@ -359,6 +359,8 @@ export default class DoublyLinkedList extends Visualization {
 
 
 class DoublyLinkedListNode extends AttractedDraggableObject {
+    static CAN_DRAG = true;
+
     constructor({data, index, x,y} = {}) {
         super(x,y);
 

@@ -24,8 +24,10 @@ export default class AttractedDraggableObject {
     }
 
     pin() {
-        if (!this.frozen) {
-            this.pinnedToMouse = true;
+        if (this.constructor.CAN_DRAG) {
+            if (!this.frozen) {
+                this.pinnedToMouse = true;
+            }
         }
     }
 

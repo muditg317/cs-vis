@@ -49,7 +49,8 @@
     @for $num_children from 1 through 5 {
         >:first-child:nth-last-child(#{$num_children}),
         >:first-child:nth-last-child(#{$num_children}) ~ *, {
-            width: 100% / $num_children;
+            // width: 100% / $num_children;
+            width: -webkit-fill-available;
         }
     }
 }

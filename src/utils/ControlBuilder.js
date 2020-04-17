@@ -1,3 +1,9 @@
+export function newEmptyControl() {
+    let emptyControl = document.createElement("input");
+    applyStyle(emptyControl, "visibility", "hidden");
+    return emptyControl;
+}
+
 export function createControl(type, value) {
     let newControl = document.createElement("input");
     newControl.classList.add("visual-control", type);
@@ -12,8 +18,6 @@ export function createControl(type, value) {
 
 export function createButton(label) {
     let button = createControl("button", label);
-
-    // button.addEventListener("click", disableControls);
 
     return button;
 };
@@ -125,3 +129,7 @@ function enableShift() {
         });
     }
 };
+
+export function applyStyle(control, styleType, value) {
+    control.style[styleType] = value;
+}

@@ -86,7 +86,7 @@ export default function AppHeader() {
                                     },
                                     {
                                         link: "splaytree",
-                                        title_text: "Deque (Array)"
+                                        title_text: "SplayTree"
                                     },
                                     {
                                         link: "skiplist",

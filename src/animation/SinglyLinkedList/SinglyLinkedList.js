@@ -322,6 +322,8 @@ export default class SinglyLinkedList extends Visualization {
 
 
 class SinglyLinkedListNode extends AttractedDraggableObject {
+    static CAN_DRAG = true;
+
     constructor({data, index, x,y} = {}) {
         super(x,y);
 

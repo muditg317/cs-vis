@@ -2,7 +2,7 @@ import { Visualization } from 'animation';
 import AttractedDraggableObject from 'animation/AttractedDraggableObject';
 import { Utils } from 'utils';
 
-export default class CircularSinglyLinkedList extends Visualization {
+export default class StackArray extends Visualization {
     static USE_CANVAS = true;
     static SET_BOUNDS = true;
     static SUPPORTS_CUSTOM_END = true;
@@ -11,9 +11,9 @@ export default class CircularSinglyLinkedList extends Visualization {
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
     static POINTER_WIDTH = 15;
-    static ITEM_WIDTH = CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH;
+    static ITEM_WIDTH = StackArray.ELEMENT_WIDTH + StackArray.POINTER_WIDTH;
     static SPACING = 50;
-    static ELEMENT_SIZE = CircularSinglyLinkedList.ITEM_WIDTH + CircularSinglyLinkedList.SPACING;
+    static ELEMENT_SIZE = StackArray.ITEM_WIDTH + StackArray.SPACING;
 
     static MAX_DIST_REMOVE = 300;
 
@@ -49,8 +49,8 @@ export default class CircularSinglyLinkedList extends Visualization {
             animation.push({method:this.insertTempNode,params:[1,],});
             animation.push({method:this.sizeIncr,params:[],});
             if (index === this.size) {
-                animation.push({method:this.customNodeShift,params:[this.head, this.head.currentX - 10, this.getNodePosition(this.size)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2,],customEnd:true});
-                // animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2,],});
+                animation.push({method:this.customNodeShift,params:[this.head, this.head.currentX - 10, this.getNodePosition(this.size)[1] + StackArray.ELEMENT_HEIGHT * 2,],customEnd:true});
+                // animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + StackArray.ELEMENT_HEIGHT * 2,],});
                 animation.push({method:this.resetHead,params:[],});
             }
         } else {
@@ -271,10 +271,10 @@ export default class CircularSinglyLinkedList extends Visualization {
     }
 
     getNodePosition(index) {
-        let maxPerRow = Math.floor(this.width / CircularSinglyLinkedList.ELEMENT_SIZE);
-        let x = CircularSinglyLinkedList.ELEMENT_SIZE * index;
-        let y = 50 + Math.floor(index / maxPerRow) * 2 * CircularSinglyLinkedList.ELEMENT_HEIGHT;
-        x = (index % maxPerRow) * CircularSinglyLinkedList.ELEMENT_SIZE;
+        let maxPerRow = Math.floor(this.width / StackArray.ELEMENT_SIZE);
+        let x = StackArray.ELEMENT_SIZE * index;
+        let y = 50 + Math.floor(index / maxPerRow) * 2 * StackArray.ELEMENT_HEIGHT;
+        x = (index % maxPerRow) * StackArray.ELEMENT_SIZE;
         return [x + this.x,y + this.y];
     }
 
@@ -372,7 +372,7 @@ export default class CircularSinglyLinkedList extends Visualization {
     }
 
     windowResized(p5, height) {
-        super.windowResized(p5, height, this.getNodePosition(this.size-1)[1] + CircularSinglyLinkedList.ELEMENT_HEIGHT);
+        super.windowResized(p5, height, this.getNodePosition(this.size-1)[1] + StackArray.ELEMENT_HEIGHT);
 
         let node = this.head;
         while (node) {
@@ -408,7 +408,7 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
     }
 
     containsPos(x,y) {
-        return ((this.currentX <= x && x <= (this.currentX + CircularSinglyLinkedList.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT)))
+        return ((this.currentX <= x && x <= (this.currentX + StackArray.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + StackArray.ELEMENT_HEIGHT)))
     }
 
     highlight() {
@@ -436,12 +436,12 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
 
     unpin() {
         super.unpin();
-        return this.displacement() > CircularSinglyLinkedList.MAX_DIST_REMOVE;
+        return this.displacement() > StackArray.MAX_DIST_REMOVE;
     }
 
     update(animationSpeed, p5) {
         let dist = super.update(animationSpeed, p5);
-        return this.pinnedToMouse && !this.handBroken && dist > CircularSinglyLinkedList.MAX_DIST_REMOVE;
+        return this.pinnedToMouse && !this.handBroken && dist > StackArray.MAX_DIST_REMOVE;
     }
 
     draw(p5, pointsToHead = false) {
@@ -449,36 +449,36 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
         p5.push();
         p5.fill(255);
         p5.stroke(...this.color);
-        p5.rect(this.currentX, this.currentY, CircularSinglyLinkedList.ITEM_WIDTH, CircularSinglyLinkedList.ELEMENT_HEIGHT);
-        p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT);
+        p5.rect(this.currentX, this.currentY, StackArray.ITEM_WIDTH, StackArray.ELEMENT_HEIGHT);
+        p5.line(this.currentX + StackArray.ELEMENT_WIDTH, this.currentY, this.currentX + StackArray.ELEMENT_WIDTH, this.currentY + StackArray.ELEMENT_HEIGHT);
         p5.textAlign(p5.CENTER, p5.CENTER);
         p5.fill(...this.color);
-        p5.text(this.data.toString(), this.currentX,this.currentY, CircularSinglyLinkedList.ELEMENT_WIDTH,CircularSinglyLinkedList.ELEMENT_HEIGHT);
+        p5.text(this.data.toString(), this.currentX,this.currentY, StackArray.ELEMENT_WIDTH,StackArray.ELEMENT_HEIGHT);
         if (this.next) {
             p5.stroke(...Utils.addArray(this.color, [0,0,255]));
             p5.fill(...Utils.addArray(this.color, [0,0,255]));
-            p5.circle(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2, 5);
+            p5.circle(this.currentX + StackArray.ELEMENT_WIDTH + StackArray.POINTER_WIDTH / 2, this.currentY + StackArray.ELEMENT_HEIGHT / 2, 5);
             if (pointsToHead) {
                 p5.push();
                 p5.noFill();
                 p5.curveTightness(0.8);
                 p5.beginShape();
-                p5.curveVertex(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
-                p5.curveVertex(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+                p5.curveVertex(this.currentX + StackArray.ELEMENT_WIDTH + StackArray.POINTER_WIDTH / 2, this.currentY + StackArray.ELEMENT_HEIGHT / 2);
+                p5.curveVertex(this.currentX + StackArray.ELEMENT_WIDTH + StackArray.POINTER_WIDTH / 2, this.currentY + StackArray.ELEMENT_HEIGHT / 2);
 
-                p5.curveVertex(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2);
-                p5.curveVertex(15, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT * 2);
+                p5.curveVertex(this.currentX + StackArray.ELEMENT_WIDTH + StackArray.POINTER_WIDTH / 2, this.currentY + StackArray.ELEMENT_HEIGHT * 2);
+                p5.curveVertex(15, this.currentY + StackArray.ELEMENT_HEIGHT * 2);
 
-                p5.curveVertex(this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
-                p5.curveVertex(this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+                p5.curveVertex(this.next.currentX, this.next.currentY + StackArray.ELEMENT_HEIGHT / 2);
+                p5.curveVertex(this.next.currentX, this.next.currentY + StackArray.ELEMENT_HEIGHT / 2);
                 p5.endShape();
                 p5.pop();
             } else {
-                p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH + CircularSinglyLinkedList.POINTER_WIDTH / 2, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2);
+                p5.line(this.currentX + StackArray.ELEMENT_WIDTH + StackArray.POINTER_WIDTH / 2, this.currentY + StackArray.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + StackArray.ELEMENT_HEIGHT / 2);
             }
-            p5.rect(this.next.currentX - 3, this.next.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT / 2 - 3, 6,6);
+            p5.rect(this.next.currentX - 3, this.next.currentY + StackArray.ELEMENT_HEIGHT / 2 - 3, 6,6);
         } else {
-            p5.line(this.currentX + CircularSinglyLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + CircularSinglyLinkedList.ITEM_WIDTH, this.currentY + CircularSinglyLinkedList.ELEMENT_HEIGHT);
+            p5.line(this.currentX + StackArray.ELEMENT_WIDTH, this.currentY, this.currentX + StackArray.ITEM_WIDTH, this.currentY + StackArray.ELEMENT_HEIGHT);
         }
         p5.pop();
     }
