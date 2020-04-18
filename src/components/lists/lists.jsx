@@ -24,10 +24,13 @@ function ListView(props) {
     let path = props.url;
     return (
             <div className="list-view">
-                <Link to={`${path}/arraylist`}>ArrayList</Link>
-                <Link to={`${path}/sll`}>SinglyLinkedList</Link>
-                <Link to={`${path}/dll`}>DoublyLinkedList</Link>
-                <Link to={`${path}/c-sll`}>CircularSinglyLinkedList</Link>
+                <h1 id="title">Lists</h1>
+                <div className="links">
+                    <Link to={`${path}/arraylist`}>ArrayList</Link>
+                    <Link to={`${path}/sll`}>SinglyLinkedList</Link>
+                    <Link to={`${path}/dll`}>DoublyLinkedList</Link>
+                    <Link to={`${path}/c-sll`}>CircularSinglyLinkedList</Link>
+                </div>
             </div>
         );
 }

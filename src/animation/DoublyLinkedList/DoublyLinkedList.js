@@ -258,7 +258,7 @@ export default class DoublyLinkedList extends Visualization {
     }
 
     getNodePosition(index) {
-        let maxPerRow = Math.floor(this.width / DoublyLinkedList.ELEMENT_PADDED_WIDTH);
+        let maxPerRow = Math.max(1, Math.floor(this.width / DoublyLinkedList.ELEMENT_PADDED_WIDTH));
         let x = DoublyLinkedList.ELEMENT_PADDED_WIDTH * index;
         let y = 50 + Math.floor(index / maxPerRow) * 2 * DoublyLinkedList.ELEMENT_HEIGHT;
         x = (index % maxPerRow) * DoublyLinkedList.ELEMENT_PADDED_WIDTH;
@@ -279,9 +279,9 @@ export default class DoublyLinkedList extends Visualization {
         return null;
     }
 
-    pin(node) {
+    pin(node, x,y) {
         this.pinnedNode = node;
-        node.pin();
+        node.pin(x,y);
     }
 
     unpin() {
@@ -334,9 +334,9 @@ export default class DoublyLinkedList extends Visualization {
     mousePressed(p5) {
         let pressedNode = this.getNodeAtPos(p5.mouseX, p5.mouseY);
         if (pressedNode) {
-            this.pin(pressedNode);
+            this.pin(pressedNode, p5.mouseX,p5.mouseY);
         }
-        return false;
+        return !pressedNode;
     }
 
     mouseReleased(p5) {
@@ -346,8 +346,8 @@ export default class DoublyLinkedList extends Visualization {
         return false;
     }
 
-    windowResized(p5, height) {
-        super.windowResized(p5, height, this.getNodePosition(this.size-1)[1] + DoublyLinkedList.ELEMENT_HEIGHT);
+    windowResized(p5, height, numScrollbars) {
+        super.windowResized(p5, height, numScrollbars, this.getNodePosition(this.size-1)[1] + DoublyLinkedList.ELEMENT_HEIGHT);
 
         let node = this.head;
         while (node) {

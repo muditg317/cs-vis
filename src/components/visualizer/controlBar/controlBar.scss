@@ -6,23 +6,31 @@
     background-color: #f7f7f7;
 }
 
-.controls {
+.controls{
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
+    width: fit-content;
+    // overflow-x: scroll;
 
     >.control-group {
-        margin-left: 10px;
+
+        // margin-top: 6px;
+        // margin-left: 10px;
 
         >.control-group {
-            margin-top: 10px;
+            // margin-top: 10px;
         }
     }
 
 }
 
+.controls>.control-group:last-child {
+    padding-right: 1em;
+}
+
 .control-group {
-    display: flex;
-    flex-flow: row wrap;
+    // display: flex;
+    // flex-flow: row nowrap;
     // overflow: hidden;
 }
 
@@ -30,7 +38,6 @@
     display: flex;
     flex-flow: column wrap;
     justify-content: space-between;
-    margin-top: 1em;
     // :not(>.control-group) {
     //     @for $num_children from 1 through 5 {
     //         >:first-child:nth-last-child(#{$num_children}),
@@ -55,7 +62,14 @@
     }
 }
 
-.control-container {
+.visual-control {
+    margin: 0;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+
+.control-container{
     margin: 0;
     padding: 1em;
 
@@ -65,10 +79,16 @@
     background-clip: border-box;
     background-color: #f7f7f7;
 
+    overflow-x: hidden;
 }
+
+.control-container.overflow {
+    overflow-x: scroll;
+}
+
 .control-container#main-control {
     // text-align: center;
-    width: fit-content;
+    // width: fit-content;
 }
 .control-container#default-control {
     position: fixed;
@@ -77,6 +97,7 @@
 
 .control-label {
     margin: 0;
+    margin-bottom: 6px;
     text-align: center;
     font-weight: bold;
     font-size: 20px;

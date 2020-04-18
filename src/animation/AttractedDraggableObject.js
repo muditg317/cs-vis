@@ -11,6 +11,8 @@ export default class AttractedDraggableObject {
         this.vx = 0;
         this.vy = 0;
         this.pinnedToMouse = false;
+        this.mouseOffsetX = 0;
+        this.mouseOffsetY = 0;
         this.onStop = [];
     }
 
@@ -23,16 +25,20 @@ export default class AttractedDraggableObject {
         return Math.sqrt(Math.pow(this.desiredX - this.currentX,2) + Math.pow(this.desiredY - this.currentY,2));
     }
 
-    pin() {
+    pin(mouseX, mouseY) {
         if (this.constructor.CAN_DRAG) {
             if (!this.frozen) {
                 this.pinnedToMouse = true;
+                this.mouseOffsetX = mouseX - this.currentX;
+                this.mouseOffsetY = mouseY - this.currentY;
             }
         }
     }
 
     unpin() {
         this.pinnedToMouse = false;
+        this.mouseOffsetX = 0;
+        this.mouseOffsetY = 0;
         this.vx = 0;
         this.vy = 0;
     }
@@ -59,8 +65,10 @@ export default class AttractedDraggableObject {
         let deltaX = this.desiredX - this.currentX;
         let deltaY = this.desiredY - this.currentY;
         if (this.pinnedToMouse) {
-            this.currentX = p5.mouseX;
-            this.currentY = p5.mouseY;
+            this.currentX = p5.mouseX - this.mouseOffsetX;
+            this.currentY = p5.mouseY - this.mouseOffsetY;
+        } else if (isNaN(this.currentX) || isNaN(this.currentY) || isNaN(this.vx) || isNaN(this.vy)) {
+            this.stop();
         } else {
             if (deltaY !== 0 || deltaX !== 0) {
                 let angle = Math.atan(deltaY/deltaX);

@@ -45,7 +45,9 @@ export default class Visualization {
                 this.animating = true;
                 animation.method.apply(animation.scope || this, animation.params);
                 if (this.constructor.SUPPORTS_CUSTOM_END) {
-                    if (!animation.customEnd) {
+                    if (animation.method === this.animator.emit && animation.params[0] === "anim-end") {
+                        this.animating = false;
+                    } else if (!animation.customEnd) {
                         if (animationSpeed >= Math.floor(Visualizer.maxAnimationSpeed())) {
                             this.animating = false;
                         } else {
@@ -71,11 +73,14 @@ export default class Visualization {
         return true;
     }
 
-    windowResized(p5, height, maxY) {
+    windowResized(p5, height, numScrollbars, maxY) {
+        height -= numScrollbars * 16;
         let width = p5.windowWidth;
         if (maxY > (height - (2*this.y))) {
             height = (maxY + (3*this.y))
-            width -= 16;
+            if (!document.querySelector(".canvas-container").classList.contains("mobile")) {
+                width -= 16;
+            }
             document.querySelector(".canvas-container").classList.add("overflow");
         } else {
             document.querySelector(".canvas-container").classList.remove("overflow");

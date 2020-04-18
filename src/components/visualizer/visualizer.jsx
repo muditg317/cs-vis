@@ -24,6 +24,7 @@ export default class Visualizer extends PureComponent {
         this.setup = this.setup.bind(this);
         this.draw = this.draw.bind(this);
         this.mousePressed = this.mousePressed.bind(this);
+        this.touchMoved = this.touchMoved.bind(this);
         this.mouseReleased = this.mouseReleased.bind(this);
         this.windowResized = this.windowResized.bind(this);
 
@@ -157,10 +158,40 @@ export default class Visualizer extends PureComponent {
         let canvas = p5.createCanvas(p5.windowWidth
             ,height);
         canvas.parent(canvasParentRef);
-
-        canvas.touchStarted(event => {
-            event.preventDefault();
-        });
+        //
+        // canvas.touchStarted((event) => {
+        //     console.log("touchdown");
+        //     if (!this.mousePressed(p5)) {
+        //         event.preventDefault();
+        //     }
+        //     // event.preventDefault();
+        // });
+        //
+        // canvas.touchMoved((event) => {
+        //     console.log("touchmove");
+        //     if (!this.touchMoved(p5)) {
+        //         // event.preventDefault();
+        //     }
+        //     return true;
+        //     // event.preventDefault();
+        // });
+        //
+        // canvas.touchEnded(() => {
+        //     console.log("touchup");
+        //     this.mouseReleased(p5);
+        //     // event.preventDefault();
+        // });
+        // canvas.mousePressed(() => {
+        //     console.log("mousedown");
+        //     if (!this.mousePressed(p5)) {
+        //         // event.preventDefault();
+        //     }
+        // });
+        // canvas.mouseReleased(() => {
+        //     console.log("mouseup");
+        //     this.mouseReleased(p5);
+        //     // event.preventDefault();
+        // });
         // p5.background(200);
         // p5.frameRate(8);
 
@@ -199,13 +230,26 @@ export default class Visualizer extends PureComponent {
     }
     mousePressed(p5) {
         if (this.visualization.mousePressed) {
-            return this.visualization.mousePressed(p5);
+            // console.log("down");
+            let pressed = this.visualization.mousePressed(p5);
+            // console.log(pressed);
+            return false;
+        }
+        return true;
+    }
+    touchMoved(p5) {
+        if (this.visualization.touchMoved) {
+            // console.log("move");
+            return this.visualization.touchMoved();
         }
         return true;
     }
     mouseReleased(p5) {
         if (this.visualization.mouseReleased) {
-            return this.visualization.mouseReleased(p5);
+            // console.log("up");
+            let released = this.visualization.mouseReleased(p5);
+            // console.log(released);
+            return false;
         }
         return true;
     }
@@ -224,7 +268,8 @@ export default class Visualizer extends PureComponent {
         // p5.resizeCanvas(p5.windowWidth, p5.height);
 
         //objects
-        this.visualization.windowResized(p5, height);
+        let numScrollbars = this.controlBar.windowResized();
+        this.visualization.windowResized(p5, height, numScrollbars);
     }
 
 
@@ -235,7 +280,7 @@ export default class Visualizer extends PureComponent {
                     {
                         this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
                                 <div className="canvas-container">
-                                    <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} />
+                                    <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} touchEnded={this.mouseReleased} touchMoved={this.touchMoved}/>
                                 </div>
                             :
                                 <this.visualization.VISUALIZATION_CLASS />

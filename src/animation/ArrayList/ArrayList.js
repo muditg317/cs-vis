@@ -237,8 +237,8 @@ export default class ArrayList extends Visualization {
         p5.pop();
     }
 
-    windowResized(p5, height) {
-        super.windowResized(p5, height, (Math.ceil(this.backingArray.length / (Math.floor((p5.width - 2 * this.x) / ArrayList.ELEMENT_SIZE))))*2*ArrayList.ELEMENT_SIZE);
+    windowResized(p5, height, numScrollbars) {
+        super.windowResized(p5, height, numScrollbars, (Math.ceil(this.backingArray.length / (Math.floor((p5.width - 2 * this.x) / ArrayList.ELEMENT_SIZE))))*2*ArrayList.ELEMENT_SIZE);
     }
 }
 
