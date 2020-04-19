@@ -10,10 +10,12 @@ export default class AttractedDraggableObject {
         this.desiredY = y;
         this.vx = 0;
         this.vy = 0;
+        this.frozen = false;
+        this.onStop = [];
+
         this.pinnedToMouse = false;
         this.mouseOffsetX = 0;
         this.mouseOffsetY = 0;
-        this.onStop = [];
     }
 
     shift(x,y) {
@@ -23,6 +25,20 @@ export default class AttractedDraggableObject {
 
     displacement() {
         return Math.sqrt(Math.pow(this.desiredX - this.currentX,2) + Math.pow(this.desiredY - this.currentY,2));
+    }
+
+    addOnStop(callback) {
+        this.onStop.push(callback);
+    }
+
+    stop() {
+        this.currentX = this.desiredX;
+        this.vx = 0;
+        this.currentY = this.desiredY;
+        this.vy = 0;
+        while (this.onStop.length > 0) {
+            this.onStop.shift()();
+        }
     }
 
     pin(mouseX, mouseY) {
@@ -41,20 +57,6 @@ export default class AttractedDraggableObject {
         this.mouseOffsetY = 0;
         this.vx = 0;
         this.vy = 0;
-    }
-
-    addOnStop(callback) {
-        this.onStop.push(callback);
-    }
-
-    stop() {
-        this.currentX = this.desiredX;
-        this.vx = 0;
-        this.currentY = this.desiredY;
-        this.vy = 0;
-        while (this.onStop.length > 0) {
-            this.onStop.shift()();
-        }
     }
 
     update(animationSpeed, p5) {

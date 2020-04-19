@@ -14,6 +14,17 @@ export default class ArrayList extends Visualization {
     }
 
 
+    reset() {
+        super.reset();
+        this.backingArray = {};
+        this.backingArray.length = ArrayList.INITIAL_CAPACITY;
+        for (let i = 0; i < this.backingArray.length; i++) {
+            this.backingArray[i] = new ArrayElement("");
+        }
+        this.size = 0;
+    }
+
+
     addAtIndex(index, data) {
         if (this.animating) {
             console.log("animation in progress");
@@ -80,16 +91,6 @@ export default class ArrayList extends Visualization {
 
     removeFromBack() {
         return this.removeFromIndex(this.size-1);
-    }
-
-
-    reset() {
-        this.backingArray = {};
-        this.backingArray.length = ArrayList.INITIAL_CAPACITY;
-        for (let i = 0; i < this.backingArray.length; i++) {
-            this.backingArray[i] = new ArrayElement("");
-        }
-        this.size = 0;
     }
 
 

@@ -24,6 +24,16 @@ export default class CircularSinglyLinkedList extends Visualization {
     }
 
 
+    reset() {
+        super.reset();
+        this.head = null;
+        this.size = 0;
+        this.nodes = [];
+        this.tempNode = null;
+        this.pinnedNode = null;
+    }
+
+
     addAtIndex(index, data) {
         if (this.animating) {
             console.log("animation in progress");
@@ -140,15 +150,6 @@ export default class CircularSinglyLinkedList extends Visualization {
 
     removeFromBack() {
         return this.removeFromIndex(this.size-1);
-    }
-
-
-    reset() {
-        this.head = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
     }
 
 

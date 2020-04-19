@@ -23,6 +23,16 @@ export default class DoublyLinkedList extends Visualization {
         this.reset();
     }
 
+    reset() {
+        super.reset();
+        this.head = null;
+        this.tail = null;
+        this.size = 0;
+        this.nodes = [];
+        this.tempNode = null;
+        this.pinnedNode = null;
+    }
+
 
     addAtIndex(index, data) {
         if (this.animating) {
@@ -149,15 +159,6 @@ export default class DoublyLinkedList extends Visualization {
         return this.removeFromIndex(this.size-1);
     }
 
-
-    reset() {
-        this.head = null;
-        this.tail = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
-    }
 
 
     makeNode(index, data) {

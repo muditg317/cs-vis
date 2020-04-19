@@ -34,9 +34,7 @@ export default class Visualizer extends PureComponent {
         this.controlGroups = [];
         this.controls = [];
 
-        this.state = {
-            animationSpeed: Visualizer.INITIAL_SPEED,
-        }
+        // this.animationSpeed = Visualizer.INITIAL_SPEED;
 
         this.onAnimStart = this.onAnimStart.bind(this);
         this.onAnimEnd = this.onAnimEnd.bind(this);
@@ -94,7 +92,7 @@ export default class Visualizer extends PureComponent {
     onAnimStart() {
         this.disableUI();
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
-            this.animator.loop();
+            // this.animator.loop();
         }
         this.animating = true;
     }
@@ -102,7 +100,7 @@ export default class Visualizer extends PureComponent {
     onAnimEnd() {
         this.enableUI();
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
-            this.animator.noLoop();
+            // this.animator.noLoop();
         }
         this.animating = false;
     }
@@ -139,6 +137,12 @@ export default class Visualizer extends PureComponent {
         this.controlGroups.forEach((controlGroup, i) => {
             this.controlBar.addControlGroup(controlGroup);
         });
+        this.mounted = true;
+        this.forceUpdate();
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        // console.log("update");
     }
 
     setup(p5, canvasParentRef) {
@@ -195,32 +199,31 @@ export default class Visualizer extends PureComponent {
         // p5.background(200);
         // p5.frameRate(8);
 
-        //objects
-        // this.state.visualization = new ArrayList();
-        // window.visualization = this.state.visualization;
-        // this.setState({isSetup: true,});
-        //
-        document.addEventListener("resize", (event) => {
-            console.log("resize");
-        });
+        // document.addEventListener("resize", (event) => {
+        //     console.log("resize");
+        // });
         this.animator.on("noLoop", () => {
+            // console.log("noLoop");
             p5.noLoop();
         });
         this.animator.on("loop", () => {
+            // console.log("loop");
             p5.loop();
         });
+        this.windowResized(p5);
+
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
             this.animator.noLoop();
         }
     }
     draw(p5) {
         //inputs
-        this.setState({animationSpeed: Math.pow(this.speedSlider.value,Visualizer.SPEED_SLIDER_DEGREE)});
+        let animationSpeed = Math.pow(this.speedSlider.value,Visualizer.SPEED_SLIDER_DEGREE);
 
         p5.background(255);
 
         //objects
-        this.visualization.update(this.state.animationSpeed, p5);
+        this.visualization.update(animationSpeed, p5);
         this.visualization.draw(p5);
         // if (!this.animating) {
         //     if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
@@ -231,7 +234,8 @@ export default class Visualizer extends PureComponent {
     mousePressed(p5) {
         if (this.visualization.mousePressed) {
             // console.log("down");
-            let pressed = this.visualization.mousePressed(p5);
+            //let pressed =
+            this.visualization.mousePressed(p5);
             // console.log(pressed);
             return false;
         }
@@ -247,13 +251,15 @@ export default class Visualizer extends PureComponent {
     mouseReleased(p5) {
         if (this.visualization.mouseReleased) {
             // console.log("up");
-            let released = this.visualization.mouseReleased(p5);
+            //let released =
+            this.visualization.mouseReleased(p5);
             // console.log(released);
             return false;
         }
         return true;
     }
     windowResized(p5) {
+        // console.log("resize");
         //config
         let height = document.querySelector(".app-content").getBoundingClientRect().height
                 - document.querySelector("#main-control").getBoundingClientRect().height
@@ -280,7 +286,12 @@ export default class Visualizer extends PureComponent {
                     {
                         this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
                                 <div className="canvas-container">
-                                    <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} touchEnded={this.mouseReleased} touchMoved={this.touchMoved}/>
+                                    {
+                                        this.mounted ?
+                                                <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} touchEnded={this.mouseReleased} touchMoved={this.touchMoved}/>
+                                            :
+                                                <p>Loading Sketch</p>
+                                    }
                                 </div>
                             :
                                 <this.visualization.VISUALIZATION_CLASS />

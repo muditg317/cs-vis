@@ -65,13 +65,17 @@ export default class ControlBar extends PureComponent {
         return (
                 <div className="control-bar">
                     <div className="control-container" id="main-control" ref={this.mainContainer}>
-                        {this.mainLabel && <p className="control-label" id="main-control-label">{this.mainLabel}</p>}
-                        <div className="controls control-group"  ref={this.controlBar}></div>
+                        <div className="control-wrapper">
+                            {this.mainLabel && <p className="control-label" id="main-control-label">{this.mainLabel}</p>}
+                            <div className="controls control-group"  ref={this.controlBar}></div>
+                        </div>
                     </div>
                     <div className="control-container" id="default-control" ref={this.defaultContainer}>
-                        {// {this.defaultsLabel && <p className="control-label" id="default-control-label">{this.defaultsLabel}</p>}
-                        }
-                        <div className="controls default control-group" ref={this.defaults}></div>
+                        <div className="control-wrapper">
+                            {// {this.defaultsLabel && <p className="control-label" id="default-control-label">{this.defaultsLabel}</p>}
+                            }
+                            <div className="controls default control-group" ref={this.defaults}></div>
+                        </div>
                     </div>
                 </div>
             );
