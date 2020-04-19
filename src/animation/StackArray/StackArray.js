@@ -251,7 +251,7 @@ export default class StackArray extends Visualization {
         this.tempElement.shift(45,45);
         this.tempElement.addOnStop(() => {
             this.tempElement.unhighlight();
-            this.doneAnimating(0);
+            this.doneAnimating();
         });
     }
 
@@ -340,7 +340,9 @@ export default class StackArray extends Visualization {
             }
             this.topPointerHighlighter.update(animationSpeed, p5);
             if (this.resizing && this.allInPosition()) {
-                this.animator.noLoop();
+                if (!this.animating && this.animationQueue.length === 0) {
+                    this.animator.noLoop();
+                }
                 this.resizing = false;
             }
         }, animationSpeed, p5);

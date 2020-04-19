@@ -138,7 +138,7 @@ export default class Visualization {
             p5.fill(...this.displayTextColor);
             p5.textSize(15);
             p5.textAlign(p5.LEFT, p5.TOP);
-            p5.text(this.displayText, 2.5,2.5);
+            p5.text(this.displayText, 2.5,2.5, this.width,60);
         }
         p5.pop();
     }
