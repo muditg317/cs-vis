@@ -55,6 +55,10 @@
 
 }
 
+.controls.default {
+    align-items: center;
+}
+
 .controls>.control-group:last-child {
     padding-right: 1em;
 }
@@ -149,5 +153,81 @@ input[type="button" i]:hover {
     // background-color: #ddd;
 }
 
-input[type="text" i] {
+@mixin track {
+  cursor: default;
+  height: 3px;
+  transition: all .2s ease;
+}
+
+$thumb-size: 15px;
+
+@mixin thumb {
+  background: #546de5;
+  border-radius: 50%;
+  box-sizing: border-box;
+  cursor: default;
+  height: $thumb-size;
+  width: $thumb-size;
+}
+
+input[type='range'] {
+    background: transparent;
+    border: none;
+    box-shadow: unset;
+
+    &:hover {
+        background-color: transparent;
+        box-shadow: unset;
+        &::-webkit-slider-runnable-track {
+            background: darken(#f7f7f7,15%);
+        }
+    }
+
+    &::-moz-focus-outer {
+        border: 0;
+    }
+
+    &:focus {
+        &::-webkit-slider-runnable-track {
+            background: darken(#f7f7f7,20%);
+        }
+    }
+
+    &::-webkit-slider-runnable-track {
+        @include track;
+        background: darken(#f7f7f7,10%);
+        // border: $track-border-width solid $track-border-color;
+        // border-radius: $track-radius;
+    }
+
+    &::-webkit-slider-thumb {
+        @include thumb;
+        -webkit-appearance: none;
+        margin-top: ((3px) / 2 - $thumb-size / 2);
+    }
+
+    &::-moz-range-track {
+        // @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color);
+        @include track;
+        background: darken(#f7f7f7,10%);
+        // border: $track-border-width solid $track-border-color;
+        // border-radius: $track-radius;
+        height: 3px / 2;
+    }
+
+    &::-moz-range-thumb {
+        @include thumb;
+    }
+}
+
+
+
+
+
+.label {
+    margin-top: 0;
+}
+
+#speedSliderGroup {
+    align-items: center;
 }

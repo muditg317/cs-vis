@@ -32,6 +32,7 @@ export default class Visualizer extends PureComponent {
         this.controlBarRef = React.createRef();
 
         this.controlGroups = [];
+        this.defaultControlGroups = [];
         this.controls = [];
 
         // this.animationSpeed = Visualizer.INITIAL_SPEED;
@@ -59,7 +60,37 @@ export default class Visualizer extends PureComponent {
 
     addDefaultControls() {
         this.speedSlider = ControlBuilder.createSlider(1, Visualizer.MAX_SPEED, Math.pow(Visualizer.INITIAL_SPEED,1/Visualizer.SPEED_SLIDER_DEGREE), 0);
-        this.defaultControlGroup = ControlBuilder.createControlGroup("default", this.speedSlider);
+        let sliderLabel = ControlBuilder.createLabel("Animation Speed", this.speedSlider);
+        let speedSliderGroup = ControlBuilder.createControlGroup("speedSliderGroup", this.speedSlider, sliderLabel);
+        let extraGroups = []
+        if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_ANIMATION_CONTROL) {
+            let skipBackButton = ControlBuilder.createButton("Skip Back");
+            skipBackButton.addEventListener("click", () => {
+                this.visualization.skipBack();
+            });
+            let stepBackButton = ControlBuilder.createButton("Step Back");
+            stepBackButton.addEventListener("click", () => {
+                this.visualization.stepBack();
+            });
+            let playPauseButton = ControlBuilder.createButton("Pause");
+            playPauseButton.addEventListener("click", () => {
+                // this.visualization.playPause();
+                playPauseButton.setAttribute("value", playPauseButton.getAttribute("value") === "Pause" ? "Play" : "Pause");
+            });
+            let stepForwardButton = ControlBuilder.createButton("Step Forward");
+            stepForwardButton.addEventListener("click", () => {
+                this.visualization.stepForward();
+            });
+            let skipForwardButton = ControlBuilder.createButton("Skip Forward");
+            skipForwardButton.addEventListener("click", () => {
+                this.visualization.skipForward();
+            });
+            extraGroups.push(ControlBuilder.createControlGroup("stepButtonGroup",skipBackButton,stepBackButton,playPauseButton,stepForwardButton,skipForwardButton));
+            let animationControls = ControlBuilder.createControlGroup("animationControls",...extraGroups);
+            ControlBuilder.applyStyle(animationControls,"width","441px");
+            this.defaultControlGroups.push(animationControls);
+        }
+        this.defaultControlGroups.push(speedSliderGroup);
         this.defaultsLabel = "Animation controls";
     }
 
@@ -133,8 +164,10 @@ export default class Visualizer extends PureComponent {
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);
         this.controlBar.setDefaultsLabel(this.defaultsLabel);
-        this.controlBar.addDefaultGroup(this.defaultControlGroup);
-        this.controlGroups.forEach((controlGroup, i) => {
+        this.defaultControlGroups.forEach((defaultGroup) => {
+            this.controlBar.addDefaultGroup(defaultGroup);
+        });
+        this.controlGroups.forEach((controlGroup) => {
             this.controlBar.addControlGroup(controlGroup);
         });
         this.mounted = true;

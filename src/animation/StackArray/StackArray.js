@@ -59,50 +59,15 @@ export default class StackArray extends Visualization {
             this.updateText(`Stack full, resizing to length ${this.backingArray.length*2}`);
             animation.push(...this.createCopyArray());
         }
-        animation.push({method:this.makeElement,params:[this.size,data],explanation:`Create value: ${data}`});
+        animation.push({method:this.makeElement,params:[this.size,data],explanation:`Create value: ${data}`,});
         animation.push(...this.useTopPointer());
         animation.push({method:this.highlightTemp,params:[],noAnim:true});
         animation.push({method:this.insertElement,params:[this.size],customEnd:true,explanation:`Added ${data} to backingArray`});
         animation.push({method:this.sizeIncr,params:[],noAnim:true});
         animation.push(...this.updateTopPointer());
-        // if (this.size > 0 && (index === 0 || index === this.size)) {
-        //     animation.push({method:this.makeNode,params:[index === 0 ? 1 : index,this.head.data,],});
-        //     animation.push({method:this.setTempNodeBefore,params:[this.head.next,],});
-        //     animation.push({method:this.setTempNodePrev,params:[this.head,],});
-        //     animation.push({method:this.changeHeadData,params:[data],});
-        //     if (this.size >= 2) {
-        //         animation.push({method:this.shiftForNode,params:[this.head.next,],});
-        //     }
-        //     animation.push({method:this.insertTempNode,params:[1,],});
-        //     animation.push({method:this.sizeIncr,params:[],});
-        //     if (index === this.size) {
-        //         animation.push({method:this.customNodeShift,params:[this.head, this.head.currentX - 10, this.getNodePosition(this.size)[1] + StackArray.ELEMENT_SIZE * 2,],customEnd:true});
-        //         // animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + StackArray.ELEMENT_SIZE * 2,],});
-        //         animation.push({method:this.resetHead,params:[],});
-        //     }
-        // } else {
-        //     let node = null;
-        //     let nextNode = this.head;
-        //     for (let i = 0; i < index; i++) {
-        //         animation.push({method:this.moveHighlight,params:[node,nextNode,],});
-        //         node = nextNode;
-        //         nextNode = nextNode.next;
-        //     }
-        //     animation.push({method:this.makeNode,params:[index,data,],});
-        //     animation.push({method:this.moveHighlight,params:[node,null,],});
-        //     animation.push({method:this.setTempNodeBefore,params:[nextNode,],});
-        //     animation.push({method:this.setTempNodePrev,params:[node,],});
-        //     if (index < this.size) {
-        //         animation.push({method:this.shiftForNode,params:[nextNode,],});
-        //     }
-        //     animation.push({method:this.insertTempNode,params:[index,],});
-        //     animation.push({method:this.sizeIncr,params:[],});
-        // }
-        // let index = 3;
+        this.animationQueue.push({method:this.showText,params:[`Successfully pushed ${data} to stack.`,Colors.GREEN,],});
         this.addAnimation(animation);
-        this.updateText(`Successfully added ${data} to stack.`, Colors.GREEN);
         this.endDrawLoop();
-        this.animationHistory.push(animation);
         return true;
     }
 
@@ -158,7 +123,7 @@ export default class StackArray extends Visualization {
         this.addAnimation(animation);
         this.updateText(`Successfully popped ${data} from stack.`, Colors.GREEN);
         this.endDrawLoop();
-        this.animationHistory.push(animation)
+        // this.animationHistory.push(animation)
         return data;
     }
 

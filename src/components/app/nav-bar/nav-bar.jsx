@@ -13,12 +13,16 @@ export default class NavBar extends Component {
         this.state = {
             responsive: false,
         };
+
+        this.selfRef = React.createRef();
+        this.handleDocumentClick = this.handleDocumentClick.bind(this);
+        this.clear = this.clear.bind(this);
     }
 
     scrollToTop() {
         document.body.scrollTop = 0; // For Safari
         document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-        console.log("scrolltotop");
+        // console.log("scrolltotop");
     }
 
     toggleResponsiveNav() {
@@ -29,13 +33,36 @@ export default class NavBar extends Component {
             });
     }
 
+
+    componentDidMount() {
+        document.addEventListener("mousedown", this.handleDocumentClick);
+        // console.log(this.state.parentNavItem);
+    }
+    componentWillUnmount() {
+        document.removeEventListener("mousedown", this.handleDocumentClick);
+    }
+    handleDocumentClick(event) {
+        // console.log("doc clicked nav title");
+        // console.log(this.state.containingNavItemRef);
+        // console.log(this.state.containingNavItemRef.current);
+        if (this.selfRef.current && !this.selfRef.current.contains(event.target)) {
+            // console.log("outside nav title");
+            this.clear();
+        }
+    }
+
+    clear() {
+        this.setState({responsive: false});
+        this.scrollToTop();
+    }
+
     render() {
         return (
-                <div id="top-nav" className={`nav-bar ${this.state.responsive ? "responsive" : ""} nav-container`}>
+                <div id="top-nav" className={`nav-bar ${this.state.responsive ? "responsive" : ""} nav-container`} ref={this.selfRef}>
                     <Link className="not-a-button" id="nav-logo" to={window.location.href.substring(window.location.href.indexOf("/#/")).length > 0 ? "/" : "" }><img src={logo} className="app-logo" alt="logo" /></Link>
                     {this.props.nav_items.map( (nav_item) => {
                         return (
-                                <NavBarItem key={`nav-${nav_item.link}`} content={nav_item} />
+                                <NavBarItem key={`nav-${nav_item.link}`} content={nav_item} container={this}/>
                             );
                     })}
                     <button className="not-a-button nav-bar-item nav-item nav-item-title" id="top-nav-menu" onClick={() => this.toggleResponsiveNav()}><i className="fa fa-bars"></i></button>
@@ -91,6 +118,7 @@ class NavBarItem extends Component {
 
     clear() {
         this.setShowDropDown(false);
+        this.props.container.clear();
     }
 
     render() {
@@ -147,7 +175,7 @@ class NavBarItemTitle extends Component {
 
     onMouseDown(e) {
         if (e.nativeEvent.which === 1) {
-            if (this.state.parentNavItem.state.showDropDown) {
+            if (this.state.parentNavItem.state.showDropDown || !this.state.parentNavItem.state.drop_down_items) {
                 window.location.hash = `#/${this.state.parentNavItem.state.link}`;
                 this.clear();
             } else {
@@ -165,7 +193,7 @@ class NavBarItemTitle extends Component {
                 this.state.parentNavItem.state.drop_down_items ?
                     <div onMouseDown={this.onMouseDown} className="nav-bar-item-title nav-item-title" id={`nav-${this.state.link}`}><i className={`fa fa-fw fa-${this.state.icon}`}></i> {this.state.title_text}</div>
                 :
-                    <Link onMouseDown={this.clear} className="nav-bar-item-title nav-item-title" id={`nav-${this.state.link}`} to={`/${this.state.link}`}><i className={`fa fa-fw fa-${this.state.icon}`}></i> {this.state.title_text}</Link>
+                    <Link onMouseDown={this.onMouseDown} className="nav-bar-item-title nav-item-title" id={`nav-${this.state.link}`} to={`/${this.state.link}`}><i className={`fa fa-fw fa-${this.state.icon}`}></i> {this.state.title_text}</Link>
             );
     }
 }

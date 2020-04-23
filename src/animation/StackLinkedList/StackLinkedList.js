@@ -1,12 +1,15 @@
 import { Visualization } from 'animation';
 import AttractedDraggableObject from 'animation/AttractedDraggableObject';
-import { Utils } from 'utils';
+import { Utils, Colors } from 'utils';
 
 export default class StackLinkedList extends Visualization {
     static USE_CANVAS = true;
     static SET_BOUNDS = true;
+    static SUPPORTS_NO_LOOP = true;
     static SUPPORTS_CUSTOM_END = true;
     static MAX_ANIM_TIME = 5000;
+    static SUPPORTS_TEXT = true;
+    // static SUPPORTS_ANIMATION_CONTROL = true;
 
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
@@ -21,102 +24,84 @@ export default class StackLinkedList extends Visualization {
         super(animator);
 
         this.reset();
+        this.made = true;
+    }
+
+    reset() {
+        if (this.made) {
+            this.beginDrawLoop();
+        }
+        this.head = null;
+        this.size = 0;
+        this.nodes = [];
+        this.tempNode = null;
+        this.pinnedNode = null;
+
+        this.resizing = false;
+        if (this.made) {
+            this.updateText("Animation Ready");
+            this.endDrawLoop();
+        }
     }
 
 
-    addAtIndex(index, data) {
+    push(data) {
         if (this.animating) {
             console.log("animation in progress");
             return false;
         }
-        if (index < 0 || index > this.size) {
-            console.log("index out of bounds");
-            return false;
-        }
+        this.beginDrawLoop();
         if (data === null) {
-            console.log("Cannot add null to ArrayList.");
+            this.updateText("Cannot add null to Stack.", Colors.RED);
             return false;
         }
         let animation = [];
-        if (this.size > 0 && (index === 0 || index === this.size)) {
-            animation.push({method:this.makeNode,params:[index === 0 ? 1 : index,this.head.data,],});
-            animation.push({method:this.setTempNodeBefore,params:[this.head.next,],});
-            animation.push({method:this.setTempNodePrev,params:[this.head,],});
-            animation.push({method:this.changeHeadData,params:[data],});
-            if (this.size >= 2) {
-                animation.push({method:this.shiftForNode,params:[this.head.next,],});
-            }
-            animation.push({method:this.insertTempNode,params:[1,],});
-            animation.push({method:this.sizeIncr,params:[],});
-            if (index === this.size) {
-                animation.push({method:this.customNodeShift,params:[this.head, this.head.currentX - 10, this.getNodePosition(this.size)[1] + StackLinkedList.ELEMENT_HEIGHT * 2,],customEnd:true});
-                // animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + StackLinkedList.ELEMENT_HEIGHT * 2,],});
-                animation.push({method:this.resetHead,params:[],});
-            }
-        } else {
-            let node = null;
-            let nextNode = this.head;
-            for (let i = 0; i < index; i++) {
-                animation.push({method:this.moveHighlight,params:[node,nextNode,],});
-                node = nextNode;
-                nextNode = nextNode.next;
-            }
-            animation.push({method:this.makeNode,params:[index,data,],});
-            animation.push({method:this.moveHighlight,params:[node,null,],});
-            animation.push({method:this.setTempNodeBefore,params:[nextNode,],});
-            animation.push({method:this.setTempNodePrev,params:[node,],});
-            if (index < this.size) {
-                animation.push({method:this.shiftForNode,params:[nextNode,],});
-            }
-            animation.push({method:this.insertTempNode,params:[index,],});
-            animation.push({method:this.sizeIncr,params:[],});
+        animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,});
+        animation.push({method:this.setTempNodeBefore,params:[this.head,],explanation:`Assign next pointer`,});
+        if (this.size > 0) {
+            animation.push({method:this.shiftForNode,params:[this.head,],});
         }
+        animation.push({method:this.insertTempNode,params:[],explanation:`Reset top pointer to new head`,});
+        animation.push({method:this.shiftHead,params:[],});
+        animation.push({method:this.sizeIncr,params:[],noAnim:true,});
         this.addAnimation(animation);
-        this.animationHistory.push(animation);
+        this.updateText(`Successfully pushed ${data} to stack.`, Colors.GREEN);
+        this.endDrawLoop();
         return true;
     }
 
-    addToFront(data) {
-        return this.addAtIndex(0,data);
-    }
 
-    addToBack(data) {
-        return this.addAtIndex(this.size,data);
-    }
-
-
-    removeFromIndex(index) {
+    pop() {
         if (this.animating) {
             console.log("animation in progress");
             return false;
         }
-        if (index < 0 || index >= this.size) {
-            console.log(`Index invalid: ${index} for ArrayList of length ${this.size}. Should be [0,${this.size-1}].`);
+        this.beginDrawLoop();
+        let index = 0;
+        if (this.size === 0) {
+            this.updateText("Cannot pop empty Stack", Colors.RED);
             return false;
         }
         let animation = [];
-        let data;
-        if (index === 0) {
-            data = this.head.data;
-            animation.push({method:this.moveHighlight,params:[null,this.head,],});
-            animation.push({method:this.changeHeadData,params:[this.head.next.data],});
-            index = 1;
-        }
         let prev;
         let toDelete;
         let next;
-        let node = this.head;
-        animation.push({method:this.moveHighlight,params:[null,node,],});
-        for (let i = 0; i < index - 1; i++) {
-            animation.push({method:this.moveHighlight,params:[node,node.next,],});
-            node = node.next;
+        if (index === 0) {
+            prev = null;
+            toDelete = this.head;
+            next = toDelete.next;
+        } else {
+            let node = this.head;
+            animation.push({method:this.moveHighlight,params:[null,node,],});
+            for (let i = 0; i < index - 1; i++) {
+                animation.push({method:this.moveHighlight,params:[node,node.next,],});
+                node = node.next;
+            }
+            prev = node;
+            toDelete = prev.next;
+            next = toDelete.next;
         }
-        prev = node;
-        toDelete = prev.next;
-        next = toDelete.next;
-        if (!data) {
-            data = toDelete.data;
-        }
+        let data = toDelete.data;
         animation.push({method:this.markNodeForDeletion,params:[prev,toDelete,],});
         animation.push({method:this.unmakeNode,params:[toDelete,],customEnd:true,});
         if (index < this.size - 1) {
@@ -125,42 +110,18 @@ export default class StackLinkedList extends Visualization {
         animation.push({method:this.skipTempNode,params:[prev,],});
         animation.push({method:this.sizeDecr,params:[],});
         this.addAnimation(animation);
-        this.animationHistory.push(animation)
+        this.updateText(`Successfully popped ${data} from stack.`, Colors.GREEN);
+        this.endDrawLoop();
         return data;
     }
 
-    removeFromFront() {
-        return this.removeFromIndex(0);
-    }
 
-    removeFromBack() {
-        return this.removeFromIndex(this.size-1);
-    }
-
-
-    reset() {
-        this.head = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
-    }
-
-
-    makeNode(index, data) {
-        this.tempNode = new CircularSinglyLinkedListNode({data: data, index: index, x:20,y:20,},);
+    makeNode(data) {
+        this.tempNode = new StackLinkedListNode({data: data, index: 0, x:20,y:20,},);
     }
 
     setTempNodeBefore(next) {
-        if (next) {
-            this.tempNode.next = next;
-        } else {
-            if (this.head) {
-                this.tempNode.next = this.head;
-            } else {
-                this.tempNode.next = this.tempNode;
-            }
-        }
+        this.tempNode.next = next;
     }
 
     setTempNodePrev(prev) {
@@ -171,30 +132,13 @@ export default class StackLinkedList extends Visualization {
         }
     }
 
-    changeHeadData(data) {
-        this.head.data = data;
+    insertTempNode() {
+        this.nodes.splice(0, 0, this.tempNode);
+        this.head = this.tempNode;
     }
 
-    resetHead() {
-        this.head = this.head.next;
-        let node = this.head;
-        let i = 0;
-        while (node) {
-            node.index = i;
-            node.shift(...this.getNodePosition(i++));
-            node = node.next;
-            if (node === this.head) {
-                break;
-            }
-        }
-    }
-
-    insertTempNode(index) {
-        this.nodes.splice(index, 0, this.tempNode);
-        if (index === 0) {
-            this.head = this.tempNode;
-        }
-        this.tempNode.shift(...this.getNodePosition(index));
+    shiftHead() {
+        this.tempNode.shift(...this.getNodePosition(0));
         this.tempNode = null;
     }
 
@@ -215,7 +159,7 @@ export default class StackLinkedList extends Visualization {
     }
 
     unmakeNode(node) {
-        this.tempNode = node;//this.nodes.splice(node.index, 1)[0];
+        this.tempNode = this.nodes.splice(node.index, 1)[0];
         this.tempNode.shift(20,20);
         this.tempNode.addOnStop(() => {
             this.doneAnimating(0);
@@ -235,9 +179,6 @@ export default class StackLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, 1);
             node = node.next;
-            if (node === this.head) {
-                break;
-            }
         }
     }
 
@@ -245,21 +186,11 @@ export default class StackLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, -1);
             node = node.next;
-            if (node === this.head) {
-                break;
-            }
         }
     }
 
     shiftNode(node, direction) {
         node.shift(...this.getNodePosition(node.index + direction), direction);
-    }
-
-    customNodeShift(node, x, y) {
-        node.shift(x,y);
-        node.addOnStop(() => {
-            this.doneAnimating(0);
-        });
     }
 
     sizeIncr() {
@@ -271,9 +202,9 @@ export default class StackLinkedList extends Visualization {
     }
 
     getNodePosition(index) {
-        let maxPerRow = Math.floor(this.width / StackLinkedList.ELEMENT_SIZE);
+        let maxPerRow = Math.max(1, Math.floor(this.width / StackLinkedList.ELEMENT_SIZE));
         let x = StackLinkedList.ELEMENT_SIZE * index;
-        let y = 50 + Math.floor(index / maxPerRow) * 2 * StackLinkedList.ELEMENT_HEIGHT;
+        let y = 75 + Math.floor(index / maxPerRow) * 2 * StackLinkedList.ELEMENT_HEIGHT;
         x = (index % maxPerRow) * StackLinkedList.ELEMENT_SIZE;
         return [x + this.x,y + this.y];
     }
@@ -285,9 +216,6 @@ export default class StackLinkedList extends Visualization {
                 return node;
             }
             node = node.next;
-            if (node === this.head) {
-                break;
-            }
         }
         if (this.tempNode && this.tempNode.containsPos(x,y)) {
             return this.tempNode;
@@ -295,13 +223,13 @@ export default class StackLinkedList extends Visualization {
         return null;
     }
 
-    pin(node) {
+    pin(node, x,y) {
         this.pinnedNode = node;
-        node.pin();
+        node.pin(x,y);
     }
 
     unpin() {
-        if (this.pinnedNode.unpin() && this.animationQueue.length === 0) {
+        if (this.pinnedNode.unpin()) {
             this.removeFromIndex(this.pinnedNode.index);
             this.pinnedNode.markBroken();
         }
@@ -325,9 +253,6 @@ export default class StackLinkedList extends Visualization {
             while (node) {
                 this.updateNode(node, animationSpeed, p5);
                 node = node.next;
-                if (node === this.head) {
-                    break;
-                }
             }
             if (this.tempNode) {
                 this.updateNode(this.tempNode, animationSpeed, p5);
@@ -336,18 +261,31 @@ export default class StackLinkedList extends Visualization {
     }
 
     draw(p5) {
+        super.draw(p5);
         p5.push();
 
         p5.textAlign(p5.CENTER,p5.CENTER);
         p5.textSize(this.ELEMENT_WIDTH/3 - 2);
 
+        // p5.noFill();
+        p5.stroke(0);
+        p5.textAlign(p5.CENTER, p5.CENTER);
+        p5.text("Top:",95,20,35,35);
+        p5.square(130,20,35);
+        if (this.head) {
+            p5.stroke(Colors.BLUE);
+            p5.fill(Colors.BLUE);
+            p5.circle(130 + 35 / 2, 20 + 35 / 2, 5);
+            p5.line(130 + 35 / 2, 20 + 35 / 2, this.head.currentX + StackLinkedList.ITEM_WIDTH / 2, this.head.currentY);
+            p5.rect(this.head.currentX + StackLinkedList.ITEM_WIDTH / 2 - 3, this.head.currentY - 3, 6,6);
+        } else {
+            p5.line(130,20,165,55);
+        }
+
         let node = this.head;
         while (node) {
             node.draw(p5, node.next === this.head);
             node = node.next;
-            if (node === this.head) {
-                break;
-            }
         }
         if (this.tempNode) {
             this.tempNode.draw(p5);
@@ -359,7 +297,7 @@ export default class StackLinkedList extends Visualization {
     mousePressed(p5) {
         let pressedNode = this.getNodeAtPos(p5.mouseX, p5.mouseY);
         if (pressedNode) {
-            this.pin(pressedNode);
+            this.pin(pressedNode, p5.mouseX,p5.mouseY);
         }
         return false;
     }
@@ -378,15 +316,12 @@ export default class StackLinkedList extends Visualization {
         while (node) {
             node.shift(...this.getNodePosition(node.index));
             node = node.next;
-            if (node === this.head) {
-                break;
-            }
         }
     }
 }
 
 
-class CircularSinglyLinkedListNode extends AttractedDraggableObject {
+class StackLinkedListNode extends AttractedDraggableObject {
     static CAN_DRAG = true;
 
     constructor({data, index, x,y} = {}) {
@@ -444,7 +379,7 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
         return this.pinnedToMouse && !this.handBroken && dist > StackLinkedList.MAX_DIST_REMOVE;
     }
 
-    draw(p5, pointsToHead = false) {
+    draw(p5) {
         // console.log(this);
         p5.push();
         p5.fill(255);
@@ -458,24 +393,7 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
             p5.stroke(...Utils.addArray(this.color, [0,0,255]));
             p5.fill(...Utils.addArray(this.color, [0,0,255]));
             p5.circle(this.currentX + StackLinkedList.ELEMENT_WIDTH + StackLinkedList.POINTER_WIDTH / 2, this.currentY + StackLinkedList.ELEMENT_HEIGHT / 2, 5);
-            if (pointsToHead) {
-                p5.push();
-                p5.noFill();
-                p5.curveTightness(0.8);
-                p5.beginShape();
-                p5.curveVertex(this.currentX + StackLinkedList.ELEMENT_WIDTH + StackLinkedList.POINTER_WIDTH / 2, this.currentY + StackLinkedList.ELEMENT_HEIGHT / 2);
-                p5.curveVertex(this.currentX + StackLinkedList.ELEMENT_WIDTH + StackLinkedList.POINTER_WIDTH / 2, this.currentY + StackLinkedList.ELEMENT_HEIGHT / 2);
-
-                p5.curveVertex(this.currentX + StackLinkedList.ELEMENT_WIDTH + StackLinkedList.POINTER_WIDTH / 2, this.currentY + StackLinkedList.ELEMENT_HEIGHT * 2);
-                p5.curveVertex(15, this.currentY + StackLinkedList.ELEMENT_HEIGHT * 2);
-
-                p5.curveVertex(this.next.currentX, this.next.currentY + StackLinkedList.ELEMENT_HEIGHT / 2);
-                p5.curveVertex(this.next.currentX, this.next.currentY + StackLinkedList.ELEMENT_HEIGHT / 2);
-                p5.endShape();
-                p5.pop();
-            } else {
-                p5.line(this.currentX + StackLinkedList.ELEMENT_WIDTH + StackLinkedList.POINTER_WIDTH / 2, this.currentY + StackLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + StackLinkedList.ELEMENT_HEIGHT / 2);
-            }
+            p5.line(this.currentX + StackLinkedList.ELEMENT_WIDTH + StackLinkedList.POINTER_WIDTH / 2, this.currentY + StackLinkedList.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + StackLinkedList.ELEMENT_HEIGHT / 2);
             p5.rect(this.next.currentX - 3, this.next.currentY + StackLinkedList.ELEMENT_HEIGHT / 2 - 3, 6,6);
         } else {
             p5.line(this.currentX + StackLinkedList.ELEMENT_WIDTH, this.currentY, this.currentX + StackLinkedList.ITEM_WIDTH, this.currentY + StackLinkedList.ELEMENT_HEIGHT);

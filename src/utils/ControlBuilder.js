@@ -33,6 +33,16 @@ export function createField(prompt, ...validators) {
     return field;
 };
 
+export function createLabel(text, control) {
+    let newLabel = document.createElement("label");
+    newLabel.classList.add("visual-control","label");
+
+    newLabel.setAttribute("for", control.id);
+    newLabel.innerHTML = text;
+
+    return newLabel;
+}
+
 export function validatorIntOnly() {
     return (field) => {
         let regex = /^(-[0-9])?[0-9]*/g;

@@ -12,7 +12,7 @@ export default function About() {
             <p>Check out the <a href='https://github.com/muditg317/cs-vis'>Source Code here</a>!</p>
                 <h2>Me!</h2>
                 <p>This is something I wanted to make to learn more about these datastructures and algorithms while also learning how to use the ReactJS framework.
-                Check out some of my other projects at muditgupta.appspot.com</p>
+                Check out some of my other projects at <a href='https://muditgupta.appspot.com'>muditgupta.appspot.com</a></p>
             </div>
         );
 }

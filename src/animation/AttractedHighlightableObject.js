@@ -1,3 +1,4 @@
+import Visualizer from 'components/visualizer'
 import { Colors } from 'utils';
 
 export default class AttractedHighlightableObject {
@@ -76,7 +77,8 @@ export default class AttractedHighlightableObject {
         }
         let deltaX = this.desiredX - this.currentX;
         let deltaY = this.desiredY - this.currentY;
-        if (isNaN(this.currentX) || isNaN(this.currentY) || isNaN(this.vx) || isNaN(this.vy)) {
+        if ((animationSpeed >= Math.floor(Visualizer.maxAnimationSpeed()))
+                || (isNaN(this.currentX) || isNaN(this.currentY) || isNaN(this.vx) || isNaN(this.vy))) {
             this.stop();
         } else {
             if (deltaY !== 0 || deltaX !== 0) {
