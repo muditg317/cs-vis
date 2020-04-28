@@ -5,11 +5,12 @@ import { Utils, Colors } from 'utils';
 export default class StackLinkedList extends Visualization {
     static USE_CANVAS = true;
     static SET_BOUNDS = true;
+    static CAN_DRAG = true;
     static SUPPORTS_NO_LOOP = true;
     static SUPPORTS_CUSTOM_END = true;
     static MAX_ANIM_TIME = 5000;
     static SUPPORTS_TEXT = true;
-    // static SUPPORTS_ANIMATION_CONTROL = true;
+    static SUPPORTS_ANIMATION_CONTROL = true;
 
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
@@ -28,6 +29,7 @@ export default class StackLinkedList extends Visualization {
     }
 
     reset() {
+        super.reset();
         if (this.made) {
             this.beginDrawLoop();
         }
@@ -39,7 +41,6 @@ export default class StackLinkedList extends Visualization {
 
         this.resizing = false;
         if (this.made) {
-            this.updateText("Animation Ready");
             this.endDrawLoop();
         }
     }
@@ -56,17 +57,18 @@ export default class StackLinkedList extends Visualization {
             return false;
         }
         let animation = [];
-        animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,});
-        animation.push({method:this.setTempNodeBefore,params:[this.head,],explanation:`Assign next pointer`,});
+        animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,isAnimationStep:true,});
         if (this.size > 0) {
-            animation.push({method:this.shiftForNode,params:[this.head,],});
+            animation.push({method:this.setTempNodeBeforeHead,params:[],explanation:`Assign next pointer`,isAnimationStep:true,});
+            animation.push({method:this.shiftHeadForNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        animation.push({method:this.insertTempNode,params:[],explanation:`Reset top pointer to new head`,});
-        animation.push({method:this.shiftHead,params:[],});
+        animation.push({method:this.insertTempNode,params:[],explanation:`Reset top pointer to new head`,isAnimationStep:true,});
+        animation.push({method:this.shiftHead,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         animation.push({method:this.sizeIncr,params:[],noAnim:true,});
+        animation.push({method:this.showText,params:[`Successfully pushed ${data} to stack.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
-        this.updateText(`Successfully pushed ${data} to stack.`, Colors.GREEN);
         this.endDrawLoop();
+        this.stepForward();
         return true;
     }
 
@@ -77,114 +79,171 @@ export default class StackLinkedList extends Visualization {
             return false;
         }
         this.beginDrawLoop();
-        let index = 0;
         if (this.size === 0) {
             this.updateText("Cannot pop empty Stack", Colors.RED);
             return false;
         }
         let animation = [];
-        let prev;
-        let toDelete;
-        let next;
-        if (index === 0) {
-            prev = null;
-            toDelete = this.head;
-            next = toDelete.next;
-        } else {
-            let node = this.head;
-            animation.push({method:this.moveHighlight,params:[null,node,],});
-            for (let i = 0; i < index - 1; i++) {
-                animation.push({method:this.moveHighlight,params:[node,node.next,],});
-                node = node.next;
-            }
-            prev = node;
-            toDelete = prev.next;
-            next = toDelete.next;
+        let data = this.head.data;
+        animation.push({method:this.markHeadForDeletion,params:[],});
+        animation.push({method:this.unmakeHead,params:[],customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        if (this.size > 1) {
+            animation.push({method:this.shiftIntoNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        let data = toDelete.data;
-        animation.push({method:this.markNodeForDeletion,params:[prev,toDelete,],});
-        animation.push({method:this.unmakeNode,params:[toDelete,],customEnd:true,});
-        if (index < this.size - 1) {
-            animation.push({method:this.shiftIntoNode,params:[next,],});
-        }
-        animation.push({method:this.skipTempNode,params:[prev,],});
+        animation.push({method:this.skipTempNode,params:[],isAnimationStep:true,undoData:[this.head.data,],});
         animation.push({method:this.sizeDecr,params:[],});
+        animation.push({method:this.showText,params:[`Successfully popped ${data} from stack.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
-        this.updateText(`Successfully popped ${data} from stack.`, Colors.GREEN);
         this.endDrawLoop();
+        this.stepForward();
         return data;
     }
 
 
     makeNode(data) {
-        this.tempNode = new StackLinkedListNode({data: data, index: 0, x:20,y:20,},);
+        this.tempNode = new StackLinkedListNode({data: data, index: 0, x:20,y:20,});
+    }
+    undo_makeNode(data) {
+        this.tempNode = null;
     }
 
-    setTempNodeBefore(next) {
-        this.tempNode.next = next;
+    setTempNodeBeforeHead() {
+        this.tempNode.next = this.head;
     }
-
-    setTempNodePrev(prev) {
-        if (prev) {
-            prev.next = this.tempNode;
-        } else {
-            // this.head = this.tempNode;
-        }
+    undo_setTempNodeBeforeHead() {
+        this.tempNode.next = null;
     }
 
     insertTempNode() {
         this.nodes.splice(0, 0, this.tempNode);
         this.head = this.tempNode;
     }
+    undo_insertTempNode() {
+        this.head = this.tempNode.next;
+        this.nodes.splice(0, 1);
+    }
 
     shiftHead() {
         this.tempNode.shift(...this.getNodePosition(0));
         this.tempNode = null;
     }
-
-    moveHighlight(fromNode, toNode) {
-        if (fromNode) {
-            fromNode.unHighlight();
-        }
-        if (toNode) {
-            toNode.highlight();
-        }
+    undo_shiftHead() {
+        this.tempNode = this.nodes[0];
+        this.tempNode.shift(20,20);
+        this.tempNode.addOnStop(() => {
+            this.stopDrawing();
+        });
+    }
+    redo_shiftHead() {
+        this.tempNode.shift(...this.getNodePosition(0));
+        let temp = this.tempNode;
+        temp.addOnStop(() => {
+            this.stopDrawing();
+        });
+        this.tempNode = null;
     }
 
-    markNodeForDeletion(highlighted, nodeToDelete) {
-        if (highlighted) {
-            highlighted.unHighlight();
-        }
-        nodeToDelete.markForDeletion();
+    markHeadForDeletion() {
+        this.head.markForDeletion();
+    }
+    undo_markHeadForDeletion() {
+        this.head.unhighlight();
     }
 
-    unmakeNode(node) {
-        this.tempNode = this.nodes.splice(node.index, 1)[0];
+    unmakeHead() {
+        this.tempNode = this.nodes.splice(0, 1)[0];
         this.tempNode.shift(20,20);
         this.tempNode.addOnStop(() => {
             this.doneAnimating(0);
         });
     }
-
-    skipTempNode(prev) {
-        if (prev) {
-            prev.next = this.tempNode.next;
-        } else {
-            this.head = this.head.next;
-        }
+    undo_unmakeHead() {
+        this.tempNode.shift(...this.getNodePosition(0));
+        this.nodes.splice(0, 0, this.tempNode);
+        this.tempNode.addOnStop(() => {
+            this.stopDrawing();
+        });
         this.tempNode = null;
     }
+    redo_unmakeHead() {
+        this.tempNode = this.nodes.splice(0, 1)[0];
+        this.tempNode.shift(20,20);
+        this.tempNode.addOnStop(() => {
+            this.stopDrawing();
+        });
+    }
 
-    shiftForNode(node) {
+    skipTempNode() {
+        this.head = this.head.next;
+        this.tempNode = null;
+    }
+    undo_skipTempNode(oldData) {
+        this.tempNode = new StackLinkedListNode({data: oldData, index: 0, x:20,y:20,});
+        this.tempNode.next = this.head;
+        this.tempNode.markForDeletion();
+        this.head = this.tempNode;
+    }
+
+    shiftHeadForNode() {
+        let node = this.head;
         while (node) {
             this.shiftNode(node, 1);
             node = node.next;
         }
     }
-
-    shiftIntoNode(node) {
+    undo_shiftHeadForNode() {
+        let node = this.head;
         while (node) {
             this.shiftNode(node, -1);
+            if (!node.next) {
+                node.addOnStop(() => {
+                    this.stopDrawing();
+                });
+            }
+            node = node.next;
+        }
+    }
+    redo_shiftHeadForNode() {
+        let node = this.head;
+        while (node) {
+            this.shiftNode(node, 1);
+            if (!node.next) {
+                node.addOnStop(() => {
+                    this.stopDrawing();
+                });
+            }
+            node = node.next;
+        }
+    }
+
+    shiftIntoNode() {
+        let node = this.head.next;
+        while (node) {
+            this.shiftNode(node, -1);
+            node = node.next;
+        }
+    }
+    undo_shiftIntoNode() {
+        let node = this.head.next;
+        while (node) {
+            this.shiftNode(node, 1);
+            if (!node.next) {
+                node.addOnStop(() => {
+                    this.stopDrawing();
+                });
+            }
+            node = node.next;
+        }
+    }
+    redo_shiftIntoNode() {
+        let node = this.head.next;
+        while (node) {
+            this.shiftNode(node, -1);
+            if (!node.next) {
+                node.addOnStop(() => {
+                    this.stopDrawing();
+                });
+            }
             node = node.next;
         }
     }
@@ -192,13 +251,23 @@ export default class StackLinkedList extends Visualization {
     shiftNode(node, direction) {
         node.shift(...this.getNodePosition(node.index + direction), direction);
     }
+    undo_shiftNode(node, direction) {
+        // console.log("undo_shiftNode");
+        this.shiftNode(node, -direction);
+    }
 
     sizeIncr() {
         this.size++;
     }
+    undo_sizeIncr() {
+        this.size--;
+    }
 
     sizeDecr() {
         this.size--;
+    }
+    undo_sizeDecr() {
+        this.size++;
     }
 
     getNodePosition(index) {
@@ -229,22 +298,12 @@ export default class StackLinkedList extends Visualization {
     }
 
     unpin() {
-        if (this.pinnedNode.unpin()) {
-            this.removeFromIndex(this.pinnedNode.index);
-            this.pinnedNode.markBroken();
-        }
+        this.pinnedNode.unpin();
         this.pinnedNode = null;
     }
 
     updateNode(node, animationSpeed, p5) {
-        let update = node.update(animationSpeed, p5);
-        if (this.animationQueue.length === 0) {
-            if (update) {
-                node.highlightForDeletion();
-            } else if (node.pinnedToMouse && !node.toDelete) {
-                node.unHighlight();
-            }
-        }
+        node.update(animationSpeed, p5);
     }
 
     update(animationSpeed, p5) {
@@ -295,8 +354,10 @@ export default class StackLinkedList extends Visualization {
     }
 
     mousePressed(p5) {
+        // this.drawingBeforeMouseDown = this.drawing;
         let pressedNode = this.getNodeAtPos(p5.mouseX, p5.mouseY);
         if (pressedNode) {
+            this.animator.loop();
             this.pin(pressedNode, p5.mouseX,p5.mouseY);
         }
         return false;
@@ -304,7 +365,16 @@ export default class StackLinkedList extends Visualization {
 
     mouseReleased(p5) {
         if (this.pinnedNode) {
+            this.pinnedNode.addOnStop(() => {
+                if (!this.drawing) {
+                    this.stopDrawing();
+                }
+            });
             this.unpin();
+        } else {
+            // if (!this.drawing) {
+            //     this.stopDrawing();
+            // }
         }
         return false;
     }
@@ -350,7 +420,7 @@ class StackLinkedListNode extends AttractedDraggableObject {
         this.color = [255,165,0];
     }
 
-    unHighlight() {
+    unhighlight() {
         this.color = [0,0,0];
     }
 
@@ -363,24 +433,7 @@ class StackLinkedListNode extends AttractedDraggableObject {
         this.highlightForDeletion();
     }
 
-    markBroken() {
-        this.markForDeletion();
-        this.frozen = true;
-        this.handBroken = true;
-    }
-
-    unpin() {
-        super.unpin();
-        return this.displacement() > StackLinkedList.MAX_DIST_REMOVE;
-    }
-
-    update(animationSpeed, p5) {
-        let dist = super.update(animationSpeed, p5);
-        return this.pinnedToMouse && !this.handBroken && dist > StackLinkedList.MAX_DIST_REMOVE;
-    }
-
     draw(p5) {
-        // console.log(this);
         p5.push();
         p5.fill(255);
         p5.stroke(...this.color);

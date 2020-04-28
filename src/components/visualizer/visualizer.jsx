@@ -45,10 +45,10 @@ export default class Visualizer extends PureComponent {
 
         this.animator = new Proxy(new Animator(), {
             get: function (target, propertyName, receiver) {
-                if (!target[propertyName]) {
-                    return () => target.emit(propertyName);
-                } else {
+                if (target[propertyName]) {
                     return target[propertyName];
+                } else {
+                    return (param) => target.emit(propertyName + (param ? ("-" + param) : ""));
                 }
             }
         });
@@ -68,23 +68,52 @@ export default class Visualizer extends PureComponent {
             skipBackButton.addEventListener("click", () => {
                 this.visualization.skipBack();
             });
+            skipBackButton.disabled = true;
+            this.animator.on("disable-skipBack", () => {
+                skipBackButton.disabled = true;
+            });
+            this.animator.on("enable-skipBack", () => {
+                skipBackButton.disabled = false;
+            });
             let stepBackButton = ControlBuilder.createButton("Step Back");
             stepBackButton.addEventListener("click", () => {
                 this.visualization.stepBack();
             });
+            stepBackButton.disabled = true;
+            this.animator.on("disable-stepBack", () => {
+                stepBackButton.disabled = true;
+            });
+            this.animator.on("enable-stepBack", () => {
+                stepBackButton.disabled = false;
+            });
             let playPauseButton = ControlBuilder.createButton("Pause");
             playPauseButton.addEventListener("click", () => {
-                // this.visualization.playPause();
-                playPauseButton.setAttribute("value", playPauseButton.getAttribute("value") === "Pause" ? "Play" : "Pause");
+                this.visualization.playPause();
+                playPauseButton.setAttribute("value", this.visualization.paused ? "Play" : "Pause");
             });
             let stepForwardButton = ControlBuilder.createButton("Step Forward");
             stepForwardButton.addEventListener("click", () => {
                 this.visualization.stepForward();
             });
+            stepForwardButton.disabled = true;
+            this.animator.on("disable-stepForward", () => {
+                stepForwardButton.disabled = true;
+            });
+            this.animator.on("enable-stepForward", () => {
+                stepForwardButton.disabled = false;
+            });
             let skipForwardButton = ControlBuilder.createButton("Skip Forward");
             skipForwardButton.addEventListener("click", () => {
                 this.visualization.skipForward();
             });
+            skipForwardButton.disabled = true;
+            this.animator.on("disable-skipForward", () => {
+                skipForwardButton.disabled = true;
+            });
+            this.animator.on("enable-skipForward", () => {
+                skipForwardButton.disabled = false;
+            });
+
             extraGroups.push(ControlBuilder.createControlGroup("stepButtonGroup",skipBackButton,stepBackButton,playPauseButton,stepForwardButton,skipForwardButton));
             let animationControls = ControlBuilder.createControlGroup("animationControls",...extraGroups);
             ControlBuilder.applyStyle(animationControls,"width","441px");
