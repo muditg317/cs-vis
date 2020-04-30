@@ -79,5 +79,7 @@ export default class QueueVisualizer extends Visualizer {
 
     resetButtonCallback() {
         this.queue.reset();
+        this.valueField.value = "";
+        this.valueField.focus();
     }
 }

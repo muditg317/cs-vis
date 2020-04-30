@@ -79,5 +79,7 @@ export default class StackVisualizer extends Visualizer {
 
     resetButtonCallback() {
         this.stack.reset();
+        this.valueField.value = "";
+        this.valueField.focus();
     }
 }

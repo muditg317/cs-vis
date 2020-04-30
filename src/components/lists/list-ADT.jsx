@@ -151,5 +151,8 @@ export default class ListVisualizer extends Visualizer {
 
     resetButtonCallback() {
         this.list.reset();
+        this.valueField.value = "";
+        this.indexField.value = "";
+        this.valueField.focus();
     }
 }

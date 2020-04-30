@@ -99,5 +99,7 @@ export default class DequeVisualizer extends Visualizer {
 
     resetButtonCallback() {
         this.deque.reset();
+        this.valueField.value = "";
+        this.valueField.focus();
     }
 }
