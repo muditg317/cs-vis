@@ -516,7 +516,7 @@ export default class Visualization {
         return true;
     }
 
-    windowResized(p5, height, numScrollbars, maxY) {
+    windowResized(p5, height, numScrollbars, maxY, callback) {
         height -= numScrollbars * 16;
         let width = p5.windowWidth;
         if (maxY > (height - (2*this.y))) {
@@ -538,6 +538,21 @@ export default class Visualization {
         if (this.constructor.SET_BOUNDS) {
             this.width = p5.width - 2 * this.x;
             this.height = p5.height - 2 * this.y;
+        }
+
+
+        if (callback) {
+            callback();
+        }
+        try {
+            this.ensureDrawn(this.animationQueue.length === 0);
+            if (this.animationQueue.length > 0) {
+                this.stopID++;
+            }
+        } catch (e) {
+
+        } finally {
+
         }
     }
 }

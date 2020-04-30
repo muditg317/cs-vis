@@ -46,7 +46,6 @@ export default class QueueArray extends Visualization {
             highlightOuterRadius: 15
         });
 
-        this.resizing = false;
         if (this.made) {
             // this.updateText("Animation Ready");
             this.endDrawLoop();
@@ -54,51 +53,46 @@ export default class QueueArray extends Visualization {
     }
 
     ensureDrawn(skipDraw = false) {
-        if (!this.drawing) {
-            this.beginDrawLoop();
-            let furthestObject = this.headPointerHighlighter;
-            if (this.tailPointerHighlighter.displacement() > furthestObject.displacement()) {
-                furthestObject = this.tailPointerHighlighter;
+        this.beginDrawLoop();
+        let furthestObject = this.headPointerHighlighter;
+        if (this.tailPointerHighlighter.displacement() > furthestObject.displacement()) {
+            furthestObject = this.tailPointerHighlighter;
+        }
+        for (let i = 0; i < this.backingArray.length; i++) {
+            if (this.backingArray[i] && this.backingArray[i].displacement() > furthestObject.displacement()) {
+                furthestObject = this.backingArray[i];
             }
-            for (let i = 0; i < this.backingArray.length; i++) {
-                if (this.backingArray[i] && this.backingArray[i].displacement() > furthestObject.displacement()) {
-                    furthestObject = this.backingArray[i];
+        }
+        if (this.copyArray) {
+            for (let i = 0; i < this.copyArray.length; i++) {
+                if (this.copyArray[i] && this.copyArray[i].displacement() > furthestObject.displacement()) {
+                    furthestObject = this.copyArray[i];
                 }
             }
-            if (this.copyArray) {
-                for (let i = 0; i < this.copyArray.length; i++) {
-                    if (this.copyArray[i] && this.copyArray[i].displacement() > furthestObject.displacement()) {
-                        furthestObject = this.copyArray[i];
+        }
+        if (furthestObject.displacement() > 0) {
+            let stopID = ++this.stopID;
+            furthestObject.addOnStop(() => {
+                this.stopDrawing(stopID);
+            });
+            if (skipDraw) {
+                this.headPointerHighlighter.stop();
+                this.tailPointerHighlighter.stop();
+                for (let i = 0; i < this.backingArray.length; i++) {
+                    if (this.backingArray[i]) {
+                        this.backingArray[i].stop();
                     }
                 }
-            }
-            if (furthestObject.displacement() > 0) {
-                let stopID = ++this.stopID;
-                furthestObject.addOnStop(() => {
-                    this.stopDrawing(stopID);
-                });
-                if (skipDraw) {
-                    this.headPointerHighlighter.stop();
-                    this.tailPointerHighlighter.stop();
-                    for (let i = 0; i < this.backingArray.length; i++) {
-                        if (this.backingArray[i]) {
-                            this.backingArray[i].stop();
+                if (this.copyArray) {
+                    for (let i = 0; i < this.copyArray.length; i++) {
+                        if (this.copyArray[i]) {
+                            this.copyArray[i].stop();
                         }
                     }
-                    if (this.copyArray) {
-                        for (let i = 0; i < this.copyArray.length; i++) {
-                            if (this.copyArray[i]) {
-                                this.copyArray[i].stop();
-                            }
-                        }
-                    }
                 }
-            } else {
-                let stopID = ++this.stopID;
-                furthestObject.addOnStop(() => {
-                    this.stopDrawing(stopID);
-                });
             }
+        } else {
+            this.stopDrawing(++this.stopID);
         }
     }
 
@@ -524,23 +518,6 @@ export default class QueueArray extends Visualization {
         return [x + QueueArray.ELEMENT_SIZE/2 + this.x,y + QueueArray.ELEMENT_SIZE/2 + this.y + (copy ? (Math.ceil(this.backingArray.length / maxPerRow)*QueueArray.ELEMENT_SIZE*2) : 0)];
     }
 
-    allInPosition() {
-        let moving = false;
-        for (let i = 0; i < this.backingArray.length; i++) {
-            if (this.backingArray[i] && this.backingArray[i].displacement() > 0) {
-                moving = true;
-            }
-        }
-        if (this.copyArray) {
-            for (let i = 0; i < this.copyArray.length; i++) {
-                if (this.copyArray[i] && this.copyArray[i].displacement() > 0) {
-                    moving = true;
-                }
-            }
-        }
-        return !moving;
-    }
-
     updateElement(element, animationSpeed, p5) {
         if (element) {
             element.update(animationSpeed, p5);
@@ -562,12 +539,6 @@ export default class QueueArray extends Visualization {
             }
             this.headPointerHighlighter.update(animationSpeed, p5);
             this.tailPointerHighlighter.update(animationSpeed, p5);
-            if (this.resizing && this.allInPosition()) {
-                if (!this.animating && this.animationQueue.length === 0) {
-                    this.animator.noLoop();
-                }
-                this.resizing = false;
-            }
         }, animationSpeed, p5);
     }
 
@@ -621,14 +592,20 @@ export default class QueueArray extends Visualization {
     }
 
     windowResized(p5, height, numScrollbars) {
-        super.windowResized(p5, height, numScrollbars, (this.copyArray ? this.getElementPosition(this.copyArray.length-1, true)[1] : this.getElementPosition(this.backingArray.length-1)[1]) + QueueArray.ELEMENT_SIZE);
-        for (let i = 0; i < this.backingArray.length; i++) {
-            if (this.backingArray[i]) {
-                this.backingArray[i].shift(...this.getElementPosition(i));
+        super.windowResized(p5, height, numScrollbars, (this.copyArray ? this.getElementPosition(this.copyArray.length-1, true)[1] : this.getElementPosition(this.backingArray.length-1)[1]) + QueueArray.ELEMENT_SIZE, () => {
+            for (let i = 0; i < this.backingArray.length; i++) {
+                if (this.backingArray[i]) {
+                    this.backingArray[i].shift(...this.getElementPosition(i));
+                }
             }
-        }
-        this.resizing = true;
-        this.animator.loop();
+            if (this.copyArray) {
+                for (let i = 0; i < this.copyArray.length; i++) {
+                    if (this.copyArray[i]) {
+                        this.copyArray[i].shift(...this.getElementPosition(i,true));
+                    }
+                }
+            }
+        });
     }
 }
 

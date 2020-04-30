@@ -11,6 +11,7 @@ export default class StackLinkedList extends Visualization {
     static MAX_ANIM_TIME = 5000;
     static SUPPORTS_TEXT = true;
     static SUPPORTS_ANIMATION_CONTROL = true;
+    static SUPPORTS_STOP_ID = true;
 
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
@@ -45,30 +46,29 @@ export default class StackLinkedList extends Visualization {
     }
 
     ensureDrawn(skipDraw = false) {
-        if (!this.drawing) {
-            this.beginDrawLoop();
-            let maxNode = this.head;
-            let curr = this.head;
-            while (curr) {
-                if (curr.displacement() > maxNode.displacement()) {
-                    maxNode = curr;
-                }
-                curr = curr.next;
+        this.beginDrawLoop();
+        let maxNode = this.head;
+        let curr = this.head;
+        while (curr) {
+            if (curr.displacement() > maxNode.displacement()) {
+                maxNode = curr;
             }
-            if (maxNode && maxNode.displacement() > 0) {
-                maxNode.addOnStop(() => {
-                    this.stopDrawing();
-                });
-                if (skipDraw) {
-                    let curr = this.head;
-                    while (curr) {
-                        curr.stop();
-                        curr = curr.next;
-                    }
+            curr = curr.next;
+        }
+        if (maxNode && maxNode.displacement() > 0) {
+            let stopID = ++this.stopID;
+            maxNode.addOnStop(() => {
+                this.stopDrawing(stopID);
+            });
+            if (skipDraw) {
+                let curr = this.head;
+                while (curr) {
+                    curr.stop();
+                    curr = curr.next;
                 }
-            } else {
-                this.stopDrawing();
             }
+        } else {
+            this.stopDrawing(++this.stopID);
         }
     }
 
@@ -157,15 +157,17 @@ export default class StackLinkedList extends Visualization {
     undo_shiftHead() {
         this.tempNode = this.nodes[0];
         this.tempNode.shift(20,20);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
-            this.stopDrawing();
+            this.stopDrawing(stopID);
         });
     }
     redo_shiftHead() {
         this.tempNode.shift(...this.getNodePosition(0));
         let temp = this.tempNode;
+        let stopID = ++this.stopID;
         temp.addOnStop(() => {
-            this.stopDrawing();
+            this.stopDrawing(stopID);
         });
         this.tempNode = null;
     }
@@ -187,16 +189,18 @@ export default class StackLinkedList extends Visualization {
     undo_unmakeHead() {
         this.tempNode.shift(...this.getNodePosition(0));
         this.nodes.splice(0, 0, this.tempNode);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
-            this.stopDrawing();
+            this.stopDrawing(stopID);
         });
         this.tempNode = null;
     }
     redo_unmakeHead() {
         this.tempNode = this.nodes.splice(0, 1)[0];
         this.tempNode.shift(20,20);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
-            this.stopDrawing();
+            this.stopDrawing(stopID);
         });
     }
 
@@ -223,8 +227,9 @@ export default class StackLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, -1);
             if (!node.next) {
+                let stopID = ++this.stopID;
                 node.addOnStop(() => {
-                    this.stopDrawing();
+                    this.stopDrawing(stopID);
                 });
             }
             node = node.next;
@@ -235,8 +240,9 @@ export default class StackLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, 1);
             if (!node.next) {
+                let stopID = ++this.stopID;
                 node.addOnStop(() => {
-                    this.stopDrawing();
+                    this.stopDrawing(stopID);
                 });
             }
             node = node.next;
@@ -255,8 +261,9 @@ export default class StackLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, 1);
             if (!node.next) {
+                let stopID = ++this.stopID;
                 node.addOnStop(() => {
-                    this.stopDrawing();
+                    this.stopDrawing(stopID);
                 });
             }
             node = node.next;
@@ -267,8 +274,9 @@ export default class StackLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, -1);
             if (!node.next) {
+                let stopID = ++this.stopID;
                 node.addOnStop(() => {
-                    this.stopDrawing();
+                    this.stopDrawing(stopID);
                 });
             }
             node = node.next;
@@ -394,27 +402,23 @@ export default class StackLinkedList extends Visualization {
     mouseReleased(p5) {
         if (this.pinnedNode) {
             this.pinnedNode.addOnStop(() => {
-                if (!this.drawing) {
-                    this.stopDrawing();
-                }
+                this.ensureDrawn();
             });
             this.unpin();
         } else {
-            // if (!this.drawing) {
-            //     this.stopDrawing();
-            // }
+            // this.ensureDrawn();
         }
         return false;
     }
 
-    windowResized(p5, height) {
-        super.windowResized(p5, height, this.getNodePosition(this.size-1)[1] + StackLinkedList.ELEMENT_HEIGHT);
-
-        let node = this.head;
-        while (node) {
-            node.shift(...this.getNodePosition(node.index));
-            node = node.next;
-        }
+    windowResized(p5, height, numScrollbars) {
+        super.windowResized(p5, height, numScrollbars, this.getNodePosition(this.size-1)[1] + StackLinkedList.ELEMENT_HEIGHT,() => {
+            let node = this.head;
+            while (node) {
+                node.shift(...this.getNodePosition(node.index));
+                node = node.next;
+            }
+        });
     }
 }
 
