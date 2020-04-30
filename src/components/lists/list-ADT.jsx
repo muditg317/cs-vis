@@ -118,6 +118,7 @@ export default class ListVisualizer extends Visualizer {
         if (value !== "") {
             this.list.addToFront(value);
             this.valueField.value = "";
+            this.valueField.focus();
         }
     }
 
@@ -126,6 +127,7 @@ export default class ListVisualizer extends Visualizer {
         if (value !== "") {
             this.list.addToBack(value);
             this.valueField.value = "";
+            this.valueField.focus();
         }
     }
 

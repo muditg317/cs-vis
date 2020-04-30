@@ -64,6 +64,7 @@ export default class DequeVisualizer extends Visualizer {
         if (value !== "") {
             if (this.deque.addLast(value)) {
                 this.valueField.value = "";
+                this.valueField.focus();
             }
         }
     }
@@ -74,6 +75,7 @@ export default class DequeVisualizer extends Visualizer {
         if (value !== "") {
             if (this.deque.addFirst(value)) {
                 this.valueField.value = "";
+                this.valueField.focus();
             }
         }
     }

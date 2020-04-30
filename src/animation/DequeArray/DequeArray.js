@@ -1,404 +1,698 @@
 import { Visualization } from 'animation';
-import AttractedDraggableObject from 'animation/AttractedDraggableObject';
-import { Utils } from 'utils';
+import { AttractedHighlightableObject } from 'animation';
+import { Colors } from 'utils';
 
 export default class DequeArray extends Visualization {
     static USE_CANVAS = true;
     static SET_BOUNDS = true;
+    static SUPPORTS_NO_LOOP = true;
     static SUPPORTS_CUSTOM_END = true;
     static MAX_ANIM_TIME = 5000;
+    static SUPPORTS_TEXT = true;
+    static SUPPORTS_ANIMATION_CONTROL = true;
+    static SUPPORTS_STOP_ID = true;
 
-    static ELEMENT_HEIGHT = 35;
-    static ELEMENT_WIDTH = 50;
-    static POINTER_WIDTH = 15;
-    static ITEM_WIDTH = DequeArray.ELEMENT_WIDTH + DequeArray.POINTER_WIDTH;
-    static SPACING = 50;
-    static ELEMENT_SIZE = DequeArray.ITEM_WIDTH + DequeArray.SPACING;
+    static INITIAL_CAPACITY = 9;
 
-    static MAX_DIST_REMOVE = 300;
+    static ELEMENT_SIZE = 50;
+    static FRONT_LOCATION_X = 125;
+    static FRONT_LOCATION_Y = 35;
+    static SIZE_LOCATION_X = 125;
+    static SIZE_LOCATION_Y = 55;
 
     constructor(animator) {
         super(animator);
 
         this.reset();
+        this.made = true;
+    }
+
+    reset() {
+        super.reset();
+        if (this.made) {
+            this.beginDrawLoop();
+        }
+
+        this.backingArray = new Array(DequeArray.INITIAL_CAPACITY);
+        this.size = 0;
+        this.copyArray = null;
+        this.tempElement = null;
+        this.frontPointerValue = 0;
+        this.frontPointerHighlighter = new AttractedHighlightableObject(DequeArray.FRONT_LOCATION_X, DequeArray.FRONT_LOCATION_Y, {
+            highlightOuterRadius: 15
+        });
+        this.sizePointerHighlighter = new AttractedHighlightableObject(DequeArray.SIZE_LOCATION_X, DequeArray.SIZE_LOCATION_Y, {
+            highlightOuterRadius: 15
+        });
+
+        if (this.made) {
+            // this.updateText("Animation Ready");
+            this.endDrawLoop();
+        }
+    }
+
+    ensureDrawn(skipDraw = false) {
+        this.beginDrawLoop();
+        let furthestObject = this.tempElement || this.frontPointerHighlighter;
+        if (this.frontPointerHighlighter.displacement() > furthestObject.displacement()) {
+            furthestObject = this.frontPointerHighlighter;
+        }
+        if (this.sizePointerHighlighter.displacement() > furthestObject.displacement()) {
+            furthestObject = this.sizePointerHighlighter;
+        }
+        for (let i = 0; i < this.backingArray.length; i++) {
+            if (this.backingArray[i] && this.backingArray[i].displacement() > furthestObject.displacement()) {
+                furthestObject = this.backingArray[i];
+            }
+        }
+        if (this.copyArray) {
+            for (let i = 0; i < this.copyArray.length; i++) {
+                if (this.copyArray[i] && this.copyArray[i].displacement() > furthestObject.displacement()) {
+                    furthestObject = this.copyArray[i];
+                }
+            }
+        }
+        if (furthestObject.displacement() > 0) {
+            let stopID = ++this.stopID;console.log(stopID);
+            furthestObject.addOnStop(() => {
+                this.stopDrawing(stopID);
+            });
+            if (skipDraw) {
+                if (this.tempElement) {
+                    this.tempElement.stop();
+                }
+                this.frontPointerHighlighter.stop();
+                this.sizePointerHighlighter.stop();
+                for (let i = 0; i < this.backingArray.length; i++) {
+                    if (this.backingArray[i]) {
+                        this.backingArray[i].stop();
+                    }
+                }
+                if (this.copyArray) {
+                    for (let i = 0; i < this.copyArray.length; i++) {
+                        if (this.copyArray[i]) {
+                            this.copyArray[i].stop();
+                        }
+                    }
+                }
+            }
+        } else {
+            let stopID = ++this.stopID;console.log(stopID);
+            this.stopDrawing(stopID);
+        }
     }
 
 
-    addAtIndex(index, data) {
+    add(data,front) {
         if (this.animating) {
             console.log("animation in progress");
             return false;
         }
-        if (index < 0 || index > this.size) {
-            console.log("index out of bounds");
-            return false;
-        }
+        this.beginDrawLoop();
         if (data === null) {
-            console.log("Cannot add null to ArrayList.");
+            this.updateText("Cannot add null to Deque.", Colors.RED);
             return false;
         }
         let animation = [];
-        if (this.size > 0 && (index === 0 || index === this.size)) {
-            animation.push({method:this.makeNode,params:[index === 0 ? 1 : index,this.head.data,],});
-            animation.push({method:this.setTempNodeBefore,params:[this.head.next,],});
-            animation.push({method:this.setTempNodePrev,params:[this.head,],});
-            animation.push({method:this.changeHeadData,params:[data],});
-            if (this.size >= 2) {
-                animation.push({method:this.shiftForNode,params:[this.head.next,],});
-            }
-            animation.push({method:this.insertTempNode,params:[1,],});
-            animation.push({method:this.sizeIncr,params:[],});
-            if (index === this.size) {
-                animation.push({method:this.customNodeShift,params:[this.head, this.head.currentX - 10, this.getNodePosition(this.size)[1] + DequeArray.ELEMENT_HEIGHT * 2,],customEnd:true});
-                // animation.push({method:this.head.shift,scope:this.head,params:[this.head.currentX - 10, this.getNodePosition(this.size)[1] + DequeArray.ELEMENT_HEIGHT * 2,],});
-                animation.push({method:this.resetHead,params:[],});
-            }
-        } else {
-            let node = null;
-            let nextNode = this.head;
-            for (let i = 0; i < index; i++) {
-                animation.push({method:this.moveHighlight,params:[node,nextNode,],});
-                node = nextNode;
-                nextNode = nextNode.next;
-            }
-            animation.push({method:this.makeNode,params:[index,data,],});
-            animation.push({method:this.moveHighlight,params:[node,null,],});
-            animation.push({method:this.setTempNodeBefore,params:[nextNode,],});
-            animation.push({method:this.setTempNodePrev,params:[node,],});
-            if (index < this.size) {
-                animation.push({method:this.shiftForNode,params:[nextNode,],});
-            }
-            animation.push({method:this.insertTempNode,params:[index,],});
-            animation.push({method:this.sizeIncr,params:[],});
+        if (this.size === this.backingArray.length) {
+            this.animationQueue.push({method:this.showText,params:[`Stack full, resizing to length ${this.backingArray.length*2}`,Colors.GREEN,],});
+            animation.push(...this.createCopyArray());
         }
+        animation.push({method:this.createElement,params:[data,front],explanation:`Create value: ${data}`,isAnimationStep:true,returnsRedoData:true,});
+        animation.push(...this.useFrontPointer());
+        if (front) {
+            animation.push(...this.useFrontDecrementPointer(true));
+        } else {
+            animation.push(...this.useFrontSizePointer(true));
+        }
+        animation.push({method:this.highlightTemp,params:[],noAnim:true});
+        animation.push({method:this.insertElement,params:[],customEnd:true,explanation:`Added ${data} to backingArray`,isAnimationStep:true,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
+        if (front) {
+            // animation.push({method:this.noAction,noAnim:true,isBackStep:true});
+            animation.push(...this.updateFrontPointer(-1));
+        }
+        animation.push(...this.updateSizePointer(1));
+        animation.push({method:this.showText,params:[`Successfully added ${data} to ${front ? "front" : "back"} of deque.`,Colors.GREEN,],});
         this.addAnimation(animation);
-        this.animationHistory.push(animation);
+        this.endDrawLoop();
+        this.stepForward();
         return true;
     }
 
-    addToFront(data) {
-        return this.addAtIndex(0,data);
+    addFirst(data) {
+        return this.add(data, true);
     }
 
-    addToBack(data) {
-        return this.addAtIndex(this.size,data);
+    addLast(data) {
+        return this.add(data, false);
     }
 
-
-    removeFromIndex(index) {
+    remove(front) {
         if (this.animating) {
             console.log("animation in progress");
             return false;
         }
-        if (index < 0 || index >= this.size) {
-            console.log(`Index invalid: ${index} for ArrayList of length ${this.size}. Should be [0,${this.size-1}].`);
+        this.beginDrawLoop();
+        if (this.size === 0) {
+            this.updateText("Cannot pop empty Deque", Colors.RED);
             return false;
         }
         let animation = [];
-        let data;
-        if (index === 0) {
-            data = this.head.data;
-            animation.push({method:this.moveHighlight,params:[null,this.head,],});
-            animation.push({method:this.changeHeadData,params:[this.head.next.data],});
-            index = 1;
+        let data = this.backingArray[front ? this.frontPointerValue : this.getIndex(this.frontPointerValue + this.size - 1)].value;
+        animation.push({method:this.showText,params:[`Dequeuing from index ${this.frontPointerValue}.`]});
+        animation.push(...this.useFrontPointer(front));
+        if (!front) {
+            animation.push(...this.useFrontSizePointer(false,false));
+            animation.push(...this.useFrontDecrementPointer(false));
         }
-        let prev;
-        let toDelete;
-        let next;
-        let node = this.head;
-        animation.push({method:this.moveHighlight,params:[null,node,],});
-        for (let i = 0; i < index - 1; i++) {
-            animation.push({method:this.moveHighlight,params:[node,node.next,],});
-            node = node.next;
+        animation.push({method:this.extractElement,params:[front],explanation:`Remove value: ${data} from deque`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.unmakeElement,params:[],noAnim:true,returnsUndoData:true});
+        if (front) {
+            animation.push(...this.updateFrontPointer(1));
         }
-        prev = node;
-        toDelete = prev.next;
-        next = toDelete.next;
-        if (!data) {
-            data = toDelete.data;
-        }
-        animation.push({method:this.markNodeForDeletion,params:[prev,toDelete,],});
-        animation.push({method:this.unmakeNode,params:[toDelete,],customEnd:true,});
-        if (index < this.size - 1) {
-            animation.push({method:this.shiftIntoNode,params:[next,],});
-        }
-        animation.push({method:this.skipTempNode,params:[prev,],});
-        animation.push({method:this.sizeDecr,params:[],});
+        animation.push(...this.updateSizePointer(-1));
+        animation.push({method:this.showText,params:[`Successfully removed ${data} from ${front ? "front of " : "back of"} deque.`,Colors.GREEN],noAnim:true});
         this.addAnimation(animation);
-        this.animationHistory.push(animation)
+        this.endDrawLoop();
+        this.stepForward();
         return data;
     }
 
-    removeFromFront() {
-        return this.removeFromIndex(0);
+    removeFirst() {
+        return this.remove(true);
     }
 
-    removeFromBack() {
-        return this.removeFromIndex(this.size-1);
+    removeLast() {
+        return this.remove(false);
     }
 
-
-    reset() {
-        this.head = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
+    createCopyArray() {
+        let animation = [];
+        animation.push({method:this.initCopyArray,params:[],noAnim:true,explanation:`Deque full, resizing to length ${this.backingArray.length*2}`,isForwardStep:true,});
+        animation.push(...this.useFrontPointer(true));
+        for (let i = 0; i < this.size; i++) {
+            animation.push(...this.addItemToCopy(i));
+        }
+        animation.push(...this.useCopyArr());
+        animation.push(...this.updateFrontPointer(0));
+        return animation;
     }
 
-
-    makeNode(index, data) {
-        this.tempNode = new CircularSinglyLinkedListNode({data: data, index: index, x:20,y:20,},);
+    initCopyArray() {
+        this.copyArray = new Array(this.backingArray.length * 2);
+        for (let i = 0; i < this.size; i++) {
+            let arrIndex = (i + this.frontPointerValue) % this.backingArray.length;
+            let pos = this.getElementPosition(arrIndex);
+            this.copyArray[i] = new DequeArrayElement({data: this.backingArray[arrIndex].value, index: i, x:pos[0],y:pos[1],},);
+        }
+    }
+    undo_initCopyArray() {
+        this.copyArray = null;
     }
 
-    setTempNodeBefore(next) {
-        if (next) {
-            this.tempNode.next = next;
+    addItemToCopy(index) {
+        let animation = [];
+        // animation.push({method:this.shiftElementToCopyArray,params:[index,...this.getElementPosition(index,true)],customEnd:true,isBackStep:(index === 0),isForwardStep:(index === this.size - 1),customUndoEnd:(index === 0),customRedoEnd:(index === this.size - 1),});
+        animation.push({method:this.shiftElementToCopyArray,params:[index,...this.getElementPosition(index,true)],customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
+        return animation;
+    }
+
+    shiftElementToCopyArray(index, x, y) {
+        let element = this.copyArray[index];
+        let oldX = element.desiredX;
+        let oldY = element.desiredY;
+        element.highlightForMovement();
+        element.shift(x,y);
+        element.addOnStop((el) => {
+            el.unhighlight();
+            this.doneAnimating(0);
+        });
+        return [index, oldX, oldY];
+    }
+    undo_shiftElementToCopyArray(index, x, y) {
+        let element = this.copyArray[index];
+        element.highlightForMovement();
+        element.shift(x,y);
+        if (true || index === 0) {
+            let stopID = ++this.stopID;console.log(stopID);
+            element.addOnStop((el) => {
+                el.unhighlight();
+                this.stopDrawing(stopID);
+            });
         } else {
-            if (this.head) {
-                this.tempNode.next = this.head;
-            } else {
-                this.tempNode.next = this.tempNode;
-            }
+            element.addOnStop((el) => {
+                el.unhighlight();
+            });
         }
     }
-
-    setTempNodePrev(prev) {
-        if (prev) {
-            prev.next = this.tempNode;
+    redo_shiftElementToCopyArray(index, x, y) {
+        let element = this.copyArray[index];
+        element.highlightForMovement();
+        element.shift(x,y);
+        if (true || index === this.size - 1) {
+            let stopID = ++this.stopID;console.log(stopID);
+            element.addOnStop((el) => {
+                el.unhighlight();
+                this.stopDrawing(stopID);
+            });
         } else {
-            // this.head = this.tempNode;
+            element.addOnStop((el) => {
+                el.unhighlight();
+            });
         }
     }
 
-    changeHeadData(data) {
-        this.head.data = data;
-    }
-
-    resetHead() {
-        this.head = this.head.next;
-        let node = this.head;
-        let i = 0;
-        while (node) {
-            node.index = i;
-            node.shift(...this.getNodePosition(i++));
-            node = node.next;
-            if (node === this.head) {
-                break;
-            }
+    useCopyArr() {
+        let animation = [];
+        animation.push({method:this.assignCopyArray,params:[],noAnim:true,isBackStep:true,customUndoEnd:true,returnsUndoData:true});
+        for (let i = 0; i < this.size; i++) {
+            animation.push({method:this.shiftElementToBackingArray,params:[i,],noAnim:true,isForwardStep:(i === this.size - 1),customUndoEnd:true,customRedoEnd:true});
         }
+        animation.push({method:this.noAction,noAnim:true,isBackStep:true});
+        return animation;
     }
 
-    insertTempNode(index) {
-        this.nodes.splice(index, 0, this.tempNode);
+    assignCopyArray() {
+        let oldBacking = this.backingArray;
+        this.backingArray = this.copyArray;
+        this.copyArray = null;
+        return [oldBacking];
+    }
+    undo_assignCopyArray(oldBacking) {
+        this.copyArray = this.backingArray;
+        this.backingArray = oldBacking;
+    }
+
+    shiftElementToBackingArray(index) {
+        let element = this.backingArray[index];
+        element.shift(...this.getElementPosition(element.index));
+    }
+    undo_shiftElementToBackingArray(index) {
+        let element = this.backingArray[index];
+        element.shift(...this.getElementPosition(index,true));
         if (index === 0) {
-            this.head = this.tempNode;
-        }
-        this.tempNode.shift(...this.getNodePosition(index));
-        this.tempNode = null;
-    }
-
-    moveHighlight(fromNode, toNode) {
-        if (fromNode) {
-            fromNode.unHighlight();
-        }
-        if (toNode) {
-            toNode.highlight();
+            let stopID = ++this.stopID;console.log(stopID);
+            element.addOnStop((el) => {
+                this.stopDrawing(stopID);
+            })
         }
     }
-
-    markNodeForDeletion(highlighted, nodeToDelete) {
-        if (highlighted) {
-            highlighted.unHighlight();
+    redo_shiftElementToBackingArray(index) {
+        let element = this.backingArray[index];
+        element.shift(...this.getElementPosition(element.index));
+        if (index === this.size - 1) {
+            let stopID = ++this.stopID;console.log(stopID);
+            element.addOnStop((el) => {
+                this.stopDrawing(stopID);
+            })
         }
-        nodeToDelete.markForDeletion();
     }
 
-    unmakeNode(node) {
-        this.tempNode = node;//this.nodes.splice(node.index, 1)[0];
-        this.tempNode.shift(20,20);
-        this.tempNode.addOnStop(() => {
+    createElement(data, front) {
+        this.tempElement = new DequeArrayElement({data: data, index: this.getIndex(front ? this.frontPointerValue - 1 : this.frontPointerValue + this.size), x:45,y:45,},);
+        return [this.tempElement];
+    }
+    undo_createElement() {
+        this.tempElement = null;
+    }
+    redo_createElement(newTemp) {
+        this.tempElement = newTemp;
+        this.tempElement.goTo(45,45);
+    }
+
+    useSizePointer() {
+        let animation = [];
+        animation.push({method:this.sizePointerHighlighter.highlight,scope:this.sizePointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.moveSizeTracker,params:[],customEnd:true,explanation:`Size points to index |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.sizePointerHighlighter.unhighlight,scope:this.sizePointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.sizePointerHighlighter.goTo,scope:this.sizePointerHighlighter,params:[DequeArray.SIZE_LOCATION_X,DequeArray.SIZE_LOCATION_Y,],noAnim:true,returnsUndoData:true});
+        return animation;
+    }
+
+    // moveSizeTracker() {
+    //     let pos = this.getElementPosition(this.size);
+    //     this.sizePointerHighlighter.highlight();
+    //     this.sizePointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
+    //     this.sizePointerHighlighter.addOnStop((element) => {
+    //         element.unhighlight();
+    //         this.doneAnimating(0);
+    //     });
+    //     return this.size;
+    // }
+    // undo_moveSizeTracker() {
+    //     this.sizePointerHighlighter.shift(DequeArray.SIZE_LOCATION_X,DequeArray.SIZE_LOCATION_Y);
+    //     this.sizePointerHighlighter.highlight();
+    //     let stopID = ++this.stopID;console.log(stopID);
+    //     this.sizePointerHighlighter.addOnStop((element) => {
+    //         element.unhighlight();
+    //         this.stopDrawing(stopID);
+    //     });
+    //     return this.size;
+    // }
+    // redo_moveSizeTracker() {
+    //     let pos = this.getElementPosition(this.size);
+    //     this.sizePointerHighlighter.highlight();
+    //     this.sizePointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
+    //     let stopID = ++this.stopID;console.log(stopID);
+    //     this.sizePointerHighlighter.addOnStop((element) => {
+    //         element.unhighlight();
+    //         this.stopDrawing(stopID);
+    //     });
+    //     return this.size;
+    // }
+
+    highlightTemp(color = Colors.BLUE) {
+        this.tempElement.highlight(color);
+    }
+    undo_highlightTemp() {
+        this.tempElement.unhighlight();
+    }
+
+    insertElement() {
+        let index = this.tempElement.index;
+        this.backingArray[index] = this.tempElement;
+        this.highlightTemp();
+        this.tempElement.shift(...this.getElementPosition(index));
+        this.tempElement.addOnStop((element) => {
+            element.unhighlight();
             this.doneAnimating(0);
+        });
+        let oldTemp = this.tempElement;
+        this.tempElement = null;
+        return [oldTemp];
+    }
+    undo_insertElement(oldTemp) {
+        this.tempElement = oldTemp;
+        let index = this.tempElement.index;
+        this.highlightTemp();
+        this.tempElement.shift(45,45);
+        let stopID = ++this.stopID;console.log(stopID);
+        this.tempElement.addOnStop((element) => {
+            element.unhighlight();
+            this.stopDrawing(stopID);
+        });
+        this.backingArray[index] = null;
+    }
+    redo_insertElement() {
+        let index = this.tempElement.index;
+        this.backingArray[index] = this.tempElement;
+        this.highlightTemp();
+        this.tempElement.shift(...this.getElementPosition(index));
+        let stopID = ++this.stopID;console.log(stopID);
+        console.log(stopID);
+        this.tempElement.addOnStop((element) => {
+            element.unhighlight();
+            this.stopDrawing(stopID);
+        });
+        this.tempElement = null;
+    }
+
+    useFrontPointer(end = false) {
+        let animation = [];
+        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.moveFrontTracker,params:[0,false],customEnd:true,explanation:`Front points to index |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        if (end) {
+            animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[DequeArray.FRONT_LOCATION_X,DequeArray.FRONT_LOCATION_Y,],noAnim:true,returnsUndoData:true,});
+        }
+        return animation;
+    }
+    useFrontDecrementPointer(add) {
+        let animation = [];
+        // animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[...this.getElementPosition(this.frontPointerValue)],noAnim:true,returnsUndoData:true,});
+        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.moveFrontTracker,params:[-1,!add],customEnd:true,explanation:`${add ? "Add at" : "Remove from"} index (front${add ? " " : " + size "}- 1) % backingArray.length = |RETURN|`,explanationUsesReturn:true,isForwardStep:true,isBackStep:add,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[DequeArray.FRONT_LOCATION_X,DequeArray.FRONT_LOCATION_Y,],noAnim:true,returnsUndoData:true,});
+        return animation;
+    }
+    useFrontSizePointer(add, end = true) {
+        let animation = [];
+        // animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[...this.getElementPosition(this.frontPointerValue)],noAnim:true,returnsUndoData:true,});
+        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.moveFrontTracker,params:[0,true],customEnd:true,explanation:`${add ? "Add at" : "Remove from"} index (front + size${add ? "" : " - 1"}) % backingArray.length = |RETURN|`,explanationUsesReturn:true,isForwardStep:end,isBackStep:true,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        if (end) {
+            animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[DequeArray.FRONT_LOCATION_X,DequeArray.FRONT_LOCATION_Y,],noAnim:true,returnsUndoData:true,});
+        }
+        return animation;
+    }
+
+    moveFrontTracker(offset, fromSize) {
+        let oldX = this.frontPointerHighlighter.desiredX;
+        let oldY = this.frontPointerHighlighter.desiredY;
+        let index = this.getIndex(this.frontPointerValue + offset + (fromSize ? this.size : 0));
+        let pos = this.getElementPosition(index);
+        this.frontPointerHighlighter.highlight();
+        this.frontPointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
+        this.frontPointerHighlighter.addOnStop((element) => {
+            element.unhighlight();
+            this.doneAnimating(0);
+        });
+        return [index, [oldX,oldY]];
+    }
+    undo_moveFrontTracker(oldX,oldY) {
+        this.frontPointerHighlighter.highlight();
+        this.frontPointerHighlighter.shift(oldX, oldY);
+        let stopID = ++this.stopID;console.log(stopID);
+        this.frontPointerHighlighter.addOnStop((element) => {
+            element.unhighlight();
+            this.stopDrawing(stopID);
+        });
+    }
+    redo_moveFrontTracker(offset, fromSize) {
+        let index = this.getIndex(this.frontPointerValue + offset + (fromSize ? this.size : 0));
+        let pos = this.getElementPosition(index);
+        this.frontPointerHighlighter.highlight();
+        this.frontPointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
+        let stopID = ++this.stopID;console.log(stopID);
+        this.frontPointerHighlighter.addOnStop((element) => {
+            element.unhighlight();
+            this.stopDrawing(stopID);
         });
     }
 
-    skipTempNode(prev) {
-        if (prev) {
-            prev.next = this.tempNode.next;
-        } else {
-            this.head = this.head.next;
-        }
-        this.tempNode = null;
-    }
-
-    shiftForNode(node) {
-        while (node) {
-            this.shiftNode(node, 1);
-            node = node.next;
-            if (node === this.head) {
-                break;
-            }
-        }
-    }
-
-    shiftIntoNode(node) {
-        while (node) {
-            this.shiftNode(node, -1);
-            node = node.next;
-            if (node === this.head) {
-                break;
-            }
-        }
-    }
-
-    shiftNode(node, direction) {
-        node.shift(...this.getNodePosition(node.index + direction), direction);
-    }
-
-    customNodeShift(node, x, y) {
-        node.shift(x,y);
-        node.addOnStop(() => {
+    extractElement(front) {
+        let index = this.getIndex(this.frontPointerValue + (front ? 0 : this.size - 1));
+        this.tempElement = this.backingArray[index];
+        this.backingArray[index] = null;
+        this.tempElement.highlightForMovement();
+        this.tempElement.shift(45,45);
+        this.tempElement.addOnStop((element) => {
+            element.unhighlight();
             this.doneAnimating(0);
         });
+    }
+    undo_extractElement(front) {
+        let index = this.getIndex(this.frontPointerValue + (front ? 0 : this.size - 1));
+        this.tempElement.highlightForMovement();
+        this.tempElement.shift(...this.getElementPosition(index));
+        let stopID = ++this.stopID;console.log(stopID);
+        this.tempElement.addOnStop((element) => {
+            element.unhighlight();
+            this.stopDrawing(stopID);
+        });
+        this.backingArray[index] = this.tempElement;
+        this.tempElement = null;
+    }
+    redo_extractElement(front) {
+        let index = this.getIndex(this.frontPointerValue + (front ? 0 : this.size - 1));
+        this.tempElement = this.backingArray[index];
+        this.backingArray[index] = null;
+        this.tempElement.highlightForMovement();
+        this.tempElement.shift(45,45);
+        let stopID = ++this.stopID;console.log(stopID);
+        this.tempElement.addOnStop((element) => {
+            element.unhighlight();
+            this.stopDrawing(stopID);
+        });
+    }
+
+    unmakeElement() {
+        let oldTemp = this.tempElement;
+        this.tempElement = null;
+        return [oldTemp];
+    }
+    undo_unmakeElement(oldTemp) {
+        this.tempElement = oldTemp;
     }
 
     sizeIncr() {
         this.size++;
     }
+    undo_sizeIncr() {
+        this.size--;
+    }
 
     sizeDecr() {
         this.size--;
     }
+    undo_sizeDecr() {
+        this.size++;
+    }
 
-    getNodePosition(index) {
+    updateFrontPointer(offset) {
+        let animation = [];
+        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],isForwardStep:false,});
+        animation.push({method:this.changeFrontPointerValue,params:[offset],explanation:`Update front pointer to |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,returnsUndoData:true,});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,isBackStep:false,undoData:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],});
+        return animation;
+    }
+
+    changeFrontPointerValue(offset) {
+        let oldFront = this.frontPointerValue;
+        if (offset === 0) {
+            this.frontPointerValue = 0;
+        } else {
+            this.frontPointerValue = this.getIndex(this.frontPointerValue + offset);
+        }
+        return [this.frontPointerValue,[oldFront]];
+    }
+    undo_changeFrontPointerValue(oldFront) {
+        this.frontPointerValue = oldFront;
+        return this.frontPointerValue;
+    }
+
+    updateSizePointer(offset) {
+        let animation = [];
+        animation.push({method:this.sizePointerHighlighter.highlight,scope:this.sizePointerHighlighter,params:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],isForwardStep:false,});
+        animation.push({method:this.changeSizePointerValue,params:[offset],explanation:`Update size to |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,returnsUndoData:true,});
+        animation.push({method:this.sizePointerHighlighter.unhighlight,scope:this.sizePointerHighlighter,params:[],noAnim:true,isBackStep:false,undoData:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],});
+        return animation;
+    }
+
+    changeSizePointerValue(offset) {
+        let oldSize = this.size;
+        this.size += offset;
+        return [this.size,[oldSize]];
+    }
+    undo_changeSizePointerValue(oldSize) {
+        this.size = oldSize;
+        return this.size;
+    }
+
+
+    getIndex(index, copy = false) {
+        let array = copy ? this.copyArray : this.backingArray;
+        index %= array.length;
+        if (index < 0) {
+            index += array.length;
+        }
+        return index;
+    }
+
+    getElementPosition(index, copy = false) {
         let maxPerRow = Math.floor(this.width / DequeArray.ELEMENT_SIZE);
         let x = DequeArray.ELEMENT_SIZE * index;
-        let y = 50 + Math.floor(index / maxPerRow) * 2 * DequeArray.ELEMENT_HEIGHT;
+        let y = 50 + Math.floor(index / maxPerRow) * 2 * DequeArray.ELEMENT_SIZE;
         x = (index % maxPerRow) * DequeArray.ELEMENT_SIZE;
-        return [x + this.x,y + this.y];
+        return [x + DequeArray.ELEMENT_SIZE/2 + this.x,y + DequeArray.ELEMENT_SIZE/2 + this.y + (copy ? (Math.ceil(this.backingArray.length / maxPerRow)*DequeArray.ELEMENT_SIZE*2) : 0)];
     }
 
-    getNodeAtPos(x,y) {
-        let node = this.head;
-        while (node) {
-            if (node.containsPos(x,y)) {
-                return node;
-            }
-            node = node.next;
-            if (node === this.head) {
-                break;
-            }
-        }
-        if (this.tempNode && this.tempNode.containsPos(x,y)) {
-            return this.tempNode;
-        }
-        return null;
-    }
-
-    pin(node) {
-        this.pinnedNode = node;
-        node.pin();
-    }
-
-    unpin() {
-        if (this.pinnedNode.unpin() && this.animationQueue.length === 0) {
-            this.removeFromIndex(this.pinnedNode.index);
-            this.pinnedNode.markBroken();
-        }
-        this.pinnedNode = null;
-    }
-
-    updateNode(node, animationSpeed, p5) {
-        let update = node.update(animationSpeed, p5);
-        if (this.animationQueue.length === 0) {
-            if (update) {
-                node.highlightForDeletion();
-            } else if (node.pinnedToMouse && !node.toDelete) {
-                node.unHighlight();
-            }
+    updateElement(element, animationSpeed, p5) {
+        if (element) {
+            element.update(animationSpeed, p5);
         }
     }
 
     update(animationSpeed, p5) {
         super.update(() => {
-            let node = this.head;
-            while (node) {
-                this.updateNode(node, animationSpeed, p5);
-                node = node.next;
-                if (node === this.head) {
-                    break;
+            for (let i = 0; i < this.backingArray.length; i++) {
+                this.updateElement(this.backingArray[i], animationSpeed, p5);
+            }
+            if (this.copyArray) {
+                for (let i = 0; i < this.copyArray.length; i++) {
+                    this.updateElement(this.copyArray[i], animationSpeed, p5);
                 }
             }
-            if (this.tempNode) {
-                this.updateNode(this.tempNode, animationSpeed, p5);
+            if (this.tempElement) {
+                this.updateElement(this.tempElement, animationSpeed, p5);
             }
+            this.frontPointerHighlighter.update(animationSpeed, p5);
+            this.sizePointerHighlighter.update(animationSpeed, p5);
         }, animationSpeed, p5);
     }
 
     draw(p5) {
+        super.draw(p5);
         p5.push();
 
         p5.textAlign(p5.CENTER,p5.CENTER);
-        p5.textSize(this.ELEMENT_WIDTH/3 - 2);
+        p5.textSize(this.ELEMENT_SIZE/3 - 2);
 
-        let node = this.head;
-        while (node) {
-            node.draw(p5, node.next === this.head);
-            node = node.next;
-            if (node === this.head) {
-                break;
+        p5.fill(0);
+        p5.text("Front: ", DequeArray.FRONT_LOCATION_X - 50, DequeArray.FRONT_LOCATION_Y, DequeArray.ELEMENT_SIZE);
+        p5.text(this.frontPointerValue.toString(), DequeArray.FRONT_LOCATION_X-25, DequeArray.FRONT_LOCATION_Y, DequeArray.ELEMENT_SIZE);
+        p5.text("Size: ", DequeArray.SIZE_LOCATION_X - 50, DequeArray.SIZE_LOCATION_Y, DequeArray.ELEMENT_SIZE);
+        p5.text(this.size.toString(), DequeArray.SIZE_LOCATION_X-25, DequeArray.SIZE_LOCATION_Y, DequeArray.ELEMENT_SIZE);
+
+        for (let i = 0; i < this.backingArray.length; i++) {
+            if (this.backingArray[i]) {
+                this.backingArray[i].draw(p5);
+            }
+            let pos = this.getElementPosition(i);
+            p5.noFill();
+            p5.stroke(0);
+            p5.square(pos[0] - DequeArray.ELEMENT_SIZE/2,pos[1] - DequeArray.ELEMENT_SIZE/2, DequeArray.ELEMENT_SIZE);
+            p5.fill(...Colors.BLUE);
+            p5.stroke(...Colors.BLUE);
+            p5.text(i.toString(), pos[0] - DequeArray.ELEMENT_SIZE/2,pos[1] + DequeArray.ELEMENT_SIZE/2, DequeArray.ELEMENT_SIZE, DequeArray.ELEMENT_SIZE);
+        }
+
+        if (this.copyArray) {
+            for (let i = 0; i < this.copyArray.length; i++) {
+                if (this.copyArray[i]) {
+                    this.copyArray[i].draw(p5);
+                }
+                let pos = this.getElementPosition(i, true);
+                p5.noFill();
+                p5.stroke(0);
+                p5.square(pos[0] - DequeArray.ELEMENT_SIZE/2,pos[1] - DequeArray.ELEMENT_SIZE/2, DequeArray.ELEMENT_SIZE);
+                p5.fill(...Colors.BLUE);
+                p5.stroke(...Colors.BLUE);
+                p5.text(i.toString(), pos[0] - DequeArray.ELEMENT_SIZE/2,pos[1] + DequeArray.ELEMENT_SIZE/2, DequeArray.ELEMENT_SIZE, DequeArray.ELEMENT_SIZE);
             }
         }
-        if (this.tempNode) {
-            this.tempNode.draw(p5);
+        if (this.tempElement) {
+            this.tempElement.draw(p5);
         }
+        this.frontPointerHighlighter.draw(p5);
+        this.sizePointerHighlighter.draw(p5);
 
         p5.pop();
     }
 
-    mousePressed(p5) {
-        let pressedNode = this.getNodeAtPos(p5.mouseX, p5.mouseY);
-        if (pressedNode) {
-            this.pin(pressedNode);
-        }
-        return false;
-    }
-
-    mouseReleased(p5) {
-        if (this.pinnedNode) {
-            this.unpin();
-        }
-        return false;
-    }
-
-    windowResized(p5, height) {
-        super.windowResized(p5, height, this.getNodePosition(this.size-1)[1] + DequeArray.ELEMENT_HEIGHT);
-
-        let node = this.head;
-        while (node) {
-            node.shift(...this.getNodePosition(node.index));
-            node = node.next;
-            if (node === this.head) {
-                break;
+    windowResized(p5, height, numScrollbars) {
+        super.windowResized(p5, height, numScrollbars, (this.copyArray ? this.getElementPosition(this.copyArray.length-1, true)[1] : this.getElementPosition(this.backingArray.length-1)[1]) + DequeArray.ELEMENT_SIZE, () => {
+            for (let i = 0; i < this.backingArray.length; i++) {
+                if (this.backingArray[i]) {
+                    this.backingArray[i].shift(...this.getElementPosition(i));
+                }
             }
-        }
+            if (this.copyArray) {
+                for (let i = 0; i < this.copyArray.length; i++) {
+                    if (this.copyArray[i]) {
+                        this.copyArray[i].shift(...this.getElementPosition(i,true));
+                    }
+                }
+            }
+        });
     }
 }
 
 
-class CircularSinglyLinkedListNode extends AttractedDraggableObject {
-    static CAN_DRAG = true;
+class DequeArrayElement extends AttractedHighlightableObject {
 
     constructor({data, index, x,y} = {}) {
         super(x,y);
 
-        this.data = data;
+        // this.highlightInnerRadius = DequeArray.ELEMENT_SIZE/2 - 5;
+        this.highlightOuterRadius = DequeArray.ELEMENT_SIZE/2;
+
+        this.value = data;
         this.index = index;
-        this.next = null;
 
         this.toDelete = false;
-        this.handBroken = false;
-        this.frozen = false;
         this.color = [0,0,0];
     }
 
@@ -407,20 +701,12 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
         this.index += Math.sign(direction);
     }
 
-    containsPos(x,y) {
-        return ((this.currentX <= x && x <= (this.currentX + DequeArray.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + DequeArray.ELEMENT_HEIGHT)))
-    }
-
-    highlight() {
-        this.color = [255,165,0];
-    }
-
-    unHighlight() {
-        this.color = [0,0,0];
+    highlightForMovement() {
+        super.highlight(Colors.BLUE);
     }
 
     highlightForDeletion() {
-        this.color[0] = 255;
+        super.highlight(Colors.RED);
     }
 
     markForDeletion() {
@@ -428,58 +714,16 @@ class CircularSinglyLinkedListNode extends AttractedDraggableObject {
         this.highlightForDeletion();
     }
 
-    markBroken() {
-        this.markForDeletion();
-        this.frozen = true;
-        this.handBroken = true;
-    }
-
-    unpin() {
-        super.unpin();
-        return this.displacement() > DequeArray.MAX_DIST_REMOVE;
-    }
-
     update(animationSpeed, p5) {
-        let dist = super.update(animationSpeed, p5);
-        return this.pinnedToMouse && !this.handBroken && dist > DequeArray.MAX_DIST_REMOVE;
+        super.update(animationSpeed, p5);
     }
 
-    draw(p5, pointsToHead = false) {
-        // console.log(this);
+    drawValue(p5) {
         p5.push();
-        p5.fill(255);
-        p5.stroke(...this.color);
-        p5.rect(this.currentX, this.currentY, DequeArray.ITEM_WIDTH, DequeArray.ELEMENT_HEIGHT);
-        p5.line(this.currentX + DequeArray.ELEMENT_WIDTH, this.currentY, this.currentX + DequeArray.ELEMENT_WIDTH, this.currentY + DequeArray.ELEMENT_HEIGHT);
         p5.textAlign(p5.CENTER, p5.CENTER);
         p5.fill(...this.color);
-        p5.text(this.data.toString(), this.currentX,this.currentY, DequeArray.ELEMENT_WIDTH,DequeArray.ELEMENT_HEIGHT);
-        if (this.next) {
-            p5.stroke(...Utils.addArray(this.color, [0,0,255]));
-            p5.fill(...Utils.addArray(this.color, [0,0,255]));
-            p5.circle(this.currentX + DequeArray.ELEMENT_WIDTH + DequeArray.POINTER_WIDTH / 2, this.currentY + DequeArray.ELEMENT_HEIGHT / 2, 5);
-            if (pointsToHead) {
-                p5.push();
-                p5.noFill();
-                p5.curveTightness(0.8);
-                p5.beginShape();
-                p5.curveVertex(this.currentX + DequeArray.ELEMENT_WIDTH + DequeArray.POINTER_WIDTH / 2, this.currentY + DequeArray.ELEMENT_HEIGHT / 2);
-                p5.curveVertex(this.currentX + DequeArray.ELEMENT_WIDTH + DequeArray.POINTER_WIDTH / 2, this.currentY + DequeArray.ELEMENT_HEIGHT / 2);
-
-                p5.curveVertex(this.currentX + DequeArray.ELEMENT_WIDTH + DequeArray.POINTER_WIDTH / 2, this.currentY + DequeArray.ELEMENT_HEIGHT * 2);
-                p5.curveVertex(15, this.currentY + DequeArray.ELEMENT_HEIGHT * 2);
-
-                p5.curveVertex(this.next.currentX, this.next.currentY + DequeArray.ELEMENT_HEIGHT / 2);
-                p5.curveVertex(this.next.currentX, this.next.currentY + DequeArray.ELEMENT_HEIGHT / 2);
-                p5.endShape();
-                p5.pop();
-            } else {
-                p5.line(this.currentX + DequeArray.ELEMENT_WIDTH + DequeArray.POINTER_WIDTH / 2, this.currentY + DequeArray.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + DequeArray.ELEMENT_HEIGHT / 2);
-            }
-            p5.rect(this.next.currentX - 3, this.next.currentY + DequeArray.ELEMENT_HEIGHT / 2 - 3, 6,6);
-        } else {
-            p5.line(this.currentX + DequeArray.ELEMENT_WIDTH, this.currentY, this.currentX + DequeArray.ITEM_WIDTH, this.currentY + DequeArray.ELEMENT_HEIGHT);
-        }
+        p5.stroke(...this.color);
+        p5.text(this.value.toString(), this.currentX - DequeArray.ELEMENT_SIZE/2,this.currentY - DequeArray.ELEMENT_SIZE/2, DequeArray.ELEMENT_SIZE, DequeArray.ELEMENT_SIZE);
         p5.pop();
     }
 }

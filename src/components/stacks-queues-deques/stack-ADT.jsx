@@ -55,6 +55,7 @@ export default class StackVisualizer extends Visualizer {
         if (value !== "") {
             if (this.stack.push(value)) {
                 this.valueField.value = "";
+                this.valueField.focus();
             }
         }
     }

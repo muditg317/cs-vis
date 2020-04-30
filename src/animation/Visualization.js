@@ -3,8 +3,8 @@ import { Utils, Colors } from 'utils';
 
 export default class Visualization {
 
-    static LOG_UNDO_REDO = false;
-    static LOG_ANIMATIONS = false;
+    static LOG_UNDO_REDO = true;
+    static LOG_ANIMATIONS = true;
     static LOG_DRAW = false;
 
     constructor(animator) {
@@ -166,6 +166,7 @@ export default class Visualization {
             this.undoText(previousAnimation.explanation);
             if (!previousAnimation.customUndoEnd) {
                 this.stopDrawing(++this.stopID);
+                console.log(this.stopID);
             }
         } else {
             if (Visualization.LOG_UNDO_REDO) {
@@ -230,8 +231,11 @@ export default class Visualization {
         if (doDraw) {
             this.beginDrawLoop();
         }
-        let retVal = method.apply(scope, params);
-        nextAnimation.returnValue = retVal;
+        let retVal
+        if (!this.isAnimEnd(nextAnimation)) {
+            retVal = method.apply(scope, params);
+        }
+        // nextAnimation.returnValue = retVal;
         if (this.isAnimStart(nextAnimation)) {
             this.runningAnimation = [];
         } else if (this.isAnimEnd(nextAnimation)) {

@@ -55,6 +55,7 @@ export default class QueueVisualizer extends Visualizer {
         if (value !== "") {
             if (this.queue.enqueue(value)) {
                 this.valueField.value = "";
+                this.valueField.focus();
             }
         }
     }
