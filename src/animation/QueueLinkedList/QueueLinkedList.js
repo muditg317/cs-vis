@@ -11,6 +11,7 @@ export default class QueueLinkedList extends Visualization {
     static MAX_ANIM_TIME = 5000;
     static SUPPORTS_TEXT = true;
     static SUPPORTS_ANIMATION_CONTROL = true;
+    static SUPPORTS_STOP_ID = true;
 
     static ELEMENT_HEIGHT = 35;
     static ELEMENT_WIDTH = 50;
@@ -18,6 +19,10 @@ export default class QueueLinkedList extends Visualization {
     static ITEM_WIDTH = QueueLinkedList.ELEMENT_WIDTH + QueueLinkedList.POINTER_WIDTH;
     static SPACING = 50;
     static ELEMENT_SIZE = QueueLinkedList.ITEM_WIDTH + QueueLinkedList.SPACING;
+
+    static HEAD_TAIL_SIZE = 35;
+    static HEAD_TAIL_X = 130;
+
 
     constructor(animator) {
         super(animator);
@@ -33,6 +38,7 @@ export default class QueueLinkedList extends Visualization {
         }
 
         this.head = null;
+        this.tail = null;
         this.size = 0;
         this.nodes = [];
         this.tempNode = null;
@@ -45,30 +51,32 @@ export default class QueueLinkedList extends Visualization {
     }
 
     ensureDrawn(skipDraw = false) {
-        if (!this.drawing) {
-            this.beginDrawLoop();
-            let maxNode = this.head;
-            let curr = this.head;
-            while (curr) {
-                if (curr.displacement() > maxNode.displacement()) {
-                    maxNode = curr;
-                }
-                curr = curr.next;
+        this.beginDrawLoop();
+        let maxNode = this.tempNode || this.head;
+        let curr = this.head;
+        while (curr) {
+            if (curr.displacement() > maxNode.displacement()) {
+                maxNode = curr;
             }
-            if (maxNode && maxNode.displacement() > 0) {
-                maxNode.addOnStop(() => {
-                    this.stopDrawing();
-                });
-                if (skipDraw) {
-                    let curr = this.head;
-                    while (curr) {
-                        curr.stop();
-                        curr = curr.next;
-                    }
+            curr = curr.next;
+        }
+        if (maxNode && maxNode.displacement() > 0) {
+            let stopID = ++this.stopID;
+            maxNode.addOnStop(() => {
+                this.stopDrawing(stopID);
+            });
+            if (skipDraw) {
+                let curr = this.head;
+                while (curr) {
+                    curr.stop();
+                    curr = curr.next;
                 }
-            } else {
-                this.stopDrawing();
+                if (this.tempNode) {
+                    this.tempNode.stop();
+                }
             }
+        } else {
+            this.stopDrawing(++this.stopID);
         }
     }
 
@@ -84,15 +92,14 @@ export default class QueueLinkedList extends Visualization {
             return false;
         }
         let animation = [];
-        animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,isAnimationStep:true,});
+        animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,isAnimationStep:true,returnsRedoData:true});
         if (this.size > 0) {
-            animation.push({method:this.setTempNodeBeforeHead,params:[],explanation:`Assign next pointer`,isAnimationStep:true,});
-            animation.push({method:this.shiftHeadForNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+            animation.push({method:this.setTempNodeAfterTail,params:[],explanation:`Assign next pointer`,isAnimationStep:true,});
         }
-        animation.push({method:this.insertTempNode,params:[],explanation:`Reset top pointer to new head`,isAnimationStep:true,});
-        animation.push({method:this.shiftHead,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.insertTempNode,params:[],explanation:`Reset tail pointer`,isAnimationStep:true,returnsUndoData:true,});
+        animation.push({method:this.shiftTail,params:[],customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,});
         animation.push({method:this.sizeIncr,params:[],noAnim:true,});
-        animation.push({method:this.showText,params:[`Successfully pushed ${data} to queue.`, Colors.GREEN],noAnim:true,});
+        animation.push({method:this.showText,params:[`Successfully enqueued ${data} to queue.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();
         this.stepForward();
@@ -107,7 +114,7 @@ export default class QueueLinkedList extends Visualization {
         }
         this.beginDrawLoop();
         if (this.size === 0) {
-            this.updateText("Cannot pop empty Queue", Colors.RED);
+            this.updateText("Cannot dequeue empty Queue", Colors.RED);
             return false;
         }
         let animation = [];
@@ -117,9 +124,9 @@ export default class QueueLinkedList extends Visualization {
         if (this.size > 1) {
             animation.push({method:this.shiftIntoNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        animation.push({method:this.skipTempNode,params:[],explanation:`Reset top pointer to new head`,isAnimationStep:true,undoData:[this.head.data,],});
+        animation.push({method:this.skipTempNode,params:[],explanation:`Reset head pointer to new head`,isAnimationStep:true,returnsUndoData:true,});
         animation.push({method:this.sizeDecr,params:[],noAnim:true,});
-        animation.push({method:this.showText,params:[`Successfully popped ${data} from queue.`, Colors.GREEN],noAnim:true,});
+        animation.push({method:this.showText,params:[`Successfully dequeued ${data} from queue.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();
         this.stepForward();
@@ -128,44 +135,60 @@ export default class QueueLinkedList extends Visualization {
 
 
     makeNode(data) {
-        this.tempNode = new QueueLinkedListNode({data: data, index: 0, x:20,y:20,});
+        this.tempNode = new QueueLinkedListNode({data: data, index: this.size, x:20,y:20,});
+        return [this.tempNode];
     }
     undo_makeNode(data) {
         this.tempNode = null;
     }
-
-    setTempNodeBeforeHead() {
-        this.tempNode.next = this.head;
+    redo_makeNode(newTemp) {
+        this.tempNode = newTemp;
     }
-    undo_setTempNodeBeforeHead() {
-        this.tempNode.next = null;
+
+    setTempNodeAfterTail() {
+        this.tail.next = this.tempNode;
+    }
+    undo_setTempNodeAfterTail() {
+        this.tail.next = null;
     }
 
     insertTempNode() {
-        this.nodes.splice(0, 0, this.tempNode);
-        this.head = this.tempNode;
+        let oldTail = this.tail;
+        this.nodes.splice(this.size, 0, this.tempNode);
+        this.tail = this.tempNode;
+        if (!oldTail) {
+            this.head = this.tempNode;
+        }
+        return [oldTail];
     }
-    undo_insertTempNode() {
-        this.head = this.tempNode.next;
-        this.nodes.splice(0, 1);
+    undo_insertTempNode(oldTail) {
+        this.tail = oldTail;
+        if (!oldTail) {
+            this.head = null;
+        }
+        this.nodes.splice(this.size, 1);
     }
 
-    shiftHead() {
-        this.tempNode.shift(...this.getNodePosition(0));
+    shiftTail() {
+        this.tempNode.shift(...this.getNodePosition(this.size));
+        this.tempNode.addOnStop((element) => {
+            this.doneAnimating(0);
+        });
         this.tempNode = null;
     }
-    undo_shiftHead() {
-        this.tempNode = this.nodes[0];
+    undo_shiftTail() {
+        this.tempNode = this.tail;
         this.tempNode.shift(20,20);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
-            this.stopDrawing();
+            this.stopDrawing(stopID);
         });
     }
-    redo_shiftHead() {
-        this.tempNode.shift(...this.getNodePosition(0));
-        let temp = this.tempNode;
-        temp.addOnStop(() => {
-            this.stopDrawing();
+    redo_shiftTail() {
+        this.tempNode.shift(...this.getNodePosition(this.size));
+        let stopID = ++this.stopID;
+        this.tempNode.addOnStop(() => {
+            this.stopDrawing(stopID);
         });
         this.tempNode = null;
     }
@@ -187,60 +210,32 @@ export default class QueueLinkedList extends Visualization {
     undo_unmakeHead() {
         this.tempNode.shift(...this.getNodePosition(0));
         this.nodes.splice(0, 0, this.tempNode);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
-            this.stopDrawing();
+            this.stopDrawing(stopID);
         });
         this.tempNode = null;
     }
     redo_unmakeHead() {
         this.tempNode = this.nodes.splice(0, 1)[0];
         this.tempNode.shift(20,20);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
-            this.stopDrawing();
+            this.stopDrawing(stopID);
         });
     }
 
     skipTempNode() {
+        let oldTemp = this.tempNode;
         this.head = this.head.next;
         this.tempNode = null;
+        return [oldTemp]
     }
-    undo_skipTempNode(oldData) {
-        this.tempNode = new QueueLinkedListNode({data: oldData, index: 0, x:20,y:20,});
+    undo_skipTempNode(oldTemp) {
+        this.tempNode = oldTemp;
         this.tempNode.next = this.head;
         this.tempNode.markForDeletion();
         this.head = this.tempNode;
-    }
-
-    shiftHeadForNode() {
-        let node = this.head;
-        while (node) {
-            this.shiftNode(node, 1);
-            node = node.next;
-        }
-    }
-    undo_shiftHeadForNode() {
-        let node = this.head;
-        while (node) {
-            this.shiftNode(node, -1);
-            if (!node.next) {
-                node.addOnStop(() => {
-                    this.stopDrawing();
-                });
-            }
-            node = node.next;
-        }
-    }
-    redo_shiftHeadForNode() {
-        let node = this.head;
-        while (node) {
-            this.shiftNode(node, 1);
-            if (!node.next) {
-                node.addOnStop(() => {
-                    this.stopDrawing();
-                });
-            }
-            node = node.next;
-        }
     }
 
     shiftIntoNode() {
@@ -255,8 +250,9 @@ export default class QueueLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, 1);
             if (!node.next) {
+                let stopID = ++this.stopID;
                 node.addOnStop(() => {
-                    this.stopDrawing();
+                    this.stopDrawing(stopID);
                 });
             }
             node = node.next;
@@ -267,8 +263,9 @@ export default class QueueLinkedList extends Visualization {
         while (node) {
             this.shiftNode(node, -1);
             if (!node.next) {
+                let stopID = ++this.stopID;
                 node.addOnStop(() => {
-                    this.stopDrawing();
+                    this.stopDrawing(stopID);
                 });
             }
             node = node.next;
@@ -319,6 +316,10 @@ export default class QueueLinkedList extends Visualization {
         return null;
     }
 
+    getTailY() {
+        return this.getNodePosition(this.size-1)[1] + QueueLinkedList.ELEMENT_HEIGHT + QueueLinkedList.HEAD_TAIL_SIZE;
+    }
+
     pin(node, x,y) {
         this.pinnedNode = node;
         node.pin(x,y);
@@ -354,19 +355,34 @@ export default class QueueLinkedList extends Visualization {
         p5.textAlign(p5.CENTER,p5.CENTER);
         p5.textSize(this.ELEMENT_WIDTH/3 - 2);
 
-        // p5.noFill();
+        p5.noFill();
         p5.stroke(0);
         p5.textAlign(p5.CENTER, p5.CENTER);
-        p5.text("Top:",95,20,35,35);
-        p5.square(130,20,35);
+        let headY = 20;
+        p5.text("Head:",95-5,headY,QueueLinkedList.HEAD_TAIL_SIZE + 10,QueueLinkedList.HEAD_TAIL_SIZE);
+        p5.square(QueueLinkedList.HEAD_TAIL_X,headY,QueueLinkedList.HEAD_TAIL_SIZE);
         if (this.head) {
             p5.stroke(Colors.BLUE);
             p5.fill(Colors.BLUE);
-            p5.circle(130 + 35 / 2, 20 + 35 / 2, 5);
-            p5.line(130 + 35 / 2, 20 + 35 / 2, this.head.currentX + QueueLinkedList.ITEM_WIDTH / 2, this.head.currentY);
+            p5.circle(QueueLinkedList.HEAD_TAIL_X + QueueLinkedList.HEAD_TAIL_SIZE / 2, headY + QueueLinkedList.HEAD_TAIL_SIZE / 2, 5);
+            p5.line(QueueLinkedList.HEAD_TAIL_X + QueueLinkedList.HEAD_TAIL_SIZE / 2, headY + QueueLinkedList.HEAD_TAIL_SIZE / 2, this.head.currentX + QueueLinkedList.ITEM_WIDTH / 2, this.head.currentY);
             p5.rect(this.head.currentX + QueueLinkedList.ITEM_WIDTH / 2 - 3, this.head.currentY - 3, 6,6);
         } else {
-            p5.line(130,20,165,55);
+            p5.line(QueueLinkedList.HEAD_TAIL_X,headY,QueueLinkedList.HEAD_TAIL_X + QueueLinkedList.HEAD_TAIL_SIZE,headY + QueueLinkedList.HEAD_TAIL_SIZE);
+        }
+        p5.noFill();
+        p5.stroke(0);
+        let tailY = this.getTailY();
+        p5.text("Tail:",95,tailY,QueueLinkedList.HEAD_TAIL_SIZE,QueueLinkedList.HEAD_TAIL_SIZE);
+        p5.square(QueueLinkedList.HEAD_TAIL_X,tailY,QueueLinkedList.HEAD_TAIL_SIZE);
+        if (this.tail) {
+            p5.stroke(Colors.BLUE);
+            p5.fill(Colors.BLUE);
+            p5.circle(QueueLinkedList.HEAD_TAIL_X + QueueLinkedList.HEAD_TAIL_SIZE / 2, tailY + QueueLinkedList.HEAD_TAIL_SIZE / 2, 5);
+            p5.line(QueueLinkedList.HEAD_TAIL_X + QueueLinkedList.HEAD_TAIL_SIZE / 2, tailY + QueueLinkedList.HEAD_TAIL_SIZE / 2, this.tail.currentX + QueueLinkedList.ITEM_WIDTH / 2, this.tail.currentY + QueueLinkedList.ELEMENT_HEIGHT);
+            p5.rect(this.tail.currentX + QueueLinkedList.ITEM_WIDTH / 2 - 3, this.tail.currentY + QueueLinkedList.ELEMENT_HEIGHT - 3, 6,6);
+        } else {
+            p5.line(QueueLinkedList.HEAD_TAIL_X,tailY,QueueLinkedList.HEAD_TAIL_X + QueueLinkedList.HEAD_TAIL_SIZE,tailY + QueueLinkedList.HEAD_TAIL_SIZE);
         }
 
         let node = this.head;
@@ -394,27 +410,27 @@ export default class QueueLinkedList extends Visualization {
     mouseReleased(p5) {
         if (this.pinnedNode) {
             this.pinnedNode.addOnStop(() => {
-                if (!this.drawing) {
-                    this.stopDrawing();
-                }
+                this.ensureDrawn();
             });
             this.unpin();
         } else {
-            // if (!this.drawing) {
-            //     this.stopDrawing();
-            // }
+            // this.ensureDrawn();
         }
         return false;
     }
 
-    windowResized(p5, height) {
-        super.windowResized(p5, height, this.getNodePosition(this.size-1)[1] + QueueLinkedList.ELEMENT_HEIGHT);
-
-        let node = this.head;
-        while (node) {
-            node.shift(...this.getNodePosition(node.index));
-            node = node.next;
-        }
+    windowResized(p5, height, numScrollbars) {
+        super.windowResized(p5, height, numScrollbars, this.getNodePosition(this.size-1)[1] + QueueLinkedList.ELEMENT_HEIGHT,() => {
+            let shiftTemp = this.tempNode && this.tempNode.desiredX === 20 && this.tempNode.desiredY === 20;
+            let node = this.head;
+            while (node) {
+                node.shift(...this.getNodePosition(node.index));
+                node = node.next;
+            }
+            if (shiftTemp) {
+                this.tempNode.shift(20,20);
+            }
+        });
     }
 }
 

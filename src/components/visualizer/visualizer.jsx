@@ -191,7 +191,7 @@ export default class Visualizer extends PureComponent {
     componentDidMount(callForward) {
         callForward();
         if (Utils.isDev()) {
-            window.visualization = this.visualization;
+            window.vis = this.visualization;
         }
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);

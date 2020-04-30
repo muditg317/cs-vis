@@ -2,6 +2,11 @@ import Visualizer from 'components/visualizer';
 import { Utils, Colors } from 'utils';
 
 export default class Visualization {
+
+    static LOG_UNDO_REDO = false;
+    static LOG_ANIMATIONS = false;
+    static LOG_DRAW = false;
+
     constructor(animator) {
         this.x = 20;
         this.y = 20;
@@ -148,7 +153,9 @@ export default class Visualization {
         let params = previousAnimation.undoData || previousAnimation.params || [];
         // console.log(require('util').inspect(previousAnimation, { depth: null }));
         if (undoMethod) {
-            // console.log("undo",params,undoMethod);
+            if (Visualization.LOG_UNDO_REDO) {
+                console.log("undo",params,undoMethod);
+            }
             // if (previousAnimation.returnsUndoData) {
             //     params = previousAnimation.returnValue;
             // }
@@ -161,7 +168,9 @@ export default class Visualization {
                 this.stopDrawing(++this.stopID);
             }
         } else {
-            // console.log("failed",previousAnimation);
+            if (Visualization.LOG_UNDO_REDO) {
+                console.log("failed",previousAnimation);
+            }
         }
         this.animationQueue.unshift(previousAnimation);
     }
@@ -179,6 +188,9 @@ export default class Visualization {
             }
         }
         this.undoAnimation(previousAnimation,doDraw);
+        if (doDraw) {
+            this.ensureDrawn();
+        }
     }
 
     canStepBack() {
@@ -209,15 +221,11 @@ export default class Visualization {
     redoAnimation(nextAnimation,doDraw) {
         let scope = nextAnimation.scope || this;
         let method = nextAnimation.method;
-        if (nextAnimation.customRedoEnd) {
-            // let redo = scope.redo;
-            method = method.redo;
-        }
-        let params = nextAnimation.params || [];
+        method = method.redo || method;
+        let params = nextAnimation.redoData || nextAnimation.params || [];
         // console.log(require('util').inspect(nextAnimation, { depth: null }));
-        // console.log("redo",method);
-        if (nextAnimation.redoData) {
-            params.push(...nextAnimation.redoData);
+        if (Visualization.LOG_UNDO_REDO) {
+            console.log("redo",params,method);
         }
         if (doDraw) {
             this.beginDrawLoop();
@@ -266,6 +274,9 @@ export default class Visualization {
             }
         }
         this.redoAnimation(nextAnimation,doDraw);
+        if (doDraw) {
+            this.ensureDrawn();
+        }
         // if (!nextAnimation.customRedoEnd && !this.isEndDrawLoopTrigger(nextAnimation)) {
         //     if (!(this.animationQueue[0].isAnimationStep || this.animationQueue[0].isForwardStep)) {
         //         while (!(this.animationQueue[0].isAnimationStep || this.animationQueue[0].isForwardStep) && !this.isEndDrawLoopTrigger(this.animationQueue[0])) {
@@ -428,7 +439,9 @@ export default class Visualization {
             if (this.animationQueue.length > 0) {
                 let animation = this.animationQueue.shift();
                 this.animating = true;
-                // console.log(animation.method);
+                if (Visualization.LOG_ANIMATIONS) {
+                    console.log("animate",animation.method);
+                }
                 let retVal = animation.method.apply(animation.scope || this, animation.params);
                 animation.returnValue = retVal;
                 if (this.isAnimStart(animation)) {
@@ -462,6 +475,9 @@ export default class Visualization {
                 }
                 if (animation.returnsUndoData) {
                     animation.undoData = animation.explanationUsesReturn ? retVal[1] : retVal;
+                }
+                if (animation.returnsRedoData) {
+                    animation.redoData = animation.explanationUsesReturn ? retVal[1] : retVal;
                 }
                 if (this.constructor.SUPPORTS_CUSTOM_END) {
                     if (this.noAnimation(animation)) {
@@ -497,7 +513,9 @@ export default class Visualization {
     }
 
     draw(p5) {
-        // console.log("draw");
+        if (Visualization.LOG_DRAW) {
+            console.log("draw");
+        }
         p5.push();
         if (this.constructor.SUPPORTS_TEXT) {
             p5.fill(...this.displayTextColor);
@@ -546,7 +564,7 @@ export default class Visualization {
         }
         try {
             this.ensureDrawn(this.animationQueue.length === 0);
-            if (this.animationQueue.length > 0) {
+            if (this.animationQueue.length > 0 && !this.paused) {
                 this.stopID++;
             }
         } catch (e) {
