@@ -12,7 +12,7 @@ export default class QueueArray extends Visualization {
     static SUPPORTS_ANIMATION_CONTROL = true;
     static SUPPORTS_STOP_ID = true;
 
-    static INITIAL_CAPACITY = 4;
+    static INITIAL_CAPACITY = 9;
 
     static ELEMENT_SIZE = 50;
     static HEAD_LOCATION_X = 125;

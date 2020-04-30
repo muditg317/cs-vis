@@ -44,8 +44,9 @@ export default class StackLinkedList extends Visualization {
         }
     }
 
-    ensureDrawn() {
-        if (!this.drawing && this.head) {
+    ensureDrawn(skipDraw = false) {
+        if (!this.drawing) {
+            this.beginDrawLoop();
             let maxNode = this.head;
             let curr = this.head;
             while (curr) {
@@ -54,11 +55,19 @@ export default class StackLinkedList extends Visualization {
                 }
                 curr = curr.next;
             }
-            if (maxNode.displacement() > 0) {
-                this.beginDrawLoop();
+            if (maxNode && maxNode.displacement() > 0) {
                 maxNode.addOnStop(() => {
                     this.stopDrawing();
-                })
+                });
+                if (skipDraw) {
+                    let curr = this.head;
+                    while (curr) {
+                        curr.stop();
+                        curr = curr.next;
+                    }
+                }
+            } else {
+                this.stopDrawing();
             }
         }
     }
