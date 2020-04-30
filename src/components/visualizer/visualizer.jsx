@@ -91,6 +91,9 @@ export default class Visualizer extends PureComponent {
                 this.visualization.playPause();
                 playPauseButton.setAttribute("value", this.visualization.paused ? "Play" : "Pause");
             });
+            this.animator.on("enable-playPause", () => {
+                playPauseButton.setAttribute("value", this.visualization.paused ? "Play" : "Pause");
+            });
             let stepForwardButton = ControlBuilder.createButton("Step Forward");
             stepForwardButton.addEventListener("click", () => {
                 this.visualization.stepForward();
@@ -188,7 +191,7 @@ export default class Visualizer extends PureComponent {
     componentDidMount(callForward) {
         callForward();
         if (Utils.isDev()) {
-            window[this.class] = this.visualization;
+            window.visualization = this.visualization;
         }
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);

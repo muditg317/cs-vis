@@ -42,8 +42,19 @@
     flex-flow: row nowrap;
     width: fit-content;
     // overflow-x: scroll;
-
-    >.control-group {
+    // &:after {
+    //     content: " ";
+    //     display: block;
+    //     border-right: 2px solid #0003;
+    // }
+    // &>:not(:last-child):after {
+    //     content: " ";
+    //     height: 100%;
+    //     display: block;
+    //     padding-left: 4px;
+    //     border-right: 2px solid #0005;
+    // }
+    &>.control-group {
 
         // margin-top: 6px;
         // margin-left: 10px;
@@ -73,6 +84,13 @@
     display: flex;
     flex-flow: column wrap;
     justify-content: space-between;
+    // &:not(:last-child):after {
+    //     content: " ";
+    //     height: 100%;
+    //     display: block;
+    //     padding-left: 4px;
+    //     border-right: 2px solid #0005;
+    // }
     // :not(>.control-group) {
     //     @for $num_children from 1 through 5 {
     //         >:first-child:nth-last-child(#{$num_children}),

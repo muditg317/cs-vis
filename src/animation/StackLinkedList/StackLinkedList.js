@@ -1,5 +1,5 @@
 import { Visualization } from 'animation';
-import AttractedDraggableObject from 'animation/AttractedDraggableObject';
+import { AttractedDraggableObject } from 'animation';
 import { Utils, Colors } from 'utils';
 
 export default class StackLinkedList extends Visualization {
@@ -19,8 +19,6 @@ export default class StackLinkedList extends Visualization {
     static SPACING = 50;
     static ELEMENT_SIZE = StackLinkedList.ITEM_WIDTH + StackLinkedList.SPACING;
 
-    static MAX_DIST_REMOVE = 300;
-
     constructor(animator) {
         super(animator);
 
@@ -33,6 +31,7 @@ export default class StackLinkedList extends Visualization {
         if (this.made) {
             this.beginDrawLoop();
         }
+
         this.head = null;
         this.size = 0;
         this.nodes = [];
@@ -42,6 +41,25 @@ export default class StackLinkedList extends Visualization {
         this.resizing = false;
         if (this.made) {
             this.endDrawLoop();
+        }
+    }
+
+    ensureDrawn() {
+        if (!this.drawing && this.head) {
+            let maxNode = this.head;
+            let curr = this.head;
+            while (curr) {
+                if (curr.displacement() > maxNode.displacement()) {
+                    maxNode = curr;
+                }
+                curr = curr.next;
+            }
+            if (maxNode.displacement() > 0) {
+                this.beginDrawLoop();
+                maxNode.addOnStop(() => {
+                    this.stopDrawing();
+                })
+            }
         }
     }
 
@@ -85,13 +103,13 @@ export default class StackLinkedList extends Visualization {
         }
         let animation = [];
         let data = this.head.data;
-        animation.push({method:this.markHeadForDeletion,params:[],});
-        animation.push({method:this.unmakeHead,params:[],customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.markHeadForDeletion,params:[],noAnim:true,});
+        animation.push({method:this.unmakeHead,params:[],explanation:`Extract data`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         if (this.size > 1) {
             animation.push({method:this.shiftIntoNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        animation.push({method:this.skipTempNode,params:[],isAnimationStep:true,undoData:[this.head.data,],});
-        animation.push({method:this.sizeDecr,params:[],});
+        animation.push({method:this.skipTempNode,params:[],explanation:`Reset top pointer to new head`,isAnimationStep:true,undoData:[this.head.data,],});
+        animation.push({method:this.sizeDecr,params:[],noAnim:true,});
         animation.push({method:this.showText,params:[`Successfully popped ${data} from stack.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();
@@ -320,6 +338,7 @@ export default class StackLinkedList extends Visualization {
     }
 
     draw(p5) {
+        // console.log("draw");
         super.draw(p5);
         p5.push();
 

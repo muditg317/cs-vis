@@ -1,5 +1,5 @@
 import Visualizer from 'components/visualizer'
-import { Colors } from 'utils';
+import { Utils, Colors } from 'utils';
 
 export default class AttractedHighlightableObject {
     static ATTRACTION = 0.2;
@@ -28,7 +28,7 @@ export default class AttractedHighlightableObject {
         Object.entries(options).forEach((option) => {
             this[option[0]] = option[1];
         });
-
+        Utils.unfoldUndoRedo(this);
     }
 
     shift(x,y) {
@@ -37,8 +37,16 @@ export default class AttractedHighlightableObject {
     }
 
     goTo(x,y) {
+        let oldX = this.desiredX;
+        let oldY = this.desiredY;
         this.desiredX = x;
         this.desiredY = y;
+        this.stop();
+        return [oldX, oldY];
+    }
+    undo_goTo(oldX,oldY) {
+        this.desiredX = oldX;
+        this.desiredY = oldY;
         this.stop();
     }
 
@@ -65,9 +73,15 @@ export default class AttractedHighlightableObject {
         this.highlightShape = shape;
         this.highlighted = true;
     }
+    undo_highlight() {
+        this.unhighlight();
+    }
 
     unhighlight() {
         this.highlighted = false;
+    }
+    undo_unhighlight(color, shape) {
+        this.highlight(color, shape);
     }
 
     update(animationSpeed, p5) {

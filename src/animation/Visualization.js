@@ -1,5 +1,5 @@
 import Visualizer from 'components/visualizer';
-import { Colors } from 'utils';
+import { Utils, Colors } from 'utils';
 
 export default class Visualization {
     constructor(animator) {
@@ -7,8 +7,12 @@ export default class Visualization {
         this.y = 20;
 
         if (this.constructor.SUPPORTS_TEXT) {
-            this.displayText = "Animation Ready";
-            this.displayTextColor = [0,0,0];
+            // this.displayText = "Animation Ready";
+            // if (this.constructor.CAN_DRAG) {
+            //     this.displayText += " | Click and drag on a node to move it!";
+            // }
+            // console.log(this.displayText);
+            // this.displayTextColor = [0,0,0];
         } else {
             delete this.showText;
             delete this.updateText;
@@ -17,7 +21,7 @@ export default class Visualization {
         this.animator = animator;
 
         if (this.constructor.SUPPORTS_NO_LOOP) {
-            this.drawing = false;
+            // this.drawing = false;
         } else {
             delete this.beginDrawLoop;
             delete this.endDrawLoop;
@@ -25,20 +29,15 @@ export default class Visualization {
 
         if (this.constructor.SUPPORTS_ANIMATION_CONTROL) {
             this.paused = false;
-            this.undo = new Proxy(this, {
-                get: function (target, propertyName, receiver) {
-                    return target["undo_"+propertyName];
-                }
-            });
-            this.redo = new Proxy(this, {
-                get: function (target, propertyName, receiver) {
-                    return target["redo_"+propertyName];
-                }
-            });
+            Utils.unfoldUndoRedo(this);
         } else {
             delete this.playPause;
             delete this.play;
             delete this.pause;
+        }
+
+        if (this.constructor.SUPPORTS_STOP_ID) {
+            this.stopID = 0;
         }
 
     }
@@ -46,6 +45,9 @@ export default class Visualization {
     reset() {
         if (this.constructor.SUPPORTS_TEXT) {
             this.displayText = "Animation Ready";
+            if (this.constructor.CAN_DRAG) {
+                this.displayText += " | Click and drag on a node to move it!";
+            }
             this.displayTextColor = [0,0,0];
         }
 
@@ -55,12 +57,15 @@ export default class Visualization {
         this.animating = false;
 
         if (this.constructor.SUPPORTS_NO_LOOP) {
-            this.stopDrawing();
+            this.stopDrawing(++this.stopID);
         }
         if (this.constructor.SUPPORTS_ANIMATION_CONTROL) {
             // this.paused = false;
         }
     }
+
+    noAction() {}
+    undo_noAction() {}
 
     playPause() {
         if (this.paused) {
@@ -72,19 +77,35 @@ export default class Visualization {
 
     play() {
         this.paused = false;
-        this.beginDrawLoop();
+        if (this.animationQueue.length > 0) {
+            this.beginDrawLoop();
+        }
         this.animator.disable("stepBack");
+        this.animator.disable("skipBack");
         this.animator.disable("stepForward");
+        this.animator.disable("skipForward");
     }
 
     pause() {
+        this.animationQueue.unshift({method:this.setPaused,noAnim:true});
+        this.beginDrawLoop();
+    }
+
+    setPaused() {
+        this.stopDrawing.apply(this, (this.constructor.SUPPORTS_STOP_ID ? [++this.stopID,true] : []));
         this.paused = true;
-        this.endDrawLoop();
+        this.animator.enable("playPause");
         if (this.canStepBack()) {
             this.animator.enable("stepBack");
         }
+        if (this.canSkipBack()) {
+            this.animator.enable("skipBack");
+        }
         if (this.canStepForward()) {
             this.animator.enable("stepForward");
+        }
+        if (this.canSkipForward()) {
+            this.animator.enable("skipForward");
         }
     }
 
@@ -105,33 +126,39 @@ export default class Visualization {
         }
         return {method:this.showText,params:["Animation Ready"]};
     }
-    undoText() {
+    undoText(explanation) {
+        if (explanation) {
+            this.showText(explanation);
+            return;
+        }
         let textAnimation = this.getLastTextAnimation();
         if (textAnimation) {
             if (textAnimation.method === this.showText) {
                 this.showText(...textAnimation.params);
             } else {
-                this.showText(textAnimation.explanation);
+
             }
         }
     }
 
-    undoAnimation(previousAnimation) {
+    undoAnimation(previousAnimation, doDraw) {
         let scope = previousAnimation.scope || this;
-        let undo = scope.undo;
-        let undoMethod = undo[previousAnimation.method.name];
-        let params = previousAnimation.params || [];
+        // let undo = scope.undo;
+        let undoMethod = previousAnimation.method.undo;
+        let params = previousAnimation.undoData || previousAnimation.params || [];
         // console.log(require('util').inspect(previousAnimation, { depth: null }));
         if (undoMethod) {
-            // console.log("undo",undoMethod);
-            if (previousAnimation.undoData) {
-                params.push(...previousAnimation.undoData);
+            // console.log("undo",params,undoMethod);
+            // if (previousAnimation.returnsUndoData) {
+            //     params = previousAnimation.returnValue;
+            // }
+            if (doDraw) {
+                this.beginDrawLoop();
             }
-            this.beginDrawLoop();
             undoMethod.apply(scope, params);
-            this.undoText();
+            this.undoText(previousAnimation.explanation);
             if (!previousAnimation.customUndoEnd) {
-                this.stopDrawing();
+                this.stopDrawing(++this.stopID);
             }
         } else {
             // console.log("failed",previousAnimation);
@@ -139,49 +166,52 @@ export default class Visualization {
         this.animationQueue.unshift(previousAnimation);
     }
 
-    unAnimate() {
+    unAnimate(doDraw) {
+        if (doDraw) {
+            this.ensureDrawn();
+        }
         let previousAnimation = this.runningAnimation.pop();
-        while (!previousAnimation.isAnimationStep) {
-            this.undoAnimation(previousAnimation);
+        while (!(previousAnimation.isAnimationStep || previousAnimation.isBackStep)) {
+            this.undoAnimation(previousAnimation,doDraw);
             previousAnimation = this.runningAnimation.pop();
             if (!previousAnimation) {
                 return;
             }
         }
-        this.undoAnimation(previousAnimation);
+        this.undoAnimation(previousAnimation,doDraw);
     }
 
     canStepBack() {
         return this.animationHistory.length > 0 || this.runningAnimation.length > 0;
     }
-    stepBack() {
+    stepBack(doDraw = true) {
         if (this.paused) {
             if (this.runningAnimation && this.runningAnimation.length > 0) {
-                this.unAnimate();
+                this.unAnimate(doDraw);
                 this.animator.enable("stepForward");
+                this.animator.enable("skipForward");
                 if (this.runningAnimation.length === 0) {
                     this.animationQueue.unshift({method:this.animator.emit,scope:this.animator,params:["anim-start",],noAnim:true});
+                    this.runningAnimation = null;
+                    this.undoText();
                     if (this.animationHistory.length === 0) {
                         this.animator.disable("stepBack");
+                        this.animator.disable("skipBack");
                     }
                 }
             } else if (this.animationHistory.length > 0) {
-                let previousAnimationSequence = this.animationHistory.pop();
-                this.animator.emit("anim-start");
-                this.animationQueue.unshift({method:this.stopDrawing,noAnim:true});
-                this.animationQueue.unshift({method:this.animator.emit,scope:this.animator,params:["anim-end",],noAnim:true});
-                this.runningAnimation = previousAnimationSequence;
+                this.popHistoryToRunningAnimation();
                 this.stepBack();
             }
         }
     }
 
-    redoAnimation(nextAnimation) {
+    redoAnimation(nextAnimation,doDraw) {
         let scope = nextAnimation.scope || this;
         let method = nextAnimation.method;
         if (nextAnimation.customRedoEnd) {
-            let redo = scope.redo;
-            method = redo[method.name];
+            // let redo = scope.redo;
+            method = method.redo;
         }
         let params = nextAnimation.params || [];
         // console.log(require('util').inspect(nextAnimation, { depth: null }));
@@ -189,7 +219,9 @@ export default class Visualization {
         if (nextAnimation.redoData) {
             params.push(...nextAnimation.redoData);
         }
-        this.beginDrawLoop();
+        if (doDraw) {
+            this.beginDrawLoop();
+        }
         let retVal = method.apply(scope, params);
         nextAnimation.returnValue = retVal;
         if (this.isAnimStart(nextAnimation)) {
@@ -198,6 +230,8 @@ export default class Visualization {
             this.animationHistory.push(this.runningAnimation);
             this.runningAnimation = null;
         } else if (this.isEndDrawLoopTrigger(nextAnimation)) {
+
+        } else if (this.isPauseTrigger(nextAnimation)) {
 
         } else {
             if (this.runningAnimation) {
@@ -215,49 +249,116 @@ export default class Visualization {
             this.showText(nextAnimation.explanation);
         }
         if (!nextAnimation.customRedoEnd) {
-            this.stopDrawing();
+            this.stopDrawing(++this.stopID);
         }
     }
 
-    reAnimate() {
+    reAnimate(doDraw) {
+        if (doDraw) {
+            this.ensureDrawn();
+        }
         let nextAnimation = this.animationQueue.shift();
-        while (!nextAnimation.isAnimationStep && !this.isEndDrawLoopTrigger(nextAnimation)) {
-            this.redoAnimation(nextAnimation);
+        while (!(nextAnimation.isAnimationStep || nextAnimation.isForwardStep) && !this.isEndDrawLoopTrigger(nextAnimation)) {
+            this.redoAnimation(nextAnimation,doDraw);
             nextAnimation = this.animationQueue.shift();
             if (!nextAnimation) {
                 return;
             }
         }
-        this.redoAnimation(nextAnimation);
-        if (!nextAnimation.customRedoEnd && !this.isEndDrawLoopTrigger(nextAnimation)) {
-            if (!this.animationQueue[0].isAnimationStep) {
-                nextAnimation = this.animationQueue.shift();
-                while (!nextAnimation.isAnimationStep && !this.isEndDrawLoopTrigger(nextAnimation)) {
-                    this.redoAnimation(nextAnimation);
-                    nextAnimation = this.animationQueue.shift();
-                    if (!nextAnimation) {
-                        return;
-                    }
-                }
-            }
-        }
+        this.redoAnimation(nextAnimation,doDraw);
+        // if (!nextAnimation.customRedoEnd && !this.isEndDrawLoopTrigger(nextAnimation)) {
+        //     if (!(this.animationQueue[0].isAnimationStep || this.animationQueue[0].isForwardStep)) {
+        //         while (!(this.animationQueue[0].isAnimationStep || this.animationQueue[0].isForwardStep) && !this.isEndDrawLoopTrigger(this.animationQueue[0])) {
+        //             nextAnimation = this.animationQueue.shift();
+        //             this.redoAnimation(nextAnimation);
+        //             if (!nextAnimation) {
+        //                 return;
+        //             }
+        //         }
+        //     }
+        //     if (this.isEndDrawLoopTrigger(this.animationQueue[0])) {
+        //         nextAnimation = this.animationQueue.shift();
+        //         this.redoAnimation(nextAnimation);
+        //     }
+        // }
     }
 
     canStepForward() {
         return this.animationQueue.length > 0;
     }
-    stepForward() {
+    stepForward(doDraw = true) {
         if (this.paused) {
             if (this.animationQueue.length > 0) {
-                this.reAnimate();
+                this.reAnimate(doDraw);
                 this.animator.enable("stepBack");
+                this.animator.enable("skipBack");
                 if (this.animationQueue.length === 0) {
                     this.animator.disable("stepForward");
+                    this.animator.disable("skipForward");
                 } else {
                     this.animator.enable("stepForward");
+                    this.animator.enable("skipForward");
                 }
             }
         }
+    }
+
+    canSkipBack() {
+        return this.animationHistory.length > 0 || this.runningAnimation.length > 0;
+    }
+    skipBack() {
+        if (this.paused) {
+            if (this.runningAnimation) {
+                while (this.runningAnimation && this.runningAnimation.length > 0) {
+                    this.stepBack(false);
+                }
+                this.animator.enable("stepForward");
+                this.animator.enable("skipForward");
+                if (this.animationHistory.length === 0) {
+                    this.animator.disable("stepBack");
+                    this.animator.disable("skipBack");
+                }
+                this.ensureDrawn(true);
+            } else if (this.animationHistory.length > 0) {
+                this.popHistoryToRunningAnimation();
+                this.skipBack();
+            }
+        }
+    }
+
+    canSkipForward() {
+        return this.animationQueue.length > 0;
+    }
+    skipForward() {
+        if (this.paused) {
+            if (this.animationQueue.length > 0) {
+                if (this.isAnimStart(this.animationQueue[0])) {
+                    this.stepForward(false);
+                }
+                while (this.animationQueue.length > 0 && !this.isAnimStart(this.animationQueue[0])) {
+                    this.stepForward(false);
+                }
+                this.ensureDrawn(true);
+                this.animator.enable("stepBack");
+                this.animator.enable("skipBack");
+                if (this.animationQueue.length === 0) {
+                    this.animator.disable("stepForward");
+                    this.animator.disable("skipForward");
+                }
+            }
+        }
+    }
+
+    popHistoryToRunningAnimation() {
+        let previousAnimationSequence = this.animationHistory.pop();
+        this.animator.emit("anim-start");
+        this.animationQueue.unshift({method:this.stopDrawing,params:this.constructor.SUPPORTS_STOP_ID ? [++this.stopID,true] : [],noAnim:true});
+        this.animationQueue.unshift({method:this.animator.emit,scope:this.animator,params:["anim-end",],noAnim:true});
+        this.runningAnimation = previousAnimationSequence;
+    }
+
+    ensureDrawn() {
+        throw new TypeError("Need to implement ensure drawn in instance class");
     }
 
 
@@ -312,6 +413,10 @@ export default class Visualization {
         return animation.method === this.stopDrawing;
     }
 
+    isPauseTrigger(animation) {
+        return animation.method === this.setPaused;
+    }
+
     noAnimation(animation) {
         return animation.noAnim
                 || (animation.method === this.animator.emit && (animation.params[0] === "anim-start" || animation.params[0] === "anim-end"))
@@ -335,6 +440,8 @@ export default class Visualization {
                     if (this.animationQueue.length > 0) {
                         this.beginDrawLoop();
                     }
+                } else if (this.isPauseTrigger(animation)) {
+
                 } else {
                     if (this.runningAnimation) {
                         this.runningAnimation.push(animation);
@@ -346,9 +453,15 @@ export default class Visualization {
                 }
                 if (animation.explanation) {
                     if (animation.explanationUsesReturn) {
-                        animation.explanation = animation.explanation.replace("|RETURN|", retVal);
+                        animation.explanation = animation.explanation.replace("|RETURN|", animation.returnsUndoData ? retVal[0] : retVal);
+                        if (animation.returnsUndoData) {
+                            // console.log(retVal);
+                        }
                     }
                     this.showText(animation.explanation);
+                }
+                if (animation.returnsUndoData) {
+                    animation.undoData = animation.explanationUsesReturn ? retVal[1] : retVal;
                 }
                 if (this.constructor.SUPPORTS_CUSTOM_END) {
                     if (this.noAnimation(animation)) {
@@ -372,16 +485,19 @@ export default class Visualization {
 
     endDrawLoop() {
         if (this.drawing) {
-            this.animationQueue.push({method:this.stopDrawing,noAnim:true});
+            this.animationQueue.push({method:this.stopDrawing,params:this.constructor.SUPPORTS_STOP_ID ? [++this.stopID,true] : [],noAnim:true});
         }
     }
 
-    stopDrawing() {
-        this.animator.noLoop();
-        this.drawing = false;
+    stopDrawing(stopID,force) {
+        if (!this.constructor.SUPPORTS_STOP_ID || force || stopID === this.stopID) {
+            this.animator.noLoop();
+            this.drawing = false;
+        }
     }
 
     draw(p5) {
+        // console.log("draw");
         p5.push();
         if (this.constructor.SUPPORTS_TEXT) {
             p5.fill(...this.displayTextColor);

@@ -136,6 +136,7 @@ export default class ArrayList extends Visualization {
             animation.push(...this.shiftElement(i,-1));
         }
         animation.push({method:this.resetElement,params:[this.size-1,],});
+        return animation;
     }
 
     shiftElement(index, direction) {
