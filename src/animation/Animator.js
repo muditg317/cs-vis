@@ -1,11 +1,6 @@
 export default class Animator {
     constructor() {
         this.events = [];
-
-        this.objects = [];
-        this.connectingEdges = [];
-
-
     }
 
     on(type, callback) {

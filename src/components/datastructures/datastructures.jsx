@@ -3,7 +3,7 @@ import { Switch, Route, useRouteMatch } from "react-router-dom";
 import './datastructures.scss';
 
 import Lists from 'components/lists';
-import StacksQueuesDeques from 'components/stacks-queues-deques'
+import StacksQueuesDeques from 'components/stacks-queues-deques';
 
 export default function DataStructures() {
     let { path, url } = useRouteMatch();

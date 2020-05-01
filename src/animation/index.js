@@ -1,15 +1,11 @@
-export { default as AnimatedObject } from './AnimatedObject';
-export { default as AttractedDraggableObject } from './AttractedDraggableObject';
-export { default as AttractedHighlightableObject } from './AttractedHighlightableObject';
+export { AnimatedObject, AttractedDraggableObject, AttractedHighlightableObject } from './AnimatedObjects';
 export { default as Animator } from './Animator';
 export { default as Visualization } from './Visualization';
-export { default as ArrayList } from './ArrayList';
-export { default as SinglyLinkedList } from './SinglyLinkedList';
-export { default as DoublyLinkedList } from './DoublyLinkedList';
-export { default as CircularSinglyLinkedList } from './CircularSinglyLinkedList';
-export { default as StackArray } from './StackArray';
-export { default as QueueArray } from './QueueArray';
-export { default as DequeArray } from './DequeArray';
-export { default as StackLinkedList } from './StackLinkedList';
-export { default as QueueLinkedList } from './QueueLinkedList';
-export { default as DequeLinkedList } from './DequeLinkedList';
+export { ArrayList, SinglyLinkedList, DoublyLinkedList, CircularSinglyLinkedList,
+        StackArray, QueueArray, DequeArray, StackLinkedList, QueueLinkedList, DequeLinkedList,
+        BST, Heap, AVL, SplayTree, BTree, SkipList,
+        HashMapProbing, HashMapChaining,
+        BubbleSort, CocktailShakerSort, InsertionSort, SelectionSort, QuickSort, QuickSelect, MergeSort, LSDRadixSort,
+        BruteForce, BoyerMoore, KMP, RabinKarp,
+        BFS, DFS, Dijkstras, Prims, Kruskals,
+        LCS, FloydWarshall } from './Visualizations';

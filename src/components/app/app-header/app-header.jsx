@@ -116,8 +116,8 @@ export default function AppHeader() {
                         title_text: "Algorithms",
                         drop_down_items: [
                             {
-                                link: "sorting",
-                                title_text: "Sorting",
+                                link: "sorting-quickselect",
+                                title_text: "Sorting and QuickSelect",
                                 side_pane_items: [
                                     {
                                         link: "bubble",
