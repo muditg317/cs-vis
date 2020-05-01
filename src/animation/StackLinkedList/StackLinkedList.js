@@ -86,12 +86,12 @@ export default class StackLinkedList extends Visualization {
         let animation = [];
         animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,isAnimationStep:true,});
         if (this.size > 0) {
-            animation.push({method:this.setTempNodeBeforeHead,params:[],explanation:`Assign next pointer`,isAnimationStep:true,});
-            animation.push({method:this.shiftHeadForNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+            animation.push({method:this.setTempNodeBeforeHead,explanation:`Assign next pointer`,isAnimationStep:true,});
+            animation.push({method:this.shiftHeadForNode,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        animation.push({method:this.insertTempNode,params:[],explanation:`Reset top pointer to new head`,isAnimationStep:true,});
-        animation.push({method:this.shiftHead,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.sizeIncr,params:[],noAnim:true,});
+        animation.push({method:this.insertTempNode,explanation:`Reset top pointer to new head`,isAnimationStep:true,});
+        animation.push({method:this.shiftHead,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.sizeIncr,noAnim:true,});
         animation.push({method:this.showText,params:[`Successfully pushed ${data} to stack.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();
@@ -112,13 +112,13 @@ export default class StackLinkedList extends Visualization {
         }
         let animation = [];
         let data = this.head.data;
-        animation.push({method:this.markHeadForDeletion,params:[],noAnim:true,});
-        animation.push({method:this.unmakeHead,params:[],explanation:`Extract data`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.markHeadForDeletion,noAnim:true,});
+        animation.push({method:this.unmakeHead,explanation:`Extract data`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         if (this.size > 1) {
-            animation.push({method:this.shiftIntoNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+            animation.push({method:this.shiftIntoNode,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        animation.push({method:this.skipTempNode,params:[],explanation:`Reset top pointer to new head`,isAnimationStep:true,undoData:[this.head.data,],});
-        animation.push({method:this.sizeDecr,params:[],noAnim:true,});
+        animation.push({method:this.skipTempNode,explanation:`Reset top pointer to new head`,isAnimationStep:true,undoData:[this.head.data,],});
+        animation.push({method:this.sizeDecr,noAnim:true,});
         animation.push({method:this.showText,params:[`Successfully popped ${data} from stack.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();

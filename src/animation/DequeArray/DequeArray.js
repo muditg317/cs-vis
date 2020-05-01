@@ -115,7 +115,7 @@ export default class DequeArray extends Visualization {
         }
         let animation = [];
         if (this.size === this.backingArray.length) {
-            this.animationQueue.push({method:this.showText,params:[`Stack full, resizing to length ${this.backingArray.length*2}`,Colors.GREEN,],});
+            animation.push({method:this.showText,params:[`Deque full, resizing to length ${this.backingArray.length*2}`,Colors.GREEN,],});
             animation.push(...this.createCopyArray());
         }
         animation.push({method:this.createElement,params:[data,front],explanation:`Create value: ${data}`,isAnimationStep:true,returnsRedoData:true,});
@@ -125,8 +125,8 @@ export default class DequeArray extends Visualization {
         } else {
             animation.push(...this.useFrontSizePointer(true));
         }
-        animation.push({method:this.highlightTemp,params:[],noAnim:true});
-        animation.push({method:this.insertElement,params:[],customEnd:true,explanation:`Added ${data} to backingArray`,isAnimationStep:true,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.highlightTemp,noAnim:true});
+        animation.push({method:this.insertElement,customEnd:true,explanation:`Added ${data} to backingArray`,isAnimationStep:true,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
         if (front) {
             // animation.push({method:this.noAction,noAnim:true,isBackStep:true});
             animation.push(...this.updateFrontPointer(-1));
@@ -166,7 +166,7 @@ export default class DequeArray extends Visualization {
             animation.push(...this.useFrontDecrementPointer(false));
         }
         animation.push({method:this.extractElement,params:[front],explanation:`Remove value: ${data} from deque`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.unmakeElement,params:[],noAnim:true,returnsUndoData:true});
+        animation.push({method:this.unmakeElement,noAnim:true,returnsUndoData:true});
         if (front) {
             animation.push(...this.updateFrontPointer(1));
         }
@@ -188,7 +188,7 @@ export default class DequeArray extends Visualization {
 
     createCopyArray() {
         let animation = [];
-        animation.push({method:this.initCopyArray,params:[],noAnim:true,explanation:`Deque full, resizing to length ${this.backingArray.length*2}`,isForwardStep:true,});
+        animation.push({method:this.initCopyArray,noAnim:true,explanation:`Deque full, resizing to length ${this.backingArray.length*2}`,isForwardStep:true,});
         animation.push(...this.useFrontPointer(true));
         for (let i = 0; i < this.size; i++) {
             animation.push(...this.addItemToCopy(i));
@@ -264,7 +264,7 @@ export default class DequeArray extends Visualization {
 
     useCopyArr() {
         let animation = [];
-        animation.push({method:this.assignCopyArray,params:[],noAnim:true,isBackStep:true,customUndoEnd:true,returnsUndoData:true});
+        animation.push({method:this.assignCopyArray,noAnim:true,isBackStep:true,customUndoEnd:true,returnsUndoData:true});
         for (let i = 0; i < this.size; i++) {
             animation.push({method:this.shiftElementToBackingArray,params:[i,],noAnim:true,isForwardStep:(i === this.size - 1),customUndoEnd:true,customRedoEnd:true});
         }
@@ -322,9 +322,9 @@ export default class DequeArray extends Visualization {
 
     useSizePointer() {
         let animation = [];
-        animation.push({method:this.sizePointerHighlighter.highlight,scope:this.sizePointerHighlighter,params:[],noAnim:true,});
-        animation.push({method:this.moveSizeTracker,params:[],customEnd:true,explanation:`Size points to index |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.sizePointerHighlighter.unhighlight,scope:this.sizePointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.sizePointerHighlighter.highlight,scope:this.sizePointerHighlighter,noAnim:true,});
+        animation.push({method:this.moveSizeTracker,customEnd:true,explanation:`Size points to index |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.sizePointerHighlighter.unhighlight,scope:this.sizePointerHighlighter,noAnim:true,});
         animation.push({method:this.sizePointerHighlighter.goTo,scope:this.sizePointerHighlighter,params:[DequeArray.SIZE_LOCATION_X,DequeArray.SIZE_LOCATION_Y,],noAnim:true,returnsUndoData:true});
         return animation;
     }
@@ -409,9 +409,9 @@ export default class DequeArray extends Visualization {
 
     useFrontPointer(end = false) {
         let animation = [];
-        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,noAnim:true,});
         animation.push({method:this.moveFrontTracker,params:[0,false],customEnd:true,explanation:`Front points to index |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,noAnim:true,});
         if (end) {
             animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[DequeArray.FRONT_LOCATION_X,DequeArray.FRONT_LOCATION_Y,],noAnim:true,returnsUndoData:true,});
         }
@@ -420,18 +420,18 @@ export default class DequeArray extends Visualization {
     useFrontDecrementPointer(add) {
         let animation = [];
         // animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[...this.getElementPosition(this.frontPointerValue)],noAnim:true,returnsUndoData:true,});
-        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,noAnim:true,});
         animation.push({method:this.moveFrontTracker,params:[-1,!add],customEnd:true,explanation:`${add ? "Add at" : "Remove from"} index (front${add ? " " : " + size "}- 1) % backingArray.length = |RETURN|`,explanationUsesReturn:true,isForwardStep:true,isBackStep:add,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,noAnim:true,});
         animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[DequeArray.FRONT_LOCATION_X,DequeArray.FRONT_LOCATION_Y,],noAnim:true,returnsUndoData:true,});
         return animation;
     }
     useFrontSizePointer(add, end = true) {
         let animation = [];
         // animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[...this.getElementPosition(this.frontPointerValue)],noAnim:true,returnsUndoData:true,});
-        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,noAnim:true,});
         animation.push({method:this.moveFrontTracker,params:[0,true],customEnd:true,explanation:`${add ? "Add at" : "Remove from"} index (front + size${add ? "" : " - 1"}) % backingArray.length = |RETURN|`,explanationUsesReturn:true,isForwardStep:end,isBackStep:true,returnsUndoData:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,noAnim:true,});
         if (end) {
             animation.push({method:this.frontPointerHighlighter.goTo,scope:this.frontPointerHighlighter,params:[DequeArray.FRONT_LOCATION_X,DequeArray.FRONT_LOCATION_Y,],noAnim:true,returnsUndoData:true,});
         }
@@ -535,7 +535,7 @@ export default class DequeArray extends Visualization {
         let animation = [];
         animation.push({method:this.frontPointerHighlighter.highlight,scope:this.frontPointerHighlighter,params:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],isForwardStep:false,});
         animation.push({method:this.changeFrontPointerValue,params:[offset],explanation:`Update front pointer to |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,returnsUndoData:true,});
-        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,params:[],noAnim:true,isBackStep:false,undoData:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],});
+        animation.push({method:this.frontPointerHighlighter.unhighlight,scope:this.frontPointerHighlighter,noAnim:true,isBackStep:false,undoData:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],});
         return animation;
     }
 
@@ -557,7 +557,7 @@ export default class DequeArray extends Visualization {
         let animation = [];
         animation.push({method:this.sizePointerHighlighter.highlight,scope:this.sizePointerHighlighter,params:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],isForwardStep:false,});
         animation.push({method:this.changeSizePointerValue,params:[offset],explanation:`Update size to |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,returnsUndoData:true,});
-        animation.push({method:this.sizePointerHighlighter.unhighlight,scope:this.sizePointerHighlighter,params:[],noAnim:true,isBackStep:false,undoData:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],});
+        animation.push({method:this.sizePointerHighlighter.unhighlight,scope:this.sizePointerHighlighter,noAnim:true,isBackStep:false,undoData:[Colors.RED, AttractedHighlightableObject.HIGHLIGHT_SQUARE],});
         return animation;
     }
 

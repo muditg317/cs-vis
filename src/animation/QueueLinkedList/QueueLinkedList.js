@@ -94,11 +94,11 @@ export default class QueueLinkedList extends Visualization {
         let animation = [];
         animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,isAnimationStep:true,returnsRedoData:true});
         if (this.size > 0) {
-            animation.push({method:this.setTempNodeAfterTail,params:[],explanation:`Assign next pointer`,isAnimationStep:true,});
+            animation.push({method:this.setTempNodeAfterTail,explanation:`Assign next pointer`,isAnimationStep:true,});
         }
-        animation.push({method:this.insertTempNode,params:[],explanation:`Reset tail pointer`,isAnimationStep:true,returnsUndoData:true,});
-        animation.push({method:this.shiftTail,params:[],customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.sizeIncr,params:[],noAnim:true,});
+        animation.push({method:this.insertTempNode,explanation:`Reset tail pointer`,isAnimationStep:true,returnsUndoData:true,});
+        animation.push({method:this.shiftTail,customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.sizeIncr,noAnim:true,});
         animation.push({method:this.showText,params:[`Successfully enqueued ${data} to queue.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();
@@ -119,13 +119,13 @@ export default class QueueLinkedList extends Visualization {
         }
         let animation = [];
         let data = this.head.data;
-        animation.push({method:this.markHeadForDeletion,params:[],noAnim:true,});
-        animation.push({method:this.unmakeHead,params:[],explanation:`Extract data`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        animation.push({method:this.markHeadForDeletion,noAnim:true,});
+        animation.push({method:this.unmakeHead,explanation:`Extract data`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         if (this.size > 1) {
-            animation.push({method:this.shiftIntoNode,params:[],isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+            animation.push({method:this.shiftIntoNode,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        animation.push({method:this.skipTempNode,params:[],explanation:`Reset head pointer to new head`,isAnimationStep:true,returnsUndoData:true,});
-        animation.push({method:this.sizeDecr,params:[],noAnim:true,});
+        animation.push({method:this.skipTempNode,explanation:`Reset head pointer to new head`,isAnimationStep:true,returnsUndoData:true,});
+        animation.push({method:this.sizeDecr,noAnim:true,});
         animation.push({method:this.showText,params:[`Successfully dequeued ${data} from queue.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();
@@ -420,7 +420,7 @@ export default class QueueLinkedList extends Visualization {
     }
 
     windowResized(p5, height, numScrollbars) {
-        super.windowResized(p5, height, numScrollbars, this.getNodePosition(this.size-1)[1] + QueueLinkedList.ELEMENT_HEIGHT,() => {
+        super.windowResized(p5, height, numScrollbars, this.getTailY() + QueueLinkedList.HEAD_TAIL_SIZE + 20,() => {
             let shiftTemp = this.tempNode && this.tempNode.desiredX === 20 && this.tempNode.desiredY === 20;
             let node = this.head;
             while (node) {

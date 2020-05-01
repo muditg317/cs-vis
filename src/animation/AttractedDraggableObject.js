@@ -1,3 +1,4 @@
+import Visualizer from 'components/visualizer'
 export default class AttractedDraggableObject {
 
     static ATTRACTION = 0.3;
@@ -69,7 +70,8 @@ export default class AttractedDraggableObject {
         if (this.pinnedToMouse) {
             this.currentX = p5.mouseX - this.mouseOffsetX;
             this.currentY = p5.mouseY - this.mouseOffsetY;
-        } else if (isNaN(this.currentX) || isNaN(this.currentY) || isNaN(this.vx) || isNaN(this.vy)) {
+        } else if ((animationSpeed >= Math.floor(Visualizer.maxAnimationSpeed()))
+                || (isNaN(this.currentX) || isNaN(this.currentY) || isNaN(this.vx) || isNaN(this.vy))) {
             this.stop();
         } else {
             if (deltaY !== 0 || deltaX !== 0) {

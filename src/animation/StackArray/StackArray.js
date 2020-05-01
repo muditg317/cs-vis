@@ -56,7 +56,7 @@ export default class StackArray extends Visualization {
         }
         let animation = [];
         if (this.size === this.backingArray.length) {
-            this.updateText(`Stack full, resizing to length ${this.backingArray.length*2}`);
+            animation.push({method:this.showText,params:[`Stack full, resizing to length ${this.backingArray.length*2}`,],});
             animation.push(...this.createCopyArray());
         }
         animation.push({method:this.makeElement,params:[this.size,data],explanation:`Create value: ${data}`,});
@@ -65,7 +65,7 @@ export default class StackArray extends Visualization {
         animation.push({method:this.insertElement,params:[this.size],customEnd:true,explanation:`Added ${data} to backingArray`});
         animation.push({method:this.sizeIncr,params:[],noAnim:true});
         animation.push(...this.updateTopPointer());
-        this.animationQueue.push({method:this.showText,params:[`Successfully pushed ${data} to stack.`,Colors.GREEN,],});
+        animation.push({method:this.showText,params:[`Successfully pushed ${data} to stack.`,Colors.GREEN,],});
         this.addAnimation(animation);
         this.endDrawLoop();
         return true;

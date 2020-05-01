@@ -1,6 +1,6 @@
 import { Visualization } from 'animation';
 import AttractedDraggableObject from 'animation/AttractedDraggableObject';
-import { Utils } from 'utils';
+import { Utils, Colors } from 'utils';
 
 export default class DoublyLinkedList extends Visualization {
     static USE_CANVAS = true;
@@ -430,8 +430,8 @@ class DoublyLinkedListNode extends AttractedDraggableObject {
         p5.fill(...this.color);
         p5.text(this.data.toString(), this.currentX + DoublyLinkedList.POINTER_WIDTH,this.currentY, DoublyLinkedList.ELEMENT_WIDTH,DoublyLinkedList.ELEMENT_HEIGHT);
         if (this.prev) {
-            p5.stroke(...Utils.addArray(this.color, [0,0,255]));
-            p5.fill(...Utils.addArray(this.color, [0,0,255]));
+            p5.stroke(...Utils.addArray(this.color, Colors.BLUE));
+            p5.fill(...Utils.addArray(this.color, Colors.BLUE));
             p5.circle(this.currentX + DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3, 5);
             p5.line(this.currentX + DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3, this.prev.currentX + DoublyLinkedList.ITEM_WIDTH, this.prev.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3)
             p5.rect(this.prev.currentX + DoublyLinkedList.ITEM_WIDTH - 3, this.prev.currentY + DoublyLinkedList.ELEMENT_HEIGHT *2/3 - 3, 6,6);
@@ -439,8 +439,8 @@ class DoublyLinkedListNode extends AttractedDraggableObject {
             p5.line(this.currentX, this.currentY, this.currentX + DoublyLinkedList.POINTER_WIDTH, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT);
         }
         if (this.next) {
-            p5.stroke(...Utils.addArray(this.color, [0,0,255]));
-            p5.fill(...Utils.addArray(this.color, [0,0,255]));
+            p5.stroke(...Utils.addArray(this.color, Colors.BLUE));
+            p5.fill(...Utils.addArray(this.color, Colors.BLUE));
             p5.circle(this.currentX + DoublyLinkedList.ITEM_WIDTH - DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3, 5);
             p5.line(this.currentX + DoublyLinkedList.ITEM_WIDTH - DoublyLinkedList.POINTER_WIDTH / 2, this.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3, this.next.currentX, this.next.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3)
             p5.rect(this.next.currentX - 3, this.next.currentY + DoublyLinkedList.ELEMENT_HEIGHT / 3 - 3, 6,6);

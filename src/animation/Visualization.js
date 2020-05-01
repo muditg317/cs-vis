@@ -84,6 +84,8 @@ export default class Visualization {
         this.paused = false;
         if (this.animationQueue.length > 0) {
             this.beginDrawLoop();
+        } else {
+            this.animator.emit("anim-end");
         }
         this.animator.disable("stepBack");
         this.animator.disable("skipBack");
@@ -92,7 +94,9 @@ export default class Visualization {
     }
 
     pause() {
-        this.animationQueue.unshift({method:this.setPaused,noAnim:true});
+        if (this.animationQueue.length === 0 || !this.isPauseTrigger(this.animationQueue[0])) {
+            this.animationQueue.unshift({method:this.setPaused,noAnim:true});
+        }
         this.beginDrawLoop();
     }
 
@@ -185,10 +189,12 @@ export default class Visualization {
             this.undoAnimation(previousAnimation,doDraw);
             previousAnimation = this.runningAnimation.pop();
             if (!previousAnimation) {
-                return;
+                break;
             }
         }
-        this.undoAnimation(previousAnimation,doDraw);
+        if (previousAnimation) {
+            this.undoAnimation(previousAnimation,doDraw);
+        }
         if (doDraw) {
             this.ensureDrawn();
         }
@@ -224,18 +230,16 @@ export default class Visualization {
         let method = nextAnimation.method;
         method = method.redo || method;
         let params = nextAnimation.redoData || nextAnimation.params || [];
-        // console.log(require('util').inspect(nextAnimation, { depth: null }));
-        if (Visualization.LOG_UNDO_REDO) {
-            console.log("redo",params,method);
-        }
         if (doDraw) {
             this.beginDrawLoop();
         }
         let retVal
         if (!this.isAnimEnd(nextAnimation)) {
+            if (Visualization.LOG_UNDO_REDO) {
+                console.log("redo",params,method);
+            }
             retVal = method.apply(scope, params);
         }
-        // nextAnimation.returnValue = retVal;
         if (this.isAnimStart(nextAnimation)) {
             this.runningAnimation = [];
         } else if (this.isAnimEnd(nextAnimation)) {
@@ -274,10 +278,12 @@ export default class Visualization {
             this.redoAnimation(nextAnimation,doDraw);
             nextAnimation = this.animationQueue.shift();
             if (!nextAnimation) {
-                return;
+                break;
             }
         }
-        this.redoAnimation(nextAnimation,doDraw);
+        if (nextAnimation) {
+            this.redoAnimation(nextAnimation,doDraw);
+        }
         if (doDraw) {
             this.ensureDrawn();
         }
@@ -488,9 +494,9 @@ export default class Visualization {
                         this.animating = false;
                     } else if (!animation.customEnd) {
                         if (animationSpeed >= Math.floor(Visualizer.maxAnimationSpeed())) {
-                            this.animating = false;
+                            this.doneAnimating(0);
                         } else {
-                            this.doneAnimating(this.constructor.MAX_ANIM_TIME / animationSpeed);
+                            this.doneAnimating(this.constructor.MAX_ANIM_TIME / animationSpeed / (animation.quick ? 2 : 1));
                         }
                     }
                 }
