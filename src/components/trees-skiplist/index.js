@@ -1,4 +1,4 @@
 export { default as TreeVisualizer } from './tree-ADT';
+export { default as BinarySearchingTreeVisualizer } from './binary-searching-tree-ADT';
 export { default as HeapVisualizer } from './heap-ADT';
-export { default as SkipListVisualizer } from './skiplist-ADT';
-export { default } from './trees-skiplist';
+export { default as SkipListADTVisualizer } from './skiplist-ADT';

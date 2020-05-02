@@ -20,6 +20,20 @@ export default class Visualizer extends PureComponent {
     constructor(props) {
         super(props);
 
+        this[this.constructor.ADT_NAME] = null;
+
+        //INHERIT METHODS FROM VISUALIZATION
+        let currConstructor = this.constructor;
+        while (currConstructor.VISUALIZATION_METHODS) {
+            currConstructor.VISUALIZATION_METHODS.forEach((methodName) => {
+                this[methodName] = (...args) => {
+                    return this[this.constructor.ADT_NAME][methodName](...args);
+                };
+            });
+            currConstructor = currConstructor.__proto__;
+        }
+
+
         //FUNCTION BINDING
         this.setup = this.setup.bind(this);
         this.draw = this.draw.bind(this);
@@ -55,6 +69,8 @@ export default class Visualizer extends PureComponent {
         this.animator.on("anim-start", this.onAnimStart);
         this.animator.on("anim-end", this.onAnimEnd);
 
+        this.addControlLabel(this.constructor.NAME);
+        this.addControls();
         this.addDefaultControls();
     }
 
@@ -131,7 +147,6 @@ export default class Visualizer extends PureComponent {
     }
 
     addControlGroups(...controlGroups) {
-        // console.log("control added");
         this.controlGroups.push(...controlGroups);
         controlGroups.forEach((controlGroup) => {
             if (controlGroup.tagName === "INPUT") {
@@ -188,8 +203,9 @@ export default class Visualizer extends PureComponent {
         });
     }
 
-    componentDidMount(callForward) {
-        callForward();
+    componentDidMount() {
+        this[this.constructor.ADT_NAME] = new this.constructor.VISUALIZATION_CLASS(this.animator);
+        this.visualization = this[this.constructor.ADT_NAME];
         if (Utils.isDev()) {
             window.vis = this.visualization;
         } else {
@@ -348,7 +364,7 @@ export default class Visualizer extends PureComponent {
 
     render() {
         return (
-                <div className={`visualizer ${this.class}`}>
+                <div className={`visualizer ${this.constructor.DIV_CLASS}`}>
                     <ControlBar ref={this.controlBarRef}/>
                     {
                         this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
@@ -361,7 +377,7 @@ export default class Visualizer extends PureComponent {
                                     }
                                 </div>
                             :
-                                <this.visualization.VISUALIZATION_CLASS />
+                                <this.constructor.VISUALIZATION_CLASS />
                     }
                 </div>
             );

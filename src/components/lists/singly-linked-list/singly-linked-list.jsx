@@ -5,16 +5,6 @@ import './singly-linked-list.scss';
 
 export default class SinglyLinkedListVisualizer extends ListVisualizer {
     static VISUALIZATION_CLASS = SinglyLinkedList;
-
-    constructor(props) {
-        super(props);
-        super.class = 'singlylinkedlist';
-        super.addControlLabel("SinglyLinkedList");
-    }
-
-    componentDidMount() {
-        super.componentDidMount(() => {
-            this.list = new SinglyLinkedList(this.animator);
-        });
-    }
+    static DIV_CLASS = "singlylinkedlist";
+    static NAME = "SinglyLinkedList";
 }

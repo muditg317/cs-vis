@@ -5,16 +5,6 @@ import './heap.scss';
 
 export default class HeapPQVisualizer extends HeapVisualizer {
     static VISUALIZATION_CLASS = Heap;
-
-    constructor(props) {
-        super(props);
-        super.class = 'heap-pq';
-        super.addControlLabel("Heap / Priority Queue");
-    }
-
-    componentDidMount() {
-        super.componentDidMount(() => {
-            this.heap = new Heap(this.animator);
-        });
-    }
+    static DIV_CLASS = "heap-pq";
+    static NAME = "Heap / Priority Queue";
 }

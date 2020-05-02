@@ -2,21 +2,9 @@ import Visualizer from 'components/visualizer';
 import { ControlBuilder } from 'utils';
 
 
-export default class QueueVisualizer extends Visualizer {
-
-    constructor(props) {
-        super(props);
-
-        //FUNCTION BINDING
-        this.enqueueButtonCallback = this.enqueueButtonCallback.bind(this);
-        this.dequeueButtonCallback = this.dequeueButtonCallback.bind(this);
-        this.resetButtonCallback = this.resetButtonCallback.bind(this);
-        this.elementFieldCallback = this.elementFieldCallback.bind(this);
-
-        this.queue = null;
-
-        this.addControls();
-    }
+export default class SkipListADTVisualizer extends Visualizer {
+    static ADT_NAME = "skiplist";
+    static VISUALIZATION_METHODS = ["addRandomly", "addWithHeads", "remove", "get", "reset"];
 
     addControls() {
         this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
@@ -40,46 +28,5 @@ export default class QueueVisualizer extends Visualizer {
         let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
 
         super.addControlGroups(mainControlGroup, resetGroup);
-    }
-
-    componentDidMount(callForward) {
-        super.componentDidMount(() => {
-            callForward();
-            super.visualization = this.queue;
-        });
-    }
-
-
-    enqueueButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.queue.enqueue(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-    elementFieldCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.queue.enqueue(value)) {
-                this.valueField.value = "";
-            }
-        }
-    }
-
-    dequeueButtonCallback() {
-        this.queue.dequeue();
-    }
-
-    peekButtonCallback() {
-        this.queue.peek();
-    }
-
-    resetButtonCallback() {
-        this.queue.reset();
-        this.valueField.value = "";
-        this.valueField.focus();
     }
 }

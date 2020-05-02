@@ -3,33 +3,18 @@ import { ControlBuilder } from 'utils';
 
 
 export default class StackVisualizer extends Visualizer {
-
-    constructor(props) {
-        super(props);
-
-        //FUNCTION BINDING
-        this.pushButtonCallback = this.pushButtonCallback.bind(this);
-        this.popButtonCallback = this.popButtonCallback.bind(this);
-        this.resetButtonCallback = this.resetButtonCallback.bind(this);
-        this.elementFieldCallback = this.elementFieldCallback.bind(this);
-
-        this.stack = null;
-
-        this.addControls();
-    }
+    static ADT_NAME = "stack";
+    static VISUALIZATION_METHODS = ["push", "pop", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
+        ControlBuilder.addFieldSubmit(this.valueField, this.push);
 
-        this.pushButton = ControlBuilder.createButton("push");
-        this.pushButton.addEventListener("click",this.pushButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "push", this.valueField);
 
-        this.popButton = ControlBuilder.createButton("pop");
-        this.popButton.addEventListener("click",this.popButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "pop");
 
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "reset", this.valueField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.valueField);
@@ -40,46 +25,5 @@ export default class StackVisualizer extends Visualizer {
         let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
 
         super.addControlGroups(mainControlGroup, resetGroup);
-    }
-
-    componentDidMount(callForward) {
-        super.componentDidMount(() => {
-            callForward();
-            super.visualization = this.stack;
-        });
-    }
-
-
-    pushButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.stack.push(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-    elementFieldCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.stack.push(value)) {
-                this.valueField.value = "";
-            }
-        }
-    }
-
-    popButtonCallback() {
-        this.stack.pop();
-    }
-
-    peekButtonCallback() {
-        this.stack.peek();
-    }
-
-    resetButtonCallback() {
-        this.stack.reset();
-        this.valueField.value = "";
-        this.valueField.focus();
     }
 }

@@ -1,20 +1,10 @@
-import { TreeVisualizer } from '../';
+import { BinarySearchingTreeVisualizer } from '../';
 import { AVL } from 'animation';
 import './avl.scss';
 
 
-export default class AVLVisualizer extends TreeVisualizer {
+export default class AVLVisualizer extends BinarySearchingTreeVisualizer {
     static VISUALIZATION_CLASS = AVL;
-
-    constructor(props) {
-        super(props);
-        super.class = 'avl';
-        super.addControlLabel("AVL");
-    }
-
-    componentDidMount() {
-        super.componentDidMount(() => {
-            this.tree = new AVL(this.animator);
-        });
-    }
+    static DIV_CLASS = "avl";
+    static NAME = "AVL";
 }

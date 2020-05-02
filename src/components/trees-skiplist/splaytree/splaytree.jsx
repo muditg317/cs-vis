@@ -3,18 +3,8 @@ import { SplayTree } from 'animation';
 import './splaytree.scss';
 
 
-export default class QueueLinkedListVisualizer extends TreeVisualizer {
+export default class SplayTreeVisualizer extends TreeVisualizer {
     static VISUALIZATION_CLASS = SplayTree;
-
-    constructor(props) {
-        super(props);
-        super.class = 'splaytree';
-        super.addControlLabel("SplayTree");
-    }
-
-    componentDidMount() {
-        super.componentDidMount(() => {
-            this.tree = new SplayTree(this.animator);
-        });
-    }
+    static DIV_CLASS = "splaytree";
+    static NAME = "SplayTree";
 }

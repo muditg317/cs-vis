@@ -3,33 +3,18 @@ import { ControlBuilder } from 'utils';
 
 
 export default class QueueVisualizer extends Visualizer {
-
-    constructor(props) {
-        super(props);
-
-        //FUNCTION BINDING
-        this.enqueueButtonCallback = this.enqueueButtonCallback.bind(this);
-        this.dequeueButtonCallback = this.dequeueButtonCallback.bind(this);
-        this.resetButtonCallback = this.resetButtonCallback.bind(this);
-        this.elementFieldCallback = this.elementFieldCallback.bind(this);
-
-        this.queue = null;
-
-        this.addControls();
-    }
+    static ADT_NAME = "queue";
+    static VISUALIZATION_METHODS = ["enqueue", "dequeue", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
+        ControlBuilder.addFieldSubmit(this.valueField, this.enqueue);
 
-        this.enqueueButton = ControlBuilder.createButton("enqueue");
-        this.enqueueButton.addEventListener("click",this.enqueueButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "enqueue", this.valueField);
 
-        this.dequeueButton = ControlBuilder.createButton("dequeue");
-        this.dequeueButton.addEventListener("click",this.dequeueButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "dequeue");
 
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "reset", this.valueField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.valueField);
@@ -40,46 +25,5 @@ export default class QueueVisualizer extends Visualizer {
         let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
 
         super.addControlGroups(mainControlGroup, resetGroup);
-    }
-
-    componentDidMount(callForward) {
-        super.componentDidMount(() => {
-            callForward();
-            super.visualization = this.queue;
-        });
-    }
-
-
-    enqueueButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.queue.enqueue(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-    elementFieldCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.queue.enqueue(value)) {
-                this.valueField.value = "";
-            }
-        }
-    }
-
-    dequeueButtonCallback() {
-        this.queue.dequeue();
-    }
-
-    peekButtonCallback() {
-        this.queue.peek();
-    }
-
-    resetButtonCallback() {
-        this.queue.reset();
-        this.valueField.value = "";
-        this.valueField.focus();
     }
 }

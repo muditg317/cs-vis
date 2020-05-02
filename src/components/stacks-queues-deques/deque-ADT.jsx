@@ -3,41 +3,22 @@ import { ControlBuilder } from 'utils';
 
 
 export default class DequeVisualizer extends Visualizer {
-
-    constructor(props) {
-        super(props);
-
-        //FUNCTION BINDING
-        this.addLastButtonCallback = this.addLastButtonCallback.bind(this);
-        this.addFirstButtonCallback = this.addFirstButtonCallback.bind(this);
-        this.removeFirstButtonCallback = this.removeFirstButtonCallback.bind(this);
-        this.removeLastButtonCallback = this.removeLastButtonCallback.bind(this);
-        this.resetButtonCallback = this.resetButtonCallback.bind(this);
-        this.elementFieldCallback = this.elementFieldCallback.bind(this);
-
-        this.deque = null;
-
-        this.addControls();
-    }
+    static ADT_NAME = "deque";
+    static VISUALIZATION_METHODS = ["addFirst", "addLast", "removeFirst", "removeLast", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
+        ControlBuilder.addFieldSubmit(this.valueField, this.addLast);
 
-        this.addLastButton = ControlBuilder.createButton("addLast (enqueue)");
-        this.addLastButton.addEventListener("click",this.addLastButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, {name: "addFirst", longName: "addFirst (push)"}, this.valueField);
 
-        this.addFirstButton = ControlBuilder.createButton("addFirst (push)");
-        this.addFirstButton.addEventListener("click",this.addFirstButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, {name: "addLast", longName: "addLast (enqueue)"}, this.valueField);
 
-        this.removeFirstButton = ControlBuilder.createButton("removeFirst (dequeue/pop)");
-        this.removeFirstButton.addEventListener("click",this.removeFirstButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, {name: "removeFirst", longName: "removeFirst (dequeue/pop)"});
 
-        this.removeLastButton = ControlBuilder.createButton("removeLast");
-        this.removeLastButton.addEventListener("click",this.removeLastButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "removeLast");
 
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "reset", this.valueField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.valueField);
@@ -49,57 +30,5 @@ export default class DequeVisualizer extends Visualizer {
         let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
 
         super.addControlGroups(interactionGroup, resetGroup);
-    }
-
-    componentDidMount(callForward) {
-        super.componentDidMount(() => {
-            callForward();
-            super.visualization = this.deque;
-        });
-    }
-
-
-    addLastButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addLast(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-
-    addFirstButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addFirst(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-    elementFieldCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addLast(value)) {
-                this.valueField.value = "";
-            }
-        }
-    }
-
-    removeFirstButtonCallback() {
-        this.deque.removeFirst();
-    }
-
-    removeLastButtonCallback() {
-        this.deque.removeLast();
-    }
-
-    resetButtonCallback() {
-        this.deque.reset();
-        this.valueField.value = "";
-        this.valueField.focus();
     }
 }

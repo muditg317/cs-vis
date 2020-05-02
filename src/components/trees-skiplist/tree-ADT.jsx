@@ -3,22 +3,8 @@ import { ControlBuilder } from 'utils';
 
 
 export default class TreeVisualizer extends Visualizer {
-
-    constructor(props) {
-        super(props);
-
-        //FUNCTION BINDING
-        this.addLastButtonCallback = this.addLastButtonCallback.bind(this);
-        this.addFirstButtonCallback = this.addFirstButtonCallback.bind(this);
-        this.removeFirstButtonCallback = this.removeFirstButtonCallback.bind(this);
-        this.removeLastButtonCallback = this.removeLastButtonCallback.bind(this);
-        this.resetButtonCallback = this.resetButtonCallback.bind(this);
-        this.elementFieldCallback = this.elementFieldCallback.bind(this);
-
-        this.deque = null;
-
-        this.addControls();
-    }
+    static ADT_NAME = "tree";
+    static VISUALIZATION_METHODS = ["insert", "delete", "get", "print", "reset"];
 
     addControls() {
         this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
@@ -49,57 +35,5 @@ export default class TreeVisualizer extends Visualizer {
         let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
 
         super.addControlGroups(interactionGroup, resetGroup);
-    }
-
-    componentDidMount(callForward) {
-        super.componentDidMount(() => {
-            callForward();
-            super.visualization = this.deque;
-        });
-    }
-
-
-    addLastButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addLast(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-
-    addFirstButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addFirst(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-    elementFieldCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addLast(value)) {
-                this.valueField.value = "";
-            }
-        }
-    }
-
-    removeFirstButtonCallback() {
-        this.deque.removeFirst();
-    }
-
-    removeLastButtonCallback() {
-        this.deque.removeLast();
-    }
-
-    resetButtonCallback() {
-        this.deque.reset();
-        this.valueField.value = "";
-        this.valueField.focus();
     }
 }

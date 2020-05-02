@@ -5,16 +5,6 @@ import './stack-array.scss';
 
 export default class StackArrayVisualizer extends StackVisualizer {
     static VISUALIZATION_CLASS = StackArray;
-
-    constructor(props) {
-        super(props);
-        super.class = 'stack-array';
-        super.addControlLabel("Stack (Array)");
-    }
-
-    componentDidMount() {
-        super.componentDidMount(() => {
-            this.stack = new StackArray(this.animator);
-        });
-    }
+    static DIV_CLASS = "stack-array";
+    static NAME = "Stack (Array)";
 }

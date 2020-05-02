@@ -22,15 +22,167 @@ export function createButton(label) {
     return button;
 };
 
-export function createField(prompt, ...validators) {
+export function addButtonSubmit(button, callback, ...fields) {
+    if (button.type !== "button") {
+        console.log("cannot add callback to nonbutton");
+        return;
+    }
+    if (callback === undefined) {
+        console.log("cannot set button submit to undefined callback");
+        return;
+    }
+    button.addEventListener("click", (event) => {
+        let args = [];
+        fields.forEach((field) => {
+            if (args) {
+                let f = field.field || field;
+                let value = f.parse();
+                if (value !== null) {
+                    args.push(value);
+                } else {
+                    args = null;
+                }
+            }
+        });
+        if (args) {
+            callback(...args);
+            fields.forEach((field) => {
+                let f = field.field || field;
+                if (f.clearOnSuccess) {
+                    f.value = "";
+                }
+                if (field.focus || fields.length === 1) {
+                    f.focus();
+                }
+            });
+        }
+    });
+}
+
+export function applyNewCallbackButton(visualizer, name, ...fields) {
+    let longName = name;
+    if (name.longName) {
+        longName = name.longName;
+        name = name.name;
+    }
+    visualizer[name + "Button"] = createButton(longName);
+    addButtonSubmit(visualizer[name + "Button"], visualizer[name], ...fields);
+}
+
+export function createField(prompt, clearOnSuccess, ...validators) {
     let field = createControl("text");
     field.setAttribute("placeHolder", prompt);
 
-    validators.forEach((validator) => {
-        field.addEventListener("input", () => { validator(field); });
+    field.clearOnSuccess = clearOnSuccess;
+
+    field.inputValidators = validators;
+    field.parsers = validators.map(validator => validator.parser);
+
+    field.addEventListener("input", () => {
+        field.inputValidators.forEach((validator) => {
+            validator(field);
+        });
     });
 
+    field.parse = () => {
+        let value = field.value;
+        let i = 0;
+        while (value && i < field.parsers.length) {
+            value = field.parsers[i++](value);
+        }
+        return value || (value === 0 ? 0 : null);
+    }
+
     return field;
+};
+
+export function validatorIntOnly() {
+    let validator = (field) => {
+        let regex = /^[-+]?\d*|\d*/g;
+        field.value = field.value.match(regex).reduce((sum, char) => sum + char);
+    };
+    validator.parser = (value) => {
+        let val = parseInt(value);
+        if (isNaN(val)) {
+            return null;
+        } else {
+            return val;
+        }
+    };
+    return validator;
+};
+
+export function validatorPositiveIntOnly() {
+    let validator = (field) => {
+        let regex = /^[+]?\d*|\d*/g;
+        field.value = field.value.match(regex).reduce((sum, char) => sum + char);
+    }
+    validator.parser = (value) => {
+        let val = Math.abs(parseInt(value));
+        if (isNaN(val)) {
+            return null;
+        } else {
+            return val;
+        }
+    };
+    return validator;
+};
+
+export function validatorMaxLength(maxLength) {
+    let validator = (field) => {
+        if (field.value.length > maxLength) {
+            field.value = field.value.substring(0, maxLength);
+        }
+    };
+    validator.parser = (value) => {
+        value = String(value);
+        if (value.length === 0) {
+            return null;
+        } else {
+            return value.substring(0, maxLength);
+        }
+    };;
+    return validator;
+};
+
+export function addFieldSubmit(field, callback, {secondaryRequired = false, secondary = {field: undefined, isFirstParam: false, callback: undefined, clear: false}} = {}) {
+    if (field.type !== "text") {
+        console.log("cannot add callback to nontextfield");
+        return;
+    }
+    if (callback === undefined) {
+        console.log("cannot set field submit to undefined callback");
+        return;
+    }
+    field.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            let value = field.parse();
+            if (value !== null) {
+                let success;
+                let secondaryValue;
+                if (secondary.field && (secondaryValue = secondary.field.parse()) !== null) {
+                    if (secondaryRequired) {
+                        secondary.callback = callback;
+                    }
+                    if (secondary.isFirstParam) {
+                        success = secondary.callback(secondaryValue,value) !== false;
+                    } else {
+                        success = secondary.callback(value,secondaryValue) !== false;
+                    }
+                } else if (!secondaryRequired) {
+                    success = callback(value) !== false;
+                }
+                if (success) {
+                    if (field.clearOnSuccess) {
+                        field.value = "";
+                    }
+                    if (secondary.field && secondary.clear) {
+                        secondary.field.value = "";
+                    }
+                }
+            }
+        }
+    });
 };
 
 export function createLabel(text, control) {
@@ -43,38 +195,6 @@ export function createLabel(text, control) {
     return newLabel;
 }
 
-export function validatorIntOnly() {
-    return (field) => {
-        let regex = /^(-[0-9])?[0-9]*/g;
-        field.value = field.value.match(regex).reduce((sum, char) => sum + char);
-    }
-};
-
-export function validatorMaxLength(maxLength) {
-    return (field) => {
-        if (field.value.length > maxLength) {
-            field.value = field.value.substring(0, Math.min(field.value.length, maxLength));
-        }
-    };
-};
-
-export function addSubmit(field, callback) {
-    if (field.type !== "text") {
-        console.log("cannot add callback to nontextfield");
-        return;
-    }
-    if (callback === undefined) {
-        console.log("cannot set field submit to undefined callback");
-        return;
-    }
-    field.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            // disableControls();
-            callback();
-        }
-    });
-};
-
 export function createSlider(min, max, defaultValue, step) {
     let slider = createControl("range");
 
@@ -86,6 +206,34 @@ export function createSlider(min, max, defaultValue, step) {
 
     return slider;
 };
+
+function createRadioButton(name, value) {
+    let radioButton = createControl("radio", value);
+    radioButton.name = name;
+    return radioButton;
+}
+
+export function createRadio(name, ...options) {
+    let radioContainer = document.createElement("div");
+    radioContainer.classList.add("radioContainer")
+    radioContainer.id = name;
+    options.forEach((option) => {
+        let radioButton = createRadioButton(name, option);
+        radioContainer.appendChild(radioButton);
+    });
+    radioContainer.children[0].checked = true;
+    return radioContainer;
+}
+
+export function addRadioSubmit(radioContainer, callback) {
+    let value;
+    radioContainer.children.forEach((radioButton) => {
+        if (radioButton.checked) {
+            value = radioButton.value;
+        }
+    });
+    callback(value);
+}
 
 
 export function createControlGroup(id, ...controls) {

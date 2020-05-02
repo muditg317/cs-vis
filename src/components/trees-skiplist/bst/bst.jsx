@@ -1,20 +1,10 @@
-import { TreeVisualizer } from '../';
+import { BinarySearchingTreeVisualizer } from '../';
 import { BST } from 'animation';
 import './bst.scss';
 
 
-export default class BSTVisualizer extends TreeVisualizer {
+export default class BSTVisualizer extends BinarySearchingTreeVisualizer {
     static VISUALIZATION_CLASS = BST;
-
-    constructor(props) {
-        super(props);
-        super.class = 'bst';
-        super.addControlLabel("Binary Search Tree");
-    }
-
-    componentDidMount() {
-        super.componentDidMount(() => {
-            this.deque = new BST(this.animator);
-        });
-    }
+    static DIV_CLASS = "bst";
+    static NAME = "Binary Search Tree";
 }

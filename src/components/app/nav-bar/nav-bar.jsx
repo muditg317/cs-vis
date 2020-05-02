@@ -79,7 +79,7 @@ class NavBarItem extends Component {
             link: this.props.content.link,
             icon: this.props.content.icon,
             title_text: this.props.content.title_text,
-            drop_down_items: this.props.content.drop_down_items,
+            drop_down_items: this.props.content.types,
         };
 
         this.selfRef = React.createRef();
@@ -233,7 +233,7 @@ class NavBarDropDownItem extends Component {
         this.state = {
             link: this.props.content.link,
             title_text: this.props.content.title_text,
-            side_pane_items: this.props.content.side_pane_items,
+            side_pane_items: this.props.content.visualizers,
             parentRoute: this.props.parentRoute,
             parent: this.props.parent,
         };

@@ -3,8 +3,8 @@ import { Utils, Colors } from 'utils';
 
 export default class Visualization {
 
-    static LOG_UNDO_REDO = true;
-    static LOG_ANIMATIONS = true;
+    static LOG_UNDO_REDO = false;
+    static LOG_ANIMATIONS = false;
     static LOG_DRAW = false;
 
     constructor(animator) {

@@ -43,7 +43,7 @@ export default class CircularSinglyLinkedList extends Visualization {
             return false;
         }
         if (data === null) {
-            console.log("Cannot add null to ArrayList.");
+            console.log("Cannot add null to CircularSinglyLinkedList.");
             return false;
         }
         let animation = [];
@@ -100,7 +100,7 @@ export default class CircularSinglyLinkedList extends Visualization {
             return false;
         }
         if (index < 0 || index >= this.size) {
-            console.log(`Index invalid: ${index} for ArrayList of length ${this.size}. Should be [0,${this.size-1}].`);
+            console.log(`Index invalid: ${index} for CircularSinglyLinkedList of length ${this.size}. Should be [0,${this.size-1}].`);
             return false;
         }
         let animation = [];
