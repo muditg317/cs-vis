@@ -1,8 +1,8 @@
-import Visualizer from 'components/visualizer';
+import { QuickVisualizer } from './';
 import { ControlBuilder } from 'utils';
 
 
-export default class TreeVisualizer extends Visualizer {
+export default class SelectVisualizer extends QuickVisualizer {
 
     constructor(props) {
         super(props);

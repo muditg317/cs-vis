@@ -167,7 +167,7 @@ export default class ArrayList extends Visualization {
     }
 
     update(animationSpeed, p5) {
-        super.update(() => {
+        super.update(animationSpeed, p5, () => {
             for (let i = 0; i < this.backingArray.length; i++) {
                 if (this.backingArray[i]) {
                     this.backingArray[i].update(animationSpeed);
@@ -181,7 +181,7 @@ export default class ArrayList extends Visualization {
                 }
             }
             this.animating = foundAnimElement;
-        }, animationSpeed, p5);
+        });
     }
 
     draw(p5) {
@@ -254,11 +254,6 @@ class ArrayElement extends AnimatedObject {
     shift(direction) {
         super.travel(direction);
     }
-
-    update(animationSpeed) {
-        super.update(animationSpeed);
-    }
-
 
     draw(p5, x,y, toX,toY) {
         p5.push();

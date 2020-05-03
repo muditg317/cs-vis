@@ -20,14 +20,14 @@ import { default as SkipListVisualizer } from 'components/trees-skiplist/skiplis
 import { default as HashMapProbingVisualizer } from 'components/hashmaps/hashmap-probing';
 import { default as HashMapChainingVisualizer } from 'components/hashmaps/hashmap-chaining';
 
-// import { default as BubbleSortVisualizer } from 'components/sorting-quickselect/BubbleSort';
-// import { default as CocktailShakerSortVisualizer } from 'components/sorting-quickselect/CocktailShakerSort';
-// import { default as InsertionSortVisualizer } from 'components/sorting-quickselect/InsertionSort';
-// import { default as SelectionSortVisualizer } from 'components/sorting-quickselect/SelectionSort';
-// import { default as QuickSortVisualizer } from 'components/sorting-quickselect/QuickSort';
-// import { default as QuickSelectVisualizer } from 'components/sorting-quickselect/QuickSelect';
-// import { default as MergeSortVisualizer } from 'components/sorting-quickselect/MergeSort';
-// import { default as LSDRadixSortVisualizer } from 'components/sorting-quickselect/LSDRadixSort';
+import { default as BubbleSortVisualizer } from 'components/sorting-quickselect/bubble-sort';
+import { default as CocktailShakerSortVisualizer } from 'components/sorting-quickselect/cocktail-shaker-sort';
+import { default as InsertionSortVisualizer } from 'components/sorting-quickselect/insertion-sort';
+import { default as SelectionSortVisualizer } from 'components/sorting-quickselect/selection-sort';
+import { default as QuickSortVisualizer } from 'components/sorting-quickselect/quick-sort';
+import { default as QuickSelectVisualizer } from 'components/sorting-quickselect/quick-select';
+import { default as MergeSortVisualizer } from 'components/sorting-quickselect/merge-sort';
+import { default as LSDRadixSortVisualizer } from 'components/sorting-quickselect/lsd-radix-sort';
 //
 // import { default as BruteForceVisualizer } from 'components/string-searching/BruteForce';
 // import { default as BoyerMooreVisualizer } from 'components/string-searching/BoyerMoore';
@@ -176,44 +176,44 @@ export const SiteMap =
                 title_text: "Sorting and QuickSelect",
                 visualizers: [
                     {
-                        link: "bubble",
+                        link: "bubble-sort",
                         title_text: "Bubble Sort",
-                        //component: BubbleSortVisualizer,
+                        component: BubbleSortVisualizer,
                     },
                     {
-                        link: "cocktail",
+                        link: "cocktail-shaker-sort",
                         title_text: "Cocktail Shaker Sort",
-                        //component: CocktailShakerSortVisualizer,
+                        component: CocktailShakerSortVisualizer,
                     },
                     {
-                        link: "insertion",
+                        link: "insertion-sort",
                         title_text: "Insertion Sort",
-                        //component: InsertionSortVisualizer,
+                        component: InsertionSortVisualizer,
                     },
                     {
-                        link: "selection",
+                        link: "selection-sort",
                         title_text: "Selection Sort",
-                        //component: SelectionSortVisualizer,
+                        component: SelectionSortVisualizer,
                     },
                     {
-                        link: "quicksort",
+                        link: "quick-sort",
                         title_text: "Quick Sort",
-                        //component: QuickSortVisualizer,
+                        component: QuickSortVisualizer,
                     },
                     {
-                        link: "quickselect",
+                        link: "quick-select",
                         title_text: "Quick Select",
-                        //component: QuickSelectVisualizer,
+                        component: QuickSelectVisualizer,
                     },
                     {
-                        link: "merge",
+                        link: "merge-sort",
                         title_text: "Merge Sort",
-                        //component: MergeSortVisualizer,
+                        component: MergeSortVisualizer,
                     },
                     {
-                        link: "lsd-radix",
+                        link: "lsd-radix-sort",
                         title_text: "LSD Radix Sort",
-                        //component: LSDRadixSortVisualizer,
+                        component: LSDRadixSortVisualizer,
                     },
                 ],
             },

@@ -411,12 +411,14 @@ export default class Visualization {
         }, time);
     }
 
-    update(callForward, animationSpeed, p5) {
+    update(animationSpeed, p5, callForward) {
         if (this.constructor.SET_BOUNDS) {
             this.width = p5.width - 2 * this.x;
             this.height = p5.height - 2 * this.y;
         }
-        callForward();
+        if (callForward) {
+            callForward();
+        }
         if (!this.constructor.SUPPORTS_ANIMATION_CONTROL || !this.paused) {
             this.popAnimation(animationSpeed);
         }

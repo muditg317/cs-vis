@@ -7,26 +7,57 @@ export default class SkipListADTVisualizer extends Visualizer {
     static VISUALIZATION_METHODS = ["addRandomly", "addWithHeads", "remove", "get", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        ControlBuilder.applyFieldWithOptions(this, {name: "value", callback: false, args: {size: 10}}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
+        ControlBuilder.applyFieldWithOptions(this, {name: "heads", prompt: "num heads", callback: false, args: {size: 10}}, ControlBuilder.validatorSkipListHeads());
+        ControlBuilder.addFieldSubmit(this.valueField, this.addRandomly,
+                {
+                    secondary: {
+                        field: this.headsField,
+                        callback: this.addWithHeads,
+                        clear: true
+                    }
+                }
+            );
+        ControlBuilder.addFieldSubmit(this.headsField, this.addWithHeads,
+                {
+                    secondaryRequired: true,
+                    secondary: {
+                        field: this.valueField,
+                        isFirstParam: true,
+                        clear: true
+                    }
+                }
+            );
 
-        this.enqueueButton = ControlBuilder.createButton("enqueue");
-        this.enqueueButton.addEventListener("click",this.enqueueButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "addRandomly", this.valueField);
 
-        this.dequeueButton = ControlBuilder.createButton("dequeue");
-        this.dequeueButton.addEventListener("click",this.dequeueButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "addWithHeads", this.headsField, {field: this.valueField, focus: true});
 
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
+        ControlBuilder.applyFieldWithOptions(this, {name: "remove", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
+
+        ControlBuilder.applyNewCallbackButton(this, "remove", this.removeField);
+
+        ControlBuilder.applyFieldWithOptions(this, {name: "get", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
+
+        ControlBuilder.applyNewCallbackButton(this, "get", this.getField);
+
+        ControlBuilder.applyNewCallbackButton(this, "print");
+
+        ControlBuilder.applyResetButton(this, "reset", this.insertField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.valueField);
 
         // build groups
-        let interactionButtonGroup = ControlBuilder.createControlGroup("interactionButtons", this.enqueueButton, this.dequeueButton);
-        let mainControlGroup = ControlBuilder.createControlGroup("mainControl", this.valueField, interactionButtonGroup);
-        let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
+        // let addFieldGroup = ControlBuilder.createControlGroup("add-field-group", this.valueField, this.headsField);
+        // let addButtonGroup = ControlBuilder.createControlGroup("add-button-group", this.addRandomlyButton, this.addWithHeadsButton);
+        let addRandomlyGroup = ControlBuilder.createControlGroup("add-field-group", this.valueField, this.addRandomlyButton);
+        let addWithHeadsGroup = ControlBuilder.createControlGroup("add-button-group", this.headsField, this.addWithHeadsButton);
+        // let addGroup = ControlBuilder.createControlGroup("add-group", this.valueField, this.addRandomlyButton, addWithHeadsGroup);
+        let removeGroup = ControlBuilder.createControlGroup("remove-group", this.removeField, this.removeButton);
+        let getGroup = ControlBuilder.createControlGroup("get-group", this.getField, this.getButton);
+        let resetGroup = ControlBuilder.createControlGroup("reset-group", this.resetButton);
 
-        super.addControlGroups(mainControlGroup, resetGroup);
+        super.addControlGroups(addRandomlyGroup, addWithHeadsGroup, removeGroup, getGroup, resetGroup);
     }
 }

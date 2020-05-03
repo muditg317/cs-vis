@@ -7,14 +7,13 @@ export default class QueueVisualizer extends Visualizer {
     static VISUALIZATION_METHODS = ["enqueue", "dequeue", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
-        ControlBuilder.addFieldSubmit(this.valueField, this.enqueue);
+        ControlBuilder.applyFieldWithOptions(this, {name: "value", callback: "enqueue"}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
 
         ControlBuilder.applyNewCallbackButton(this, "enqueue", this.valueField);
 
         ControlBuilder.applyNewCallbackButton(this, "dequeue");
 
-        ControlBuilder.applyNewCallbackButton(this, "reset", this.valueField);
+        ControlBuilder.applyResetButton(this, "reset", this.valueField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.valueField);

@@ -7,8 +7,7 @@ export default class DequeVisualizer extends Visualizer {
     static VISUALIZATION_METHODS = ["addFirst", "addLast", "removeFirst", "removeLast", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
-        ControlBuilder.addFieldSubmit(this.valueField, this.addLast);
+        ControlBuilder.applyFieldWithOptions(this, {name: "value", callback: "addLast"}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
 
         ControlBuilder.applyNewCallbackButton(this, {name: "addFirst", longName: "addFirst (push)"}, this.valueField);
 
@@ -18,7 +17,7 @@ export default class DequeVisualizer extends Visualizer {
 
         ControlBuilder.applyNewCallbackButton(this, "removeLast");
 
-        ControlBuilder.applyNewCallbackButton(this, "reset", this.valueField);
+        ControlBuilder.applyResetButton(this, "reset", this.valueField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.valueField);

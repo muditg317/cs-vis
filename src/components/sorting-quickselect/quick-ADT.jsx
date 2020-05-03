@@ -1,4 +1,4 @@
-import SortVisualizer from './';
+import { SortVisualizer } from './';
 import { ControlBuilder } from 'utils';
 
 

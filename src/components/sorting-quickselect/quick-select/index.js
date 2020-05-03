@@ -1,1 +1,1 @@
-export { default } from './splaytree';
+export { default } from './quick-select';

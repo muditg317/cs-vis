@@ -7,8 +7,8 @@ export default class ListVisualizer extends Visualizer {
     static VISUALIZATION_METHODS = ["addAtIndex", "addToFront", "addToBack", "removeFromIndex", "removeFromBack", "removeFromFront", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
-        this.indexField = ControlBuilder.createField("index", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorPositiveIntOnly());
+        ControlBuilder.applyFieldWithOptions(this, {name: "value", callback: false}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
+        ControlBuilder.applyFieldWithOptions(this, {name: "index", callback: false, args: {size: 10}}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorPositiveIntOnly());
         ControlBuilder.addFieldSubmit(this.valueField, this.addToBack,
                 {
                     secondary: {
@@ -39,7 +39,7 @@ export default class ListVisualizer extends Visualizer {
 
         ControlBuilder.applyNewCallbackButton(this, "removeFromBack");
 
-        ControlBuilder.applyNewCallbackButton(this, "reset", this.indexField, {field: this.valueField, focus: true});
+        ControlBuilder.applyResetButton(this, "reset", this.valueField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.valueField, this.indexField);

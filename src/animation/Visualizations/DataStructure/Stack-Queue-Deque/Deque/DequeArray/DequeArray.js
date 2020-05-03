@@ -596,7 +596,7 @@ export default class DequeArray extends Visualization {
     }
 
     update(animationSpeed, p5) {
-        super.update(() => {
+        super.update(animationSpeed, p5, () => {
             for (let i = 0; i < this.backingArray.length; i++) {
                 this.updateElement(this.backingArray[i], animationSpeed, p5);
             }
@@ -610,7 +610,7 @@ export default class DequeArray extends Visualization {
             }
             this.frontPointerHighlighter.update(animationSpeed, p5);
             this.sizePointerHighlighter.update(animationSpeed, p5);
-        }, animationSpeed, p5);
+        });
     }
 
     draw(p5) {

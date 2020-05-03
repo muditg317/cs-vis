@@ -69,11 +69,24 @@ export function applyNewCallbackButton(visualizer, name, ...fields) {
     addButtonSubmit(visualizer[name + "Button"], visualizer[name], ...fields);
 }
 
-export function createField(prompt, clearOnSuccess, ...validators) {
+export function applyResetButton(visualizer, prompt, fieldToFocus) {
+    visualizer[prompt + "Button"] = createButton(prompt);
+    visualizer[prompt + "Button"].addEventListener("click", (event) => {
+        for (let property in visualizer) {
+            if (property.endsWith("Field") && visualizer[property].constructor === HTMLInputElement && visualizer[property].type === "text") {
+                visualizer[property].value = "";
+            }
+        }
+        if (fieldToFocus) {
+            fieldToFocus.focus();
+        }
+    });
+    addButtonSubmit(visualizer[prompt + "Button"], visualizer[prompt]);
+}
+
+export function createField(prompt, ...validators) {
     let field = createControl("text");
     field.setAttribute("placeHolder", prompt);
-
-    field.clearOnSuccess = clearOnSuccess;
 
     field.inputValidators = validators;
     field.parsers = validators.map(validator => validator.parser);
@@ -128,6 +141,62 @@ export function validatorPositiveIntOnly() {
     return validator;
 };
 
+export function validatorIntList(numLength, maxNums) {
+    let validator = (field) => {
+        // ^(((\d+)|(\d+-\d+))(,((\d+)|(\d+-\d+)))*)$
+        // let regex = /^(((\d+)|(\d+-\d+))(,((\d+)|(\d+-\d+)))*)$/g;
+        // let regex = /((\d+)|(\d+-\d+))|(,(\d+)|(\d+-\d+))/g;
+        let cursorPos = field.selectionStart;
+        let regex = /[+-\d,]/g;
+        field.value = (field.value.match(regex) || [""]).reduce((sum, char) => sum + char);
+        field.value = field.value.replace(/\+{2,}/g,"+");
+        field.value = field.value.replace(/-{3,}/g,"--");
+        field.value = field.value.replace(/,{3,}/g,",,");
+        if ((field.value.match(/,/g) || []).length > maxNums) {
+            field.value = field.value.substring(0, field.value.lastIndexOf(","));
+        }
+        field.selectionStart = field.selectionEnd = cursorPos;
+    };
+    validator.parser = (value) => {
+        // let regex = /^(((-?\d+)|(-?\d+--?\d+))(,((-?\d+)|(-?\d+--?\d+)))*)$/g;
+        let regex = /((-?\d+(--?\d+)*)|(-?\d+))/g;
+        let values = value.match(regex);
+        let ints = [];
+        ints.add = ints.push;
+        ints.push = (num) => {
+            while (num >= Math.pow(10,numLength) || num <= -Math.pow(10,numLength-1)) {
+                num /= 10;
+            }
+            ints.add(parseInt(num));
+        };
+        values.forEach((intStr, i, arr) => {
+            if (intStr.match(/(-?\d+(--?\d+){2,})/g)) {
+                return null;
+            } else if (intStr.match(/(-?\d+(--?\d+))/g)) {
+                let match = intStr.match(/(-?\d+)-(-?\d+)/);
+                let [ first, second ] = [ parseInt(match[1]), parseInt(match[2]) ];
+                if (first === second) {
+                    ints.push(first);
+                } else {
+                    if (first < second) {
+                        for (let i = first; i <= second; i++) {
+                            ints.push(i);
+                        }
+                    } else {
+                        for (let i = first; i >= second; i--) {
+                            ints.push(i);
+                        }
+                    }
+                }
+            } else {
+                ints.push(parseInt(intStr));
+            }
+        });
+        return ints.slice(0, maxNums);
+    };
+    return validator;
+}
+
 export function validatorMaxLength(maxLength) {
     let validator = (field) => {
         if (field.value.length > maxLength) {
@@ -144,6 +213,23 @@ export function validatorMaxLength(maxLength) {
     };;
     return validator;
 };
+
+export function validatorSkipListHeads() {
+    let validator = (field) => {
+        let regex = /([HT]+)/gi;
+        field.value = (field.value.match(regex) || [""]).reduce((sum, char) => sum + char);
+    };
+    validator.parser = (value) => {
+        let regex = /(^H+T?)/i;
+        let val = (value.match(regex) || [""])[0];
+        if (val.length === 0) {
+            return null;
+        } else {
+            return (val.match(/H/gi) || []).length;
+        }
+    };
+    return validator;
+}
 
 export function addFieldSubmit(field, callback, {secondaryRequired = false, secondary = {field: undefined, isFirstParam: false, callback: undefined, clear: false}} = {}) {
     if (field.type !== "text") {
@@ -185,6 +271,27 @@ export function addFieldSubmit(field, callback, {secondaryRequired = false, seco
     });
 };
 
+export function applyFieldWithOptions(visualizer, name, ...validators) {
+    let prompt = name.prompt || name.longName || name.name || name;
+    let args = name.args || {};
+    let classes = name.classes || [];
+    let callback = name.callback !== false ? (name.callback || name.name || name) : null;
+    name = name.name || name;
+    visualizer[name + "Field"] = createField(prompt, ...validators);
+    console.log(name+"Field", visualizer[name+"Field"]);
+    let defaultArgs = {clearOnSuccess: true, size: 20};
+    for (let property in defaultArgs) {
+        visualizer[name + "Field"][property] = defaultArgs[property];
+    }
+    for (let property in (args || {})) {
+        visualizer[name + "Field"][property] = args[property];
+    }
+    visualizer[name + "Field"].classList.add(...classes);
+    if (callback) {
+        addFieldSubmit(visualizer[name + "Field"], visualizer[callback]);
+    }
+}
+
 export function createLabel(text, control) {
     let newLabel = document.createElement("label");
     newLabel.classList.add("visual-control","label");
@@ -208,37 +315,48 @@ export function createSlider(min, max, defaultValue, step) {
 };
 
 function createRadioButton(name, value) {
+    let text = value.longText || value;
+    value = value.value || value;
+    let buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("radio-button-container");
     let radioButton = createControl("radio", value);
     radioButton.name = name;
-    return radioButton;
+    let label = createLabel(text, radioButton);
+    buttonContainer.appendChild(radioButton);
+    buttonContainer.appendChild(label);
+    buttonContainer.addEventListener("click", () => {
+        radioButton.click();
+        radioButton.focus();
+    });
+    return buttonContainer;
 }
 
 export function createRadio(name, ...options) {
     let radioContainer = document.createElement("div");
-    radioContainer.classList.add("radioContainer")
+    radioContainer.classList.add("radio-container", "visual-control")
     radioContainer.id = name;
     options.forEach((option) => {
-        let radioButton = createRadioButton(name, option);
-        radioContainer.appendChild(radioButton);
+        let radioButtonContainer = createRadioButton(name, option);
+        radioContainer.appendChild(radioButtonContainer);
     });
-    radioContainer.children[0].checked = true;
+    radioContainer.childNodes[0].childNodes[0].checked = true;
     return radioContainer;
 }
 
 export function addRadioSubmit(radioContainer, callback) {
-    let value;
-    radioContainer.children.forEach((radioButton) => {
-        if (radioButton.checked) {
-            value = radioButton.value;
-        }
+    radioContainer.childNodes.forEach((radioButtonContainer) => {
+        radioButtonContainer.childNodes[0].addEventListener("change", () => {
+            callback(radioButtonContainer.childNodes[0].value);
+        });
     });
-    callback(value);
 }
 
 
 export function createControlGroup(id, ...controls) {
+    let classes = id.classes || [];
+    id = id.id || id;
     let controlGroup = document.createElement("div");
-    controlGroup.setAttribute("class", "control-group");
+    controlGroup.classList.add("control-group", ...classes);
     controlGroup.id = id;
 
     controls.forEach((control) => {

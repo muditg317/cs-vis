@@ -7,14 +7,13 @@ export default class StackVisualizer extends Visualizer {
     static VISUALIZATION_METHODS = ["push", "pop", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
-        ControlBuilder.addFieldSubmit(this.valueField, this.push);
+        ControlBuilder.applyFieldWithOptions(this, {name: "value", callback: "push"}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
 
         ControlBuilder.applyNewCallbackButton(this, "push", this.valueField);
 
         ControlBuilder.applyNewCallbackButton(this, "pop");
 
-        ControlBuilder.applyNewCallbackButton(this, "reset", this.valueField);
+        ControlBuilder.applyResetButton(this, "reset", this.valueField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.valueField);

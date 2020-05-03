@@ -6,33 +6,14 @@ export default class BinarySearchingTreeVisualizer extends TreeVisualizer {
     static VISUALIZATION_METHODS = ["togglePredecessorSuccessor"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        super.addControls();
 
-        this.addLastButton = ControlBuilder.createButton("addLast (enqueue)");
-        this.addLastButton.addEventListener("click",this.addLastButtonCallback);
-
-        this.addFirstButton = ControlBuilder.createButton("addFirst (push)");
-        this.addFirstButton.addEventListener("click",this.addFirstButtonCallback);
-
-        this.removeFirstButton = ControlBuilder.createButton("removeFirst (dequeue/pop)");
-        this.removeFirstButton.addEventListener("click",this.removeFirstButtonCallback);
-
-        this.removeLastButton = ControlBuilder.createButton("removeLast");
-        this.removeLastButton.addEventListener("click",this.removeLastButtonCallback);
-
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
-
-        //set tab order for controls
-        ControlBuilder.setTabControl(this.resetButton, this.valueField);
+        this.togglePredecessorSuccessorRadio = ControlBuilder.createRadio("togglePredecessorSuccessor", "Predeccessor", "Successor");
+        ControlBuilder.addRadioSubmit(this.togglePredecessorSuccessorRadio, this.togglePredecessorSuccessor);
 
         // build groups
-        let addButtonGroup = ControlBuilder.createControlGroup("addButtons", this.addFirstButton, this.addLastButton);
-        let removeButtonGroup = ControlBuilder.createControlGroup("removeButtons", this.removeFirstButton, this.removeLastButton);
-        let interactionGroup = ControlBuilder.createControlGroup("interactions", this.valueField, addButtonGroup, removeButtonGroup);
-        let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
+        let togglePredecessorSuccessorGroup = ControlBuilder.createControlGroup("togglePredecessorSuccessor", this.togglePredecessorSuccessorRadio);
 
-        super.addControlGroups(interactionGroup, resetGroup);
+        super.addControlGroups(togglePredecessorSuccessorGroup);
     }
 }

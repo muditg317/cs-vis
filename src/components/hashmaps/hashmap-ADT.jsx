@@ -7,28 +7,29 @@ export default class HashMapVisualizer extends Visualizer {
     static VISUALIZATION_METHODS = ["insert", "delete", "find", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
-        ControlBuilder.addFieldSubmit(this.valueField, this.addLast);
+        ControlBuilder.applyFieldWithOptions(this, {name: "insert", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 
-        ControlBuilder.applyNewCallbackButton(this, {name: "addFirst", longName: "addFirst (push)"}, this.valueField);
+        ControlBuilder.applyNewCallbackButton(this, "insert", this.insertField);
 
-        ControlBuilder.applyNewCallbackButton(this, {name: "addLast", longName: "addLast (enqueue)"}, this.valueField);
+        ControlBuilder.applyFieldWithOptions(this, {name: "delete", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 
-        ControlBuilder.applyNewCallbackButton(this, {name: "removeFirst", longName: "removeFirst (dequeue/pop)"});
+        ControlBuilder.applyNewCallbackButton(this, "delete", this.deleteField);
 
-        ControlBuilder.applyNewCallbackButton(this, "removeLast");
+        ControlBuilder.applyFieldWithOptions(this, {name: "find", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 
-        ControlBuilder.applyNewCallbackButton(this, "reset", this.valueField);
+        ControlBuilder.applyNewCallbackButton(this, "find", this.findField);
+
+        ControlBuilder.applyResetButton(this, "reset", this.insertField);
 
         //set tab order for controls
-        ControlBuilder.setTabControl(this.resetButton, this.valueField);
+        ControlBuilder.setTabControl(this.resetButton, this.insertField);
 
         // build groups
-        let addButtonGroup = ControlBuilder.createControlGroup("addButtons", this.addFirstButton, this.addLastButton);
-        let removeButtonGroup = ControlBuilder.createControlGroup("removeButtons", this.removeFirstButton, this.removeLastButton);
-        let interactionGroup = ControlBuilder.createControlGroup("interactions", this.valueField, addButtonGroup, removeButtonGroup);
-        let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
+        let insertGroup = ControlBuilder.createControlGroup("insert-group", this.insertField, this.insertButton);
+        let deleteGroup = ControlBuilder.createControlGroup("delete-group", this.deleteField, this.deleteButton);
+        let findGroup = ControlBuilder.createControlGroup("find-group", this.findField, this.findButton);
+        let resetGroup = ControlBuilder.createControlGroup("reset-group", this.resetButton);
 
-        super.addControlGroups(interactionGroup, resetGroup);
+        super.addControlGroups(insertGroup, deleteGroup, findGroup, resetGroup);
     }
 }

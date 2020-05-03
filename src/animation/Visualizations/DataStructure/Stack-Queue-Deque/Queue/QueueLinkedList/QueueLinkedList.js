@@ -335,7 +335,7 @@ export default class QueueLinkedList extends Visualization {
     }
 
     update(animationSpeed, p5) {
-        super.update(() => {
+        super.update(animationSpeed, p5, () => {
             let node = this.head;
             while (node) {
                 this.updateNode(node, animationSpeed, p5);
@@ -344,7 +344,7 @@ export default class QueueLinkedList extends Visualization {
             if (this.tempNode) {
                 this.updateNode(this.tempNode, animationSpeed, p5);
             }
-        }, animationSpeed, p5);
+        });
     }
 
     draw(p5) {

@@ -27,7 +27,12 @@ export default class Visualizer extends PureComponent {
         while (currConstructor.VISUALIZATION_METHODS) {
             currConstructor.VISUALIZATION_METHODS.forEach((methodName) => {
                 this[methodName] = (...args) => {
-                    return this[this.constructor.ADT_NAME][methodName](...args);
+                    if (this[this.constructor.ADT_NAME][methodName]) {
+                        return this[this.constructor.ADT_NAME][methodName](...args);
+                    } else {
+                        return console.log(this[this.constructor.ADT_NAME], methodName, ...args);
+                    }
+                    // return this[this.constructor.ADT_NAME][methodName](...args);
                 };
             });
             currConstructor = currConstructor.__proto__;
@@ -343,6 +348,14 @@ export default class Visualizer extends PureComponent {
     }
     windowResized(p5) {
         // console.log("resize");
+
+        //cosmetics for visualizer label
+        let controlWidth = Array.from(document.querySelector("#main-control-label + .controls").childNodes).map(node => node.getBoundingClientRect().width).reduce((sum,curr) => sum + curr);
+        controlWidth = Math.min(controlWidth, p5.windowWidth);
+        let label = document.querySelector("#main-control-label");
+        let labelWidth = label.getBoundingClientRect().width;
+        label.style.left = Math.max(0, (controlWidth - labelWidth) / 2) + "px";
+
         //config
         let height = document.querySelector(".app-content").getBoundingClientRect().height
                 - document.querySelector("#main-control").getBoundingClientRect().height
@@ -367,7 +380,7 @@ export default class Visualizer extends PureComponent {
                 <div className={`visualizer ${this.constructor.DIV_CLASS}`}>
                     <ControlBar ref={this.controlBarRef}/>
                     {
-                        this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
+                        true || this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
                                 <div className="canvas-container">
                                     {
                                         this.mounted ?

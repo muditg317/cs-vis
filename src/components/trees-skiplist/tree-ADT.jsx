@@ -1,39 +1,39 @@
 import Visualizer from 'components/visualizer';
 import { ControlBuilder } from 'utils';
 
+import './tree-ADT.scss';
 
 export default class TreeVisualizer extends Visualizer {
     static ADT_NAME = "tree";
-    static VISUALIZATION_METHODS = ["insert", "delete", "get", "print", "reset"];
+    static VISUALIZATION_METHODS = ["insert", "delete", "find", "print", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        ControlBuilder.applyFieldWithOptions(this, {name: "insert", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 
-        this.addLastButton = ControlBuilder.createButton("addLast (enqueue)");
-        this.addLastButton.addEventListener("click",this.addLastButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "insert", this.insertField);
 
-        this.addFirstButton = ControlBuilder.createButton("addFirst (push)");
-        this.addFirstButton.addEventListener("click",this.addFirstButtonCallback);
+        ControlBuilder.applyFieldWithOptions(this, {name: "delete", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 
-        this.removeFirstButton = ControlBuilder.createButton("removeFirst (dequeue/pop)");
-        this.removeFirstButton.addEventListener("click",this.removeFirstButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "delete", this.deleteField);
 
-        this.removeLastButton = ControlBuilder.createButton("removeLast");
-        this.removeLastButton.addEventListener("click",this.removeLastButtonCallback);
+        ControlBuilder.applyFieldWithOptions(this, {name: "find", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "find", this.findField);
+
+        ControlBuilder.applyNewCallbackButton(this, "print");
+
+        ControlBuilder.applyResetButton(this, "reset", this.insertField);
 
         //set tab order for controls
-        ControlBuilder.setTabControl(this.resetButton, this.valueField);
+        ControlBuilder.setTabControl(this.resetButton, this.insertField);
 
         // build groups
-        let addButtonGroup = ControlBuilder.createControlGroup("addButtons", this.addFirstButton, this.addLastButton);
-        let removeButtonGroup = ControlBuilder.createControlGroup("removeButtons", this.removeFirstButton, this.removeLastButton);
-        let interactionGroup = ControlBuilder.createControlGroup("interactions", this.valueField, addButtonGroup, removeButtonGroup);
-        let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
+        let insertGroup = ControlBuilder.createControlGroup("insert-group", this.insertField, this.insertButton);
+        let deleteGroup = ControlBuilder.createControlGroup("delete-group", this.deleteField, this.deleteButton);
+        let findGroup = ControlBuilder.createControlGroup("find-group", this.findField, this.findButton);
+        let printGroup = ControlBuilder.createControlGroup("print-group", this.printButton);
+        let resetGroup = ControlBuilder.createControlGroup("reset-group", this.resetButton);
 
-        super.addControlGroups(interactionGroup, resetGroup);
+        super.addControlGroups(insertGroup, deleteGroup, findGroup, printGroup, resetGroup);
     }
 }

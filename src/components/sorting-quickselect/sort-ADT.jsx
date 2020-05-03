@@ -7,32 +7,19 @@ export default class SortVisualizer extends Visualizer {
     static VISUALIZATION_METHODS = ["sort", "reset"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", true, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
-        ControlBuilder.addFieldSubmit(this.valueField, this.enqueue);
+        ControlBuilder.applyFieldWithOptions(this, {name: "sort", prompt: "1,-4,23,3-8,... [max 50 elements]"}, ControlBuilder.validatorIntList(4,50));
 
-        ControlBuilder.applyNewCallbackButton(this, "enqueue", this.valueField);
+        ControlBuilder.applyNewCallbackButton(this, "sort", this.sortField);
 
-        ControlBuilder.applyNewCallbackButton(this, "dequeue");
-
-        this.buildHeapField = ControlBuilder.createField("buildHeap list", ControlBuilder.validatorIntList());
-
-        ControlBuilder.applyNewCallbackButton(this, "buildHeap", this.buildHeapField);
-
-        ControlBuilder.applyNewCallbackButton(this, "reset", this.buildHeapField, {field: this.valueField, focus: true});
-
-        this.toggleMinMaxRadio = ControlBuilder.createRadio("toggleMinMax", "MinHeap", "MaxHeap");
-        ControlBuilder.addRadioSubmit(this.toggleMinMaxRadio, this.toggleMinMax);
+        ControlBuilder.applyResetButton(this, "reset");
 
         //set tab order for controls
-        ControlBuilder.setTabControl(this.resetButton, this.valueField);
+        ControlBuilder.setTabControl(this.resetButton, this.sortField);
 
         // build groups
-        let interactionButtonGroup = ControlBuilder.createControlGroup("interactionButtons", this.enqueueButton, this.dequeueButton);
-        let mainControlGroup = ControlBuilder.createControlGroup("mainControl", this.valueField, interactionButtonGroup);
-        let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
-        let buildHeapGroup = ControlBuilder.createControlGroup("buildHeap", this.buildHeapField, this.buildHeapButton);
-        let toggleMinMaxGroup = ControlBuilder.createControlGroup("toggleMinMax", this.toggleMinMaxRadio);
+        let sortGroup = ControlBuilder.createControlGroup({id: "sort-group", classes:["expanding-group","w50"]}, this.sortField, this.sortButton);
+        let resetGroup = ControlBuilder.createControlGroup("reset-group", this.resetButton);
 
-        super.addControlGroups(mainControlGroup, resetGroup);
+        super.addControlGroups(sortGroup, resetGroup);
     }
 }

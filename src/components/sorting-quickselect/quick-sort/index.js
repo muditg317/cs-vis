@@ -1,1 +1,1 @@
-export { default } from './cocktail-shaker-sort';
+export { default } from './quick-sort';

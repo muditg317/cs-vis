@@ -19,7 +19,7 @@ export const VisualizerType = (props) => {
                         <div className="visualizer-title-container">
                             {type.visualizers.map( (visualizer) => {
                                 return (
-                                        <VisualizerTitle group={props.group} type={props.type} title={visualizer.title_text} link={visualizer.link} />
+                                        <VisualizerTitle key={visualizer.link} group={props.group} type={props.type} title={visualizer.title_text} link={visualizer.link} />
                                     );
                             })}
                         </div>

@@ -525,7 +525,7 @@ export default class QueueArray extends Visualization {
     }
 
     update(animationSpeed, p5) {
-        super.update(() => {
+        super.update(animationSpeed, p5, () => {
             for (let i = 0; i < this.backingArray.length; i++) {
                 this.updateElement(this.backingArray[i], animationSpeed, p5);
             }
@@ -539,7 +539,7 @@ export default class QueueArray extends Visualization {
             }
             this.headPointerHighlighter.update(animationSpeed, p5);
             this.tailPointerHighlighter.update(animationSpeed, p5);
-        }, animationSpeed, p5);
+        });
     }
 
     draw(p5) {

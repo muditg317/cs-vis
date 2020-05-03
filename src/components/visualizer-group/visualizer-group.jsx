@@ -15,7 +15,7 @@ export const VisualizerGroup = (props) => {
                 : <div className="visualizer-group">
                     {SiteMap.filter(group => group.link === props.group)[0].types.map( (type) => {
                         return (
-                                <VisualizerType group={props.group} type={type.link} />
+                                <VisualizerType key={type.link} group={props.group} type={type.link} />
                             );
                     })}
                 </div>

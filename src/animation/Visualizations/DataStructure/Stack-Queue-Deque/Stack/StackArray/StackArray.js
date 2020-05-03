@@ -291,7 +291,7 @@ export default class StackArray extends Visualization {
     }
 
     update(animationSpeed, p5) {
-        super.update(() => {
+        super.update(animationSpeed, p5, () => {
             for (let i = 0; i < this.backingArray.length; i++) {
                 this.updateElement(this.backingArray[i], animationSpeed, p5);
             }
@@ -310,7 +310,7 @@ export default class StackArray extends Visualization {
                 }
                 this.resizing = false;
             }
-        }, animationSpeed, p5);
+        });
     }
 
     draw(p5) {
