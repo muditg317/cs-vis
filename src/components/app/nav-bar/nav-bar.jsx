@@ -76,7 +76,7 @@ class NavBarItem extends Component {
         super(props);
 
         this.state = {
-            link: this.props.content.link,
+            link: (this.props.content.type ? this.props.container.props.nav_items[this.props.content.type+"Parent"]+"/" : "") + this.props.content.link,
             icon: this.props.content.icon,
             title_text: this.props.content.title_text,
             drop_down_items: this.props.content.types,

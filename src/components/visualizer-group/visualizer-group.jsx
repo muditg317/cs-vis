@@ -7,10 +7,11 @@ import { default as VisualizerType } from './visualizer-type';
 
 export const VisualizerGroup = (props) => {
     let match = useRouteMatch({
-        path: `/${props.group}/:visualizerType`
+        path: `/${SiteMap.visualizerParent}/${props.group}/:visualizerType`
     });
+    // console.log("group",match,SiteMap.filter(group => group.link === props.group)[0].types.map(type => type.link));
     return (
-            match
+            match && SiteMap.filter(group => group.link === props.group)[0].types.map(type => type.link).includes(match.params.visualizerType)
                 ? <VisualizerType group={props.group} type={match.params.visualizerType} />
                 : <div className="visualizer-group">
                     {SiteMap.filter(group => group.link === props.group)[0].types.map( (type) => {
