@@ -47,7 +47,6 @@ export const SiteMap =
 [
     {
         link: "datastructures",
-        type: "visualizer",
         icon: "sitemap",
         title_text: "Data Structures",
         types: [
@@ -169,7 +168,6 @@ export const SiteMap =
     },
     {
         link: "algorithms",
-        type: "visualizer",
         icon: "stack-overflow",
         title_text: "Algorithms",
         types: [
@@ -300,4 +298,3 @@ export const SiteMap =
         title_text: "About",
     },
 ];
-SiteMap.visualizerParent = "visualizer";

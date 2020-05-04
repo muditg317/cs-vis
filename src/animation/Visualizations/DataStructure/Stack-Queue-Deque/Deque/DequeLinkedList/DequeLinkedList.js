@@ -311,25 +311,38 @@ export default class DequeLinkedList extends Visualization {
         let oldTemp = this.tempNode;
         if (front) {
             this.head = this.head.next;
-            this.head.prev = null;
+            if (this.head) {
+                this.head.prev = null;
+            }
         } else {
             this.tail = this.tail.prev;
-            this.tail.next = null;
+            if (this.tail) {
+                this.tail.next = null;
+            }
         }
-
+        if (!this.head || !this.tail) {
+            this.head = this.tail = null;
+        }
         this.tempNode = null;
-        return [front,oldTemp]
+        return [front,oldTemp, this.head === null || this.tail === null];
     }
-    undo_skipTempNode(front,oldTemp) {
+    undo_skipTempNode(front,oldTemp, noData) {
         this.tempNode = oldTemp;
         if (front) {
             this.tempNode.next = this.head;
-            this.head.prev = this.tempNode;
+            if (this.head) {
+                this.head.prev = this.tempNode;
+            }
             this.head = this.tempNode;
         } else {
             this.tempNode.prev = this.tail;
-            this.tail.next = this.tempNode;
+            if (this.tail) {
+                this.tail.next = this.tempNode;
+            }
             this.tail = this.tempNode;
+        }
+        if (noData) {
+            this.head = this.tail = this.tempNode;
         }
         this.tempNode.markForDeletion();
     }

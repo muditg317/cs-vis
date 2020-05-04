@@ -229,13 +229,19 @@ export default class QueueLinkedList extends Visualization {
         let oldTemp = this.tempNode;
         this.head = this.head.next;
         this.tempNode = null;
-        return [oldTemp]
+        if (!this.head) {
+            this.tail = null;
+        }
+        return [oldTemp, this.tail === null]
     }
-    undo_skipTempNode(oldTemp) {
+    undo_skipTempNode(oldTemp, noTail) {
         this.tempNode = oldTemp;
         this.tempNode.next = this.head;
         this.tempNode.markForDeletion();
         this.head = this.tempNode;
+        if (noTail) {
+            this.tail = this.tempNode;
+        }
     }
 
     shiftIntoNode() {

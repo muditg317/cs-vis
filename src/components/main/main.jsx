@@ -7,14 +7,14 @@ import { default as VisualizerGroup } from 'components/visualizer-group';
 
 export const Main = () => {
     let match = useRouteMatch({
-        path: `/${SiteMap.visualizerParent}/:visualizerGroup`
+        path: `/:visualizerGroup`
     });
-    // console.log("main",match,SiteMap.filter(section => section.type === "visualizer").map(group => group.link));
+    // console.log("main",match,SiteMap.slice(0,-1).map(group => group.link));
     return (
-            match && SiteMap.filter(section => section.type === "visualizer").map(group => group.link).includes(match.params.visualizerGroup)
+            match && SiteMap.slice(0,-1).map(group => group.link).includes(match.params.visualizerGroup)
                 ? <VisualizerGroup group={match.params.visualizerGroup} />
                 : <div className="main">
-                    {SiteMap.filter(section => section.type === "visualizer").map( (group) => {
+                    {SiteMap.slice(0,-1).map( (group) => {
                         return (
                                 <VisualizerGroup key={group.link} group={group.link} />
                             );

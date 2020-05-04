@@ -7,7 +7,7 @@ import { default as VisualizerTitle } from './visualizer-title';
 
 export const VisualizerType = (props) => {
     let match = useRouteMatch({
-        path: `/visualizer/${props.group}/${props.type}/:visualizerClass`
+        path: `/${props.group}/${props.type}/:visualizerClass`
     });
     useEffect(() => {
         document.querySelector(".app-content").style["overflow-y"] = match || "scroll";

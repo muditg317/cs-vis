@@ -15,13 +15,10 @@ export default function App(props) {
                     <AppHeader />
                     <div className="app-content">
                         <Switch>
-                            <Route exact path="/">
-                                <Main />
-                            </Route>
                             <Route path="/about">
                                 <About />
                             </Route>
-                            <Route path="/visualizer">
+                            <Route path="/">
                                 <Main />
                             </Route>
                         </Switch>
