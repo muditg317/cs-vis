@@ -45,6 +45,10 @@ export default class Visualization {
             this.stopID = 0;
         }
 
+                this.animationHistory = [];
+                this.runningAnimation = [];
+                this.animationQueue = [];
+                this.animating = false;
     }
 
     reset() {

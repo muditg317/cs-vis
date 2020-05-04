@@ -11,15 +11,16 @@ export default class SortVisualizer extends Visualizer {
 
         ControlBuilder.applyNewCallbackButton(this, "sort", this.sortField);
 
-        ControlBuilder.applyResetButton(this, "reset");
+        ControlBuilder.applyResetButton(this, "reset", this.sortField);
 
         //set tab order for controls
         ControlBuilder.setTabControl(this.resetButton, this.sortField);
 
         // build groups
-        let sortGroup = ControlBuilder.createControlGroup({id: "sort-group", classes:["expanding-group","w50"]}, this.sortField, this.sortButton);
+        let sortFieldGroup = ControlBuilder.createControlGroup({id: "sort-field-group", classes:["expanding-group","w50"]}, this.sortField);
+        let sortButtonGroup = ControlBuilder.createControlGroup("sort-button-group", this.sortButton);
         let resetGroup = ControlBuilder.createControlGroup("reset-group", this.resetButton);
 
-        super.addControlGroups(sortGroup, resetGroup);
+        super.addControlGroups(sortFieldGroup, sortButtonGroup, resetGroup);
     }
 }

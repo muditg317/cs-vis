@@ -6,26 +6,15 @@ export default class BubblingVisualizer extends SortVisualizer {
     static VISUALIZATION_METHODS = ["toggleLastSwapOptimization"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        super.addControls();
 
-        this.enqueueButton = ControlBuilder.createButton("enqueue");
-        this.enqueueButton.addEventListener("click",this.enqueueButtonCallback);
-
-        this.dequeueButton = ControlBuilder.createButton("dequeue");
-        this.dequeueButton.addEventListener("click",this.dequeueButtonCallback);
-
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
-
-        //set tab order for controls
-        ControlBuilder.setTabControl(this.resetButton, this.valueField);
+        this.toggleLastSwapOptimizationCheckBox = ControlBuilder.createCheckBox("toggleLastSwapOptimization",
+                {value: "enableLastSwap", longText: "Enable last swap optimization"});
+        ControlBuilder.addCheckBoxSubmit(this.toggleLastSwapOptimizationCheckBox, this.toggleLastSwapOptimization);
 
         // build groups
-        let interactionButtonGroup = ControlBuilder.createControlGroup("interactionButtons", this.enqueueButton, this.dequeueButton);
-        let mainControlGroup = ControlBuilder.createControlGroup("mainControl", this.valueField, interactionButtonGroup);
-        let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
+        let toggleLastSwapOptimizationGroup = ControlBuilder.createControlGroup("toggleLastSwapOptimization-group", this.toggleLastSwapOptimizationCheckBox);
 
-        super.addControlGroups(mainControlGroup, resetGroup);
+        super.addControlGroups(toggleLastSwapOptimizationGroup);
     }
 }

@@ -31,7 +31,7 @@ export default class SkipListADTVisualizer extends Visualizer {
 
         ControlBuilder.applyNewCallbackButton(this, "addRandomly", this.valueField);
 
-        ControlBuilder.applyNewCallbackButton(this, "addWithHeads", this.headsField, {field: this.valueField, focus: true});
+        ControlBuilder.applyNewCallbackButton(this, "addWithHeads", {field: this.valueField, focus: true}, this.headsField);
 
         ControlBuilder.applyFieldWithOptions(this, {name: "remove", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 

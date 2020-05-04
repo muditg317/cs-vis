@@ -51,7 +51,7 @@ export function addButtonSubmit(button, callback, ...fields) {
                 if (f.clearOnSuccess) {
                     f.value = "";
                 }
-                if (field.focus || fields.length === 1) {
+                if (field.focus === true || fields.length === 1) {
                     f.focus();
                 }
             });
@@ -278,7 +278,6 @@ export function applyFieldWithOptions(visualizer, name, ...validators) {
     let callback = name.callback !== false ? (name.callback || name.name || name) : null;
     name = name.name || name;
     visualizer[name + "Field"] = createField(prompt, ...validators);
-    console.log(name+"Field", visualizer[name+"Field"]);
     let defaultArgs = {clearOnSuccess: true, size: 20};
     for (let property in defaultArgs) {
         visualizer[name + "Field"][property] = defaultArgs[property];
@@ -347,6 +346,60 @@ export function addRadioSubmit(radioContainer, callback) {
     radioContainer.childNodes.forEach((radioButtonContainer) => {
         radioButtonContainer.childNodes[0].addEventListener("change", () => {
             callback(radioButtonContainer.childNodes[0].value);
+        });
+    });
+}
+
+function createCheckButton(name, value) {
+    let text = value.longText || value;
+    let checked = value.checked || false;
+    value = value.value || value;
+    let buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("check-button-container");
+    let checkButton = createControl("checkbox", value);
+    checkButton.name = name;
+    if (checked) {
+        checkButton.checked = true;
+    }
+    let label = createLabel(text, checkButton);
+    buttonContainer.appendChild(checkButton);
+    buttonContainer.appendChild(label);
+    buttonContainer.addEventListener("click", (event) => {
+        if (event.target !== checkButton) {
+            checkButton.click();
+            checkButton.focus();
+        }
+    });
+    return buttonContainer;
+}
+
+export function createCheckBox(name, ...options) {
+    let checkBoxContainer = document.createElement("div");
+    checkBoxContainer.classList.add("checkbox-container", "visual-control")
+    checkBoxContainer.id = name;
+    options.forEach((option) => {
+        let checkButtonContainer = createCheckButton(name, option);
+        checkBoxContainer.appendChild(checkButtonContainer);
+    });
+    return checkBoxContainer;
+}
+
+export function addCheckBoxSubmit(checkBoxContainer, callback) {
+    let max1Checked = callback.max1Checked || false;
+    callback = callback.callback || callback;
+    checkBoxContainer.childNodes.forEach((checkButtonContainer) => {
+        checkButtonContainer.childNodes[0].addEventListener("click", () => {
+            let checkedButton = checkButtonContainer.childNodes[0];
+            let checkedValues = {};
+            checkBoxContainer.childNodes.forEach((checkButtonBox) => {
+                let checkButton = checkButtonBox.childNodes[0];
+                checkedValues[checkButton.value] = checkButton.checked;
+                if (max1Checked && checkButton !== checkedButton) {
+                    checkButton.checked = false;
+                    checkedValues[checkButton.value] = false;
+                }
+            });
+            callback(checkedValues);
         });
     });
 }

@@ -6,5 +6,5 @@ import './selection-sort.scss';
 export default class SelectionSortVisualizer extends SortVisualizer {
     static VISUALIZATION_CLASS = SelectionSort;
     static DIV_CLASS = "selection-sort";
-    static NAME = "SelectionSort";
+    static NAME = "Selection Sort";
 }

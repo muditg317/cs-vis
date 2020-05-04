@@ -30,6 +30,26 @@ export default class ControlBar extends PureComponent {
         this.controlBar.current.appendChild(controlGroup);
     }
 
+    testCenterControls() {
+        let all1 = true;
+        document.querySelectorAll("#main-control-label+.controls>.control-group").forEach((controlGroup) => {
+            if (all1) {
+                if (!(controlGroup.childNodes[0].classList.contains("radio-container") || controlGroup.childNodes[0].classList.contains("checkbox-container"))) {
+                    if (controlGroup.childNodes.length > 1) {
+                        all1 = false;
+                    }
+                }
+            }
+        });
+        if (all1) {
+            document.querySelectorAll("#main-control-label+.controls>.control-group").forEach((controlGroup) => {
+                if (!(controlGroup.childNodes[0].classList.contains("radio-container") || controlGroup.childNodes[0].classList.contains("checkbox-container"))) {
+                    controlGroup.style["justify-content"] = "center";
+                }
+            });
+        }
+    }
+
     testSize() {
         let transformed = 0;
         if (this.controlBar.current.getBoundingClientRect().width
@@ -50,10 +70,12 @@ export default class ControlBar extends PureComponent {
     }
 
     componentDidMount() {
+        this.testCenterControls();
         this.testSize();
     }
 
     componentDidUpdate() {
+        this.testCenterControls();
         this.testSize();
     }
 

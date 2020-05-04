@@ -1,105 +1,53 @@
-import { QuickVisualizer } from './';
+import Visualizer from 'components/visualizer';
 import { ControlBuilder } from 'utils';
 
 
-export default class SelectVisualizer extends QuickVisualizer {
-
-    constructor(props) {
-        super(props);
-
-        //FUNCTION BINDING
-        this.addLastButtonCallback = this.addLastButtonCallback.bind(this);
-        this.addFirstButtonCallback = this.addFirstButtonCallback.bind(this);
-        this.removeFirstButtonCallback = this.removeFirstButtonCallback.bind(this);
-        this.removeLastButtonCallback = this.removeLastButtonCallback.bind(this);
-        this.resetButtonCallback = this.resetButtonCallback.bind(this);
-        this.elementFieldCallback = this.elementFieldCallback.bind(this);
-
-        this.deque = null;
-
-        this.addControls();
-    }
+export default class SelectVisualizer extends Visualizer {
+    static ADT_NAME = "quickselect";
+    static VISUALIZATION_METHODS = ["select", "reset", "toggleSelectPivotElement"];
 
     addControls() {
-        this.valueField = ControlBuilder.createField("value", ControlBuilder.validatorIntOnly(), ControlBuilder.validatorMaxLength(4));
-        ControlBuilder.addSubmit(this.valueField, this.elementFieldCallback);
+        ControlBuilder.applyFieldWithOptions(this, {name: "list", prompt: "1,-4,23,3-8,... [max 50 elements]", callback: false}, ControlBuilder.validatorIntList(4,50));
+        ControlBuilder.applyFieldWithOptions(this, {name: "kth", prompt: "k (1-indexed)", callback: false, args: {size: 8}}, ControlBuilder.validatorPositiveIntOnly());
+        ControlBuilder.addFieldSubmit(this.listField, this.select,
+                {
+                    secondaryRequired: true,
+                    secondary: {
+                        field: this.kthField,
+                        clear: true
+                    }
+                }
+            );
+        ControlBuilder.addFieldSubmit(this.kthField, this.select,
+                {
+                    secondaryRequired: true,
+                    secondary: {
+                        field: this.listField,
+                        isFirstParam: true,
+                        clear: true
+                    }
+                }
+            );
 
-        this.addLastButton = ControlBuilder.createButton("addLast (enqueue)");
-        this.addLastButton.addEventListener("click",this.addLastButtonCallback);
+        ControlBuilder.applyNewCallbackButton(this, "select", {field: this.listField, focus: true}, this.kthField);
 
-        this.addFirstButton = ControlBuilder.createButton("addFirst (push)");
-        this.addFirstButton.addEventListener("click",this.addFirstButtonCallback);
+        ControlBuilder.applyResetButton(this, "reset", this.listField);
 
-        this.removeFirstButton = ControlBuilder.createButton("removeFirst (dequeue/pop)");
-        this.removeFirstButton.addEventListener("click",this.removeFirstButtonCallback);
-
-        this.removeLastButton = ControlBuilder.createButton("removeLast");
-        this.removeLastButton.addEventListener("click",this.removeLastButtonCallback);
-
-        this.resetButton = ControlBuilder.createButton("reset");
-        this.resetButton.addEventListener("click",this.resetButtonCallback);
+        this.toggleSelectPivotElementCheckBox = ControlBuilder.createCheckBox("toggleSelectPivotElement",
+                {value: "selectMin", longText: "Pick min element as pivot"},
+                {value: "selectMax", longText: "Pick max element as pivot"});
+        ControlBuilder.addCheckBoxSubmit(this.toggleSelectPivotElementCheckBox, {callback: this.toggleSelectPivotElement, max1Checked: true});
 
         //set tab order for controls
-        ControlBuilder.setTabControl(this.resetButton, this.valueField);
+        ControlBuilder.setTabControl(this.resetButton, this.listField);
 
         // build groups
-        let addButtonGroup = ControlBuilder.createControlGroup("addButtons", this.addFirstButton, this.addLastButton);
-        let removeButtonGroup = ControlBuilder.createControlGroup("removeButtons", this.removeFirstButton, this.removeLastButton);
-        let interactionGroup = ControlBuilder.createControlGroup("interactions", this.valueField, addButtonGroup, removeButtonGroup);
-        let resetGroup = ControlBuilder.createControlGroup("resetGroup", this.resetButton);
+        let listFieldGroup = ControlBuilder.createControlGroup({id: "list-field-group", classes:["expanding-group","w50"]}, this.listField);
+        let kthFieldGroup = ControlBuilder.createControlGroup("kth-field-group", this.kthField);
+        let selectButtonGroup = ControlBuilder.createControlGroup("select-button-group", this.selectButton);
+        let resetGroup = ControlBuilder.createControlGroup("reset-group", this.resetButton);
+        let toggleSelectPivotElementGroup = ControlBuilder.createControlGroup("toggleSelectPivotElement-group", this.toggleSelectPivotElementCheckBox);
 
-        super.addControlGroups(interactionGroup, resetGroup);
-    }
-
-    componentDidMount(callForward) {
-        super.componentDidMount(() => {
-            callForward();
-            super.visualization = this.deque;
-        });
-    }
-
-
-    addLastButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addLast(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-
-    addFirstButtonCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addFirst(value)) {
-                this.valueField.value = "";
-                this.valueField.focus();
-            }
-        }
-    }
-
-    elementFieldCallback() {
-        let value = this.valueField.value;
-        if (value !== "") {
-            if (this.deque.addLast(value)) {
-                this.valueField.value = "";
-            }
-        }
-    }
-
-    removeFirstButtonCallback() {
-        this.deque.removeFirst();
-    }
-
-    removeLastButtonCallback() {
-        this.deque.removeLast();
-    }
-
-    resetButtonCallback() {
-        this.deque.reset();
-        this.valueField.value = "";
-        this.valueField.focus();
+        super.addControlGroups(listFieldGroup, kthFieldGroup, selectButtonGroup, resetGroup, toggleSelectPivotElementGroup);
     }
 }

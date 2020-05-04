@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouteMatch } from "react-router-dom";
 import './visualizer-type.scss';
 
@@ -8,6 +8,9 @@ import { default as VisualizerTitle } from './visualizer-title';
 export const VisualizerType = (props) => {
     let match = useRouteMatch({
         path: `/${props.group}/${props.type}/:visualizerClass`
+    });
+    useEffect(() => {
+        document.querySelector(".app-content").style["overflow-y"] = match || "scroll";
     });
     let type = SiteMap.filter(group => group.link === props.group)[0].types.filter(type => type.link === props.type)[0];
     let VisualizerComponent = match ? type.visualizers.filter(visualizer => visualizer.link === match.params.visualizerClass)[0].component : null;

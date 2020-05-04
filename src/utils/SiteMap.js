@@ -28,20 +28,20 @@ import { default as QuickSortVisualizer } from 'components/sorting-quickselect/q
 import { default as QuickSelectVisualizer } from 'components/sorting-quickselect/quick-select';
 import { default as MergeSortVisualizer } from 'components/sorting-quickselect/merge-sort';
 import { default as LSDRadixSortVisualizer } from 'components/sorting-quickselect/lsd-radix-sort';
-//
-// import { default as BruteForceVisualizer } from 'components/string-searching/BruteForce';
-// import { default as BoyerMooreVisualizer } from 'components/string-searching/BoyerMoore';
-// import { default as KMPVisualizer } from 'components/string-searching/KMP';
-// import { default as RabinKarpVisualizer } from 'components/string-searching/RabinKarp';
-//
-// import { default as BFSVisualizer } from 'components/graph-algorithms/BFS';
-// import { default as DFSVisualizer } from 'components/graph-algorithms/DFS';
-// import { default as DijkstrasVisualizer } from 'components/graph-algorithms/Dijkstras';
-// import { default as PrimsVisualizer } from 'components/graph-algorithms/Prims';
-// import { default as KruskalsVisualizer } from 'components/graph-algorithms/Kruskals';
-//
-// import { default as LCSVisualizer } from 'components/dynamic-programming/LCS';
-// import { default as FloydWarshallVisualizer } from 'components/dynamic-programming/FloydWarshall';
+
+import { default as BruteForceVisualizer } from 'components/string-searching/brute-force';
+import { default as BoyerMooreVisualizer } from 'components/string-searching/boyer-moore';
+import { default as KMPVisualizer } from 'components/string-searching/kmp';
+import { default as RabinKarpVisualizer } from 'components/string-searching/rabin-karp';
+
+import { default as BFSVisualizer } from 'components/graph-algorithms/bfs';
+import { default as DFSVisualizer } from 'components/graph-algorithms/dfs';
+import { default as DijkstrasVisualizer } from 'components/graph-algorithms/dijkstras';
+import { default as PrimsVisualizer } from 'components/graph-algorithms/prims';
+import { default as KruskalsVisualizer } from 'components/graph-algorithms/kruskals';
+
+import { default as LCSVisualizer } from 'components/dynamic-programming/lcs';
+import { default as FloydWarshallVisualizer } from 'components/dynamic-programming/floyd-warshall';
 
 export const SiteMap =
 [
@@ -202,7 +202,7 @@ export const SiteMap =
                     },
                     {
                         link: "quick-select",
-                        title_text: "Quick Select",
+                        title_text: "Quick Select / kᵗʰ select",
                         component: QuickSelectVisualizer,
                     },
                     {
@@ -224,22 +224,22 @@ export const SiteMap =
                     {
                         link: "brute-force",
                         title_text: "Brute Force",
-                        //component: BruteForceVisualizer,
+                        component: BruteForceVisualizer,
                     },
                     {
                         link: "boyer-moore",
                         title_text: "Boyer Moore",
-                        //component: BoyerMooreVisualizer,
+                        component: BoyerMooreVisualizer,
                     },
                     {
                         link: "kmp",
                         title_text: "KMP",
-                        //component: KMPVisualizer,
+                        component: KMPVisualizer,
                     },
                     {
                         link: "rabin-karp",
                         title_text: "Rabin Karp",
-                        //component: RabinKarpVisualizer,
+                        component: RabinKarpVisualizer,
                     },
                 ],
             },
@@ -248,29 +248,29 @@ export const SiteMap =
                 title_text: "Graph Algorithms",
                 visualizers: [
                     {
-                        link: "breadth",
+                        link: "bfs",
                         title_text: "Breadth-First Search",
-                        //component: BFSVisualizer,
+                        component: BFSVisualizer,
                     },
                     {
-                        link: "depth",
+                        link: "dfs",
                         title_text: "Depth-First Search",
-                        //component: DFSVisualizer,
+                        component: DFSVisualizer,
                     },
                     {
-                        link: "dijkstra",
+                        link: "dijkstras",
                         title_text: "Dijkstra's",
-                        //component: DijkstrasVisualizer,
+                        component: DijkstrasVisualizer,
                     },
                     {
-                        link: "prim",
+                        link: "prims",
                         title_text: "Prim's",
-                        //component: PrimsVisualizer,
+                        component: PrimsVisualizer,
                     },
                     {
-                        link: "kruskal",
+                        link: "kruskals",
                         title_text: "Kruskal's",
-                        //component: KruskalsVisualizer,
+                        component: KruskalsVisualizer,
                     },
                 ],
             },
@@ -281,12 +281,12 @@ export const SiteMap =
                     {
                         link: "lcs",
                         title_text: "LCS",
-                        //component: LCSVisualizer,
+                        component: LCSVisualizer,
                     },
                     {
                         link: "floyd-warshall",
                         title_text: "Floyd-Warshall",
-                        //component: FloydWarshallVisualizer,
+                        component: FloydWarshallVisualizer,
                     },
                 ],
             },
