@@ -10,7 +10,7 @@ export const VisualizerType = (props) => {
         path: `/${props.group}/${props.type}/:visualizerClass`
     });
     useEffect(() => {
-        document.querySelector(".app-content").style["overflow-y"] = match || "scroll";
+        document.querySelector(".app-content").style["overflow-y"] = match ? "" : "scroll";
     });
     let type = SiteMap.filter(group => group.link === props.group)[0].types.filter(type => type.link === props.type)[0];
     let foundClass = match && type.visualizers.map(visualizer => visualizer.link).includes(match.params.visualizerClass);
