@@ -1,4 +1,4 @@
-export { AnimatedObject, AttractedDraggableObject, AttractedHighlightableObject } from './AnimatedObjects';
+export { AnimatedObject, AttractedDraggableObject, AttractedHighlightableObject, TreeNode, TrackingHighlighter } from './AnimatedObjects';
 export { default as Animator } from './Animator';
 export { default as Visualization } from './Visualization';
 export { ArrayList, SinglyLinkedList, DoublyLinkedList, CircularSinglyLinkedList,

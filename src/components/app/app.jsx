@@ -11,20 +11,22 @@ import About from 'components/about';
 export default function App(props) {
     return (
             <HashRouter basename='/'>
-                <div className="app">
-                    <AppHeader />
-                    <div className="app-content">
-                        <Switch>
-                            <Route path="/about">
-                                <About />
-                            </Route>
-                            <Route path="/">
-                                <Main />
-                            </Route>
-                        </Switch>
+                <React.StrictMode>
+                    <div className="app">
+                        <AppHeader />
+                        <div className="app-content">
+                            <Switch>
+                                <Route path="/about">
+                                    <About />
+                                </Route>
+                                <Route path="/">
+                                    <Main />
+                                </Route>
+                            </Switch>
+                        </div>
+                        <AppFooter />
                     </div>
-                    <AppFooter />
-                </div>
+                </React.StrictMode>
             </HashRouter>
         );
 }

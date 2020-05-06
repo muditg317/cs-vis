@@ -1,6 +1,6 @@
 import { Visualization } from 'animation';
-import { AttractedDraggableObject } from 'animation';
-import { Utils, Colors } from 'utils';
+import { TreeNode, TrackingHighlighter } from 'animation';
+import { Colors } from 'utils';
 
 export default class BST extends Visualization {
     static USE_CANVAS = true;
@@ -13,15 +13,12 @@ export default class BST extends Visualization {
     static SUPPORTS_ANIMATION_CONTROL = true;
     static SUPPORTS_STOP_ID = true;
 
-    static ELEMENT_HEIGHT = 35;
-    static ELEMENT_WIDTH = 50;
-    static POINTER_WIDTH = 15;
-    static ITEM_WIDTH = BST.ELEMENT_WIDTH + BST.POINTER_WIDTH;
-    static SPACING = 50;
-    static ELEMENT_SIZE = BST.ITEM_WIDTH + BST.SPACING;
+    static ELEMENT_SIZE = 40;
+    static VERTICAL_SPACING = 7.5;
+    static HORIZONTAL_SPACING = -17.5;
 
-    static HEAD_TAIL_SIZE = 35;
-    static HEAD_TAIL_X = 130;
+    static ROOT_SIZE = 25;
+    static ROOT_X = 130;
 
 
     constructor(animator) {
@@ -37,12 +34,14 @@ export default class BST extends Visualization {
             this.beginDrawLoop();
         }
 
-        this.head = null;
-        this.tail = null;
+        this.root = null;
         this.size = 0;
         this.nodes = [];
         this.tempNode = null;
         this.pinnedNode = null;
+        this.highlighter = new TrackingHighlighter(null, BST.ELEMENT_SIZE/2, {
+            highlightInnerRadius: BST.ELEMENT_SIZE/2
+        });
 
         this.resizing = false;
         if (this.made) {
@@ -50,15 +49,32 @@ export default class BST extends Visualization {
         }
     }
 
+    mostDisplacedRecursive(curr) {
+        if (curr) {
+            let left = this.mostDisplacedRecursive(curr.left) || curr;
+            let right = this.mostDisplacedRecursive(curr.right) || curr;
+            return [left, curr, right].sort((a,b) => b.displacement() - a.displacement())[0];
+        }
+        return null;
+    }
+
+    stopNodesRecursive(curr) {
+        if (curr) {
+            curr.stop();
+            curr.left && curr.left.stop();
+            curr.right && curr.right.stop();
+        }
+    }
+
     ensureDrawn(skipDraw = false) {
         this.beginDrawLoop();
-        let maxNode = this.tempNode || this.head;
-        let curr = this.head;
-        while (curr) {
-            if (curr.displacement() > maxNode.displacement()) {
-                maxNode = curr;
-            }
-            curr = curr.next;
+        let maxNode = this.highlighter;
+        if (this.tempNode && this.tempNode.displacement() > maxNode.displacement()) {
+            maxNode = this.tempNode;
+        }
+        let furthestTreeNode = this.mostDisplacedRecursive(this.root);
+        if (furthestTreeNode && furthestTreeNode.displacement() > maxNode.displacement()) {
+            maxNode = furthestTreeNode;
         }
         if (maxNode && maxNode.displacement() > 0) {
             let stopID = ++this.stopID;
@@ -66,14 +82,11 @@ export default class BST extends Visualization {
                 this.stopDrawing(stopID);
             });
             if (skipDraw) {
-                let curr = this.head;
-                while (curr) {
-                    curr.stop();
-                    curr = curr.next;
-                }
+                this.stopNodesRecursive(this.root);
                 if (this.tempNode) {
                     this.tempNode.stop();
                 }
+                this.highlighter.stop();
             }
         } else {
             this.stopDrawing(++this.stopID);
@@ -88,24 +101,32 @@ export default class BST extends Visualization {
         }
         this.beginDrawLoop();
         if (data === null) {
-            this.updateText("Cannot add null to Queue.", Colors.RED);
+            this.updateText("Cannot add null to BST.", Colors.RED);
             return false;
         }
         let animation = [];
-        animation.push({method:this.makeNode,params:[data,],explanation:`Create value: ${data}`,isAnimationStep:true,returnsRedoData:true});
-        if (this.size > 0) {
-            animation.push({method:this.setTempNodeAfterTail,explanation:`Assign next pointer`,isAnimationStep:true,});
+        animation.push({method:this.showText,params:[`Searching tree for value: ${data}`],quick:true});
+        let [ recurredAnimation, newRoot, nodeJustAdded, added ] = this.insertRecursive(this.root, data);
+        animation.push(...recurredAnimation);
+        animation.push({method:this.setHighlighter,params:[null],noAnim:true,returnsUndoData:true,isBackStep:true,});
+        animation.push({method:this.setRoot,params:[newRoot],explanation:`${this.root ? "Res" : "S"}et root pointer to node containing ${newRoot.data}`,quick:true,isForwardStep:nodeJustAdded,returnsUndoData:true});
+        animation.push({method:this.clearTemp,params:[],noAnim:true,returnsUndoData:true,});
+        if (nodeJustAdded) {
+            animation[0].isForwardStep = true;
+            animation.push({method:this.shiftByLevelOrder,explanation:`Add node:${data} to root of tree`,customEnd:true,isBackStep:true,returnsUndoData:true});
         }
-        animation.push({method:this.insertTempNode,explanation:`Reset tail pointer`,isAnimationStep:true,returnsUndoData:true,});
-        animation.push({method:this.shiftTail,customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.sizeIncr,noAnim:true,});
-        animation.push({method:this.showText,params:[`Successfully enqueued ${data} to queue.`, Colors.GREEN],noAnim:true,});
+        if (added) {
+            animation[0].isForwardStep = true;
+            animation.push({method:this.showText,params:[`Successfully inserted ${data} into BST.`, Colors.GREEN],noAnim:true});
+        } else {
+            animation[0].isForwardStep = true;
+            animation.push({method:this.showText,params:[`Failed to insert duplicate ${data} into BST.`, Colors.RED],noAnim:true});
+        }
         this.addAnimation(animation);
         this.endDrawLoop();
         this.stepForward();
         return true;
     }
-
 
     delete() {
         if (this.animating) {
@@ -114,78 +135,406 @@ export default class BST extends Visualization {
         }
         this.beginDrawLoop();
         if (this.size === 0) {
-            this.updateText("Cannot dequeue empty Queue", Colors.RED);
+            this.updateText("Cannot delete from empty BST", Colors.RED);
             return false;
         }
         let animation = [];
-        let data = this.head.data;
-        animation.push({method:this.markHeadForDeletion,noAnim:true,});
-        animation.push({method:this.unmakeHead,explanation:`Extract data`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
+        let data = this.root.data;
+        animation.push({method:this.markRootForDeletion,noAnim:true,});
+        animation.push({method:this.unmakeRoot,explanation:`Extract data`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         if (this.size > 1) {
             animation.push({method:this.shiftIntoNode,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
         }
-        animation.push({method:this.skipTempNode,explanation:`Reset head pointer to new head`,isAnimationStep:true,returnsUndoData:true,});
+        animation.push({method:this.skipTempNode,explanation:`${data ? "Res" : "S"}et root pointer to new root`,isAnimationStep:true,returnsUndoData:true,});
         animation.push({method:this.sizeDecr,noAnim:true,});
-        animation.push({method:this.showText,params:[`Successfully dequeued ${data} from queue.`, Colors.GREEN],noAnim:true,});
+        animation.push({method:this.showText,params:[`Successfully deleted ${data} from BST.`, Colors.GREEN],noAnim:true,});
         this.addAnimation(animation);
         this.endDrawLoop();
         this.stepForward();
         return data;
     }
 
+    find(data) {
 
-    makeNode(data) {
-        this.tempNode = new BSTNode({data: data, index: this.size, x:20,y:20,});
+    }
+
+    print() {
+
+    }
+
+    insertRecursive(curr, value) {
+        let animation = [];
+        let justAdded = false;
+        let added = false;
+        animation.push({method:this.setHighlighter,params:[curr],customEnd:curr!==null,noAnim:curr===null,isBackStep:curr!==null,returnsUndoData:true});
+        if (!curr) {
+            animation.push({method:this.showText,params:[`Reached null: ${value} not found in tree`],quick:true,isForwardStep:true,});
+            curr = new BSTNode({data: value});
+            // curr.frozen = true;
+            animation.push({method:this.makeNode,params:[curr],explanation:`Create value: ${value}`,quick:true,isAnimationStep:true,returnsRedoData:true});
+            // if (this.size > 0) {
+            //     animation.push({method:this.setTempNodeFromParent,params:[foundNode,],explanation:`Assign |RETURN| pointer`,explanationUsesReturn:true,isAnimationStep:true,});
+            // }
+            // animation.push({method:this.shiftRoot,explanation:`${curr ? "Res" : "S"}et tail pointer`,isAnimationStep:true,returnsUndoData:true,});
+            // animation.push({method:this.setTempNodeY,customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,});
+            animation.push({method:this.sizeIncr,noAnim:true,});
+            justAdded = true;
+            added = true;
+            // animation.push({method:this.showText,params:[`Successfully inserted ${value} into BST.`, Colors.GREEN],noAnim:true,isAnimationStep:true});
+        } else if (value === curr.data) {
+            animation.push({method:this.showText,params:[`${value} == ${curr.data}: value found in tree`],quick:true,isForwardStep:true,});
+            animation.push({method:this.showText,params:[`${value} already in BST, failed to add.`],noAnim:true,isAnimationStep:true,});
+        } else if (value < curr.data) {
+            animation.push({method:this.showText,params:[`${value} < ${curr.data}: look to left subtree`],quick:true,isForwardStep:true,});
+            let [recurredAnimation, newLeft, nodeJustAdded, nodeAdded] = this.insertRecursive(curr.left, value);
+            animation.push(...recurredAnimation);
+            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,isBackStep:true,returnsUndoData:true,});
+            animation.push({method:this.setLeft,params:[curr, newLeft],explanation:`${curr.left ? "Res" : "S"}et left pointer to node containing ${newLeft.data}`,quick:true,returnsUndoData:true,isForwardStep:true});
+            if (nodeJustAdded) {
+                animation.push({method:this.shiftByLevelOrder,explanation:`Add node:${value} to left of node:${curr.data}`,customEnd:true,isAnimationStep:true,returnsUndoData:true});
+            }
+            added = nodeAdded;
+        } else if (value > curr.data) {
+            animation.push({method:this.showText,params:[`${value} > ${curr.data}: look to right subtree`],quick:true,isForwardStep:true,});
+            let [recurredAnimation, newRight, nodeJustAdded, nodeAdded] = this.insertRecursive(curr.right, value);
+            animation.push(...recurredAnimation);
+            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,isBackStep:true,returnsUndoData:true,});
+            animation.push({method:this.setRight,params:[curr, newRight],explanation:`${curr.right ? "Res" : "S"}et right pointer to node containing ${newRight.data}`,quick:true,returnsUndoData:true,isForwardStep:true});
+            if (nodeJustAdded) {
+                animation.push({method:this.shiftByLevelOrder,explanation:`Add node:${value} to right of node:${curr.data}`,customEnd:true,isAnimationStep:true,returnsUndoData:true});
+            }
+            added = nodeAdded;
+        }
+        return [animation, curr, justAdded, added];
+    }
+
+    setRoot(newRoot) {
+        let oldRoot = this.root;
+        this.root = newRoot;
+        let oldParamsOfNewRoot = {parent: newRoot.parent, depth: newRoot.depth};
+        // this.root.frozen = false;
+        // this.root.shiftX((this.width - BST.ELEMENT_SIZE)/2);
+        this.root.parent = null;
+        this.root.depth = 0;
+        // this.root.setY(this.getNodeY(this.root.depth));
+        // this.root.addOnStop((node) => {
+        //     node.readyToFollow = true;
+        //     this.doneAnimating(0);
+        // });
+        return [oldRoot,oldParamsOfNewRoot];
+    }
+    undo_setRoot(oldRoot, oldParamsOfNewRoot) {
+        for (let param in oldParamsOfNewRoot) {
+            this.root[param] = oldParamsOfNewRoot[param];
+        }
+        this.root = oldRoot;
+    }
+
+    setLeft(parent, newLeft) {
+        let oldLeft = parent.left;
+        parent.left = newLeft;
+        let oldParamsOfNewLeft = {parent: newLeft.parent, depth: newLeft.depth};
+        let oldParamsOfParent = {height: parent.height};
+        let oldRightOfLeftOfNew = null;
+        newLeft.parent = parent;
+        // newLeft.frozen = false;
+        newLeft.depth = parent.depth + 1;
+        parent.height = Math.max(newLeft.height, (parent.right && parent.right.height) || -1) + 1;
+        // newLeft.setY(this.getNodeY(newLeft.depth));
+        // newLeft.rightBoundingNode = newLeft.rightBoundingNode || parent;
+        // newLeft.leftBoundingNode = parent.leftBoundingNode !== newLeft ? parent.leftBoundingNode : (newLeft.leftBoundingNode || null);
+        // parent.leftBoundingNode = newLeft;
+        // while (parent.leftBoundingNode.right) {
+        //     parent.leftBoundingNode = parent.leftBoundingNode.right;
+        // }
+        if (!oldLeft) {
+            Object.assign(oldParamsOfNewLeft, {leftBoundingNode: newLeft.leftBoundingNode, rightBoundingNode: newLeft.rightBoundingNode});
+            Object.assign(oldParamsOfParent, {leftBoundingNode: parent.leftBoundingNode});
+            newLeft.leftBoundingNode = parent.leftBoundingNode;
+            parent.leftBoundingNode = newLeft;
+            newLeft.rightBoundingNode = parent;
+            if (newLeft.leftBoundingNode) {
+                oldRightOfLeftOfNew = newLeft.leftBoundingNode.rightBoundingNode;
+                newLeft.leftBoundingNode.rightBoundingNode = newLeft;
+            }
+        }
+        // newLeft.addOnStop((node) => {
+        //     node.readyToFollow = true;
+        //     this.doneAnimating(0);
+        // });
+        return [parent, oldLeft, oldParamsOfNewLeft, oldParamsOfParent, oldRightOfLeftOfNew];
+    }
+    undo_setLeft(parent, oldLeft, oldParamsOfNewLeft, oldParamsOfParent, oldRightOfLeftOfNew) {
+        if (oldRightOfLeftOfNew) {
+            parent.left.leftBoundingNode.rightBoundingNode = oldRightOfLeftOfNew;
+        }
+        for (let param in oldParamsOfNewLeft) {
+            parent.left[param] = oldParamsOfNewLeft[param];
+        }
+        parent.left = oldLeft;
+        for (let param in oldParamsOfParent) {
+            parent[param] = oldParamsOfParent[param];
+        }
+    }
+
+    setRight(parent, newRight) {
+        let oldRight = parent.right;
+        parent.right = newRight;
+        let oldParamsOfNewRight = {parent: newRight.parent, depth: newRight.depth};
+        let oldParamsOfParent = {height: parent.height};
+        let oldLeftOfRightOfNew = null;
+        newRight.parent = parent;
+        // newRight.frozen = false;
+        newRight.depth = parent.depth + 1;
+        parent.height = Math.max(newRight.height, (parent.left && parent.left.height) || -1) + 1;
+        // newRight.setY(this.getNodeY(newRight.depth));
+        // newRight.leftBoundingNode = newRight.leftBoundingNode || parent;
+        // newRight.rightBoundingNode = parent.rightBoundingNode !== newRight ? parent.rightBoundingNode : (newRight.rightBoundingNode || null);
+        // parent.rightBoundingNode = newRight;
+        // while (parent.rightBoundingNode.left) {
+        //     parent.rightBoundingNode = parent.rightBoundingNode.left;
+        // }
+        if (!oldRight) {
+            Object.assign(oldParamsOfNewRight, {leftBoundingNode: newRight.leftBoundingNode, rightBoundingNode: newRight.rightBoundingNode});
+            Object.assign(oldParamsOfParent, {rightBoundingNode: parent.rightBoundingNode});
+            newRight.rightBoundingNode = parent.rightBoundingNode;
+            parent.rightBoundingNode = newRight;
+            newRight.leftBoundingNode = parent;
+            if (newRight.rightBoundingNode) {
+                oldLeftOfRightOfNew = newRight.rightBoundingNode.leftBoundingNode;
+                newRight.rightBoundingNode.leftBoundingNode = newRight;
+            }
+        }
+        // newRight.addOnStop((node) => {
+        //     node.readyToFollow = true;
+        //     this.doneAnimating(0);
+        // });
+        return [parent, oldRight, oldParamsOfNewRight, oldParamsOfParent, oldLeftOfRightOfNew];
+    }
+    undo_setRight(parent, oldRight, oldParamsOfNewRight, oldParamsOfParent, oldLeftOfRightOfNew) {
+        if (oldLeftOfRightOfNew) {
+            parent.right.rightBoundingNode.leftBoundingNode = oldLeftOfRightOfNew;
+        }
+        for (let param in oldParamsOfNewRight) {
+            parent.right[param] = oldParamsOfNewRight[param];
+        }
+        parent.right = oldRight;
+        for (let param in oldParamsOfParent) {
+            parent[param] = oldParamsOfParent[param];
+        }
+    }
+
+    setHighlighter(node) {
+        let oldTarget = this.highlighter.target;
+        console.log(oldTarget);
+        this.highlighter.setTarget(node);
+        if (node) {
+            this.highlighter.addOnStop((highlighter) => {
+                this.doneAnimating(0);
+            });
+        }
+        return [oldTarget];
+    }
+    undo_setHighlighter(oldTarget) {
+        this.highlighter.setTarget(oldTarget);
+        let stopID = ++this.stopID;
+        this.highlighter.addOnStop((highlighter) => {
+            this.stopDrawing(stopID);
+        });
+    }
+    redo_setHighlighter(node) {
+        let oldTarget = this.highlighter.target;
+        this.highlighter.setTarget(node);
+        let stopID = ++this.stopID;
+        this.highlighter.addOnStop((highlighter) => {
+            this.stopDrawing(stopID);
+        });
+        return [oldTarget];
+    }
+
+    clearTemp() {
+        let oldTemp = this.tempNode;
+        this.tempNode = null;
+        return [oldTemp];
+    }
+    undo_clearTemp(oldTemp) {
+        this.tempNode = oldTemp;
+    }
+
+    shiftByLevelOrder() {
+        let order = [];
+        let oldPositions = [];
+        let curr = this.root;
+        while (curr.left) {
+            curr = curr.left;
+        }
+        let centerIndex = 0;
+        while (curr) {
+            order.push(curr);
+            oldPositions.push([curr.desiredX,curr.desiredY]);
+            curr = curr.rightBoundingNode;
+            if (curr === this.root) {
+                centerIndex = order.length;
+            }
+        }
+        let displaced = null;
+        order.forEach((node, i) => {
+            node.shiftX(((this.width - BST.ELEMENT_SIZE)/2) + (i - centerIndex) * node.constructor.HSPACE);
+            node.setY(this.getNodeY(node.depth));
+            if ((!displaced && node.displacement()) || (displaced && node.displacement() > displaced.displacement())) {
+                node.addOnStop((element) => {
+                    this.doneAnimating(0);
+                });
+                displaced = node;
+            }
+        });
+        if (!displaced) {
+            this.doneAnimating(0);
+        }
+        return [order, oldPositions];
+    }
+    undo_shiftByLevelOrder(order, oldPositions) {
+        let stopID = ++this.stopID;
+        if (order) {
+            console.log(oldPositions);
+            let displaced = null;
+            order.forEach((node, i) => {
+                node.shift(...oldPositions[i]);
+                if ((!displaced && node.displacement()) || (displaced && node.displacement() > displaced.displacement())) {
+                    node.addOnStop((element) => {
+                        this.stopDrawing(stopID);
+                    });
+                    displaced = node;
+                }
+            });
+            if (!displaced) {
+                this.stopDrawing(stopID);
+            }
+        } else {
+            this.stopDrawing(stopID);
+        }
+    }
+
+    highlightNodesUntilValueFound(value) {
+        let animation = [];
+        animation.push({method:this.showText,params:[`Searching tree for value: ${value}`],quick:true});
+        let node = null;
+        if (this.root) {
+            // animation.push({method:this.setHighlighter,params:[this.root],customEnd:true,});
+        }
+        let [recurredAnimation, found, foundNode] = this.recursiveNodeFinder(this.root, value);
+        animation.push(...recurredAnimation);
+        animation.push({method:this.setHighlighter,params:[null],customEnd:true,});
+        node = foundNode;
+        return [animation, found, node];
+    }
+
+    recursiveNodeFinder(curr, value) {
+        let animation = [];
+        let found = false;
+        let foundNode = curr;
+        if (curr) {
+            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,});
+        }
+        if (!curr) {
+            animation.push({method:this.showText,params:[`Reached null: ${value} not found in tree`],quick:true,});
+        } else if (value === curr.data) {
+            animation.push({method:this.showText,params:[`${value} == ${curr.data}: value found in tree`],quick:true,});
+            found = true;
+        } else if (value < curr.data) {
+            animation.push({method:this.showText,params:[`${value} < ${curr.data}: look to left subtree`],quick:true,});
+            // console.log(curr.data, "look left", curr.left && curr.left.data);
+            let [recurredAnimation, foundLeft, node] = this.recursiveNodeFinder(curr.left, value);
+            animation.push(...recurredAnimation);
+            // console.log(curr.data, foundLeft, node ? node : curr);
+            return [animation, foundLeft, node ? node : curr];
+        } else if (value > curr.data) {
+            animation.push({method:this.showText,params:[`${value} > ${curr.data}: look to right subtree`],quick:true,});
+            let [recurredAnimation, foundRight, node] = this.recursiveNodeFinder(curr.right, value);
+            animation.push(...recurredAnimation);
+            return [animation, foundRight, node ? node : curr]
+        }
+        console.log(found, foundNode);
+        return [animation, found, foundNode];
+    }
+
+
+    makeNode(newTemp) {
+        this.tempNode = newTemp;
         return [this.tempNode];
     }
-    undo_makeNode(data) {
+    undo_makeNode(data, parent) {
         this.tempNode = null;
     }
     redo_makeNode(newTemp) {
         this.tempNode = newTemp;
     }
 
-    setTempNodeAfterTail() {
-        this.tail.next = this.tempNode;
+    setTempNodeFromParent(parent) {
+        console.log(this.tempNode, parent);
+        this.tempNode.parent = parent;
+        if (this.tempNode.data < parent.data) {
+            parent.left = this.tempNode;
+            this.tempNode.rightBoundingNode = parent;
+            this.tempNode.leftBoundingNode = parent.leftBoundingNode;
+            parent.leftBoundingNode = parent.left;
+            return "left";
+        } else {
+            parent.right = this.tempNode;
+            this.tempNode.leftBoundingNode = parent;
+            this.tempNode.rightBoundingNode = parent.rightBoundingNode;
+            parent.rightBoundingNode = parent.right;
+            return "right";
+        }
     }
-    undo_setTempNodeAfterTail() {
-        this.tail.next = null;
+    undo_setTempNodeFromParent(parent) {
+        this.tempNode.parent = null;
+        this.tempNode.leftBoundingNode = this.tempNode.rightBoundingNode = null;
+        if (this.tempNode.data < parent.data) {
+            parent.left = null;
+        } else {
+            parent.right = null;
+        }
     }
 
-    insertTempNode() {
+    shiftRoot() {
         let oldTail = this.tail;
         this.nodes.splice(this.size, 0, this.tempNode);
         this.tail = this.tempNode;
         if (!oldTail) {
-            this.head = this.tempNode;
+            this.root = this.tempNode;
+            this.tempNode.shiftX((this.width - BST.ELEMENT_SIZE)/2);
         }
         return [oldTail];
     }
-    undo_insertTempNode(oldTail) {
+    undo_shiftRoot(oldTail) {
         this.tail = oldTail;
         if (!oldTail) {
-            this.head = null;
+            this.root = null;
         }
         this.nodes.splice(this.size, 1);
     }
 
-    shiftTail() {
-        this.tempNode.shift(...this.getNodePosition(this.size));
+    setTempNodeY() {
+        this.tempNode.setY(this.getNodeY(this.tempNode.depth));
+        this.tempNode.frozen = false;
         this.tempNode.addOnStop((element) => {
             this.doneAnimating(0);
         });
         this.tempNode = null;
     }
-    undo_shiftTail() {
+    undo_setTempNodeY() {
         this.tempNode = this.tail;
         this.tempNode.shift(20,20);
         let stopID = ++this.stopID;
-        this.tempNode.addOnStop(() => {
+        this.tempNode.addOnStop((element) => {
+            element.frozen = true;
             this.stopDrawing(stopID);
         });
     }
-    redo_shiftTail() {
-        this.tempNode.shift(...this.getNodePosition(this.size));
+    redo_setTempNodeY() {
+        this.tempNode.setY(this.getNodeY(this.tempNode.depth));
+        this.tempNode.frozen = false;
         let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
             this.stopDrawing(stopID);
@@ -193,22 +542,24 @@ export default class BST extends Visualization {
         this.tempNode = null;
     }
 
-    markHeadForDeletion() {
-        this.head.markForDeletion();
+    markRootForDeletion() {
+        this.root.markForDeletion();
     }
-    undo_markHeadForDeletion() {
-        this.head.unhighlight();
+    undo_markRootForDeletion() {
+        this.root.unhighlight();
     }
 
-    unmakeHead() {
+    unmakeRoot() {
         this.tempNode = this.nodes.splice(0, 1)[0];
         this.tempNode.shift(20,20);
-        this.tempNode.addOnStop(() => {
+        this.tempNode.addOnStop((element) => {
+            element.frozen = true;
             this.doneAnimating(0);
         });
     }
-    undo_unmakeHead() {
-        this.tempNode.shift(...this.getNodePosition(0));
+    undo_unmakeRoot() {
+        this.tempNode.shift((this.width - BST.ELEMENT_SIZE)/2, this.getNodeY(0));
+        this.tempNode.frozen = false;
         this.nodes.splice(0, 0, this.tempNode);
         let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
@@ -216,37 +567,44 @@ export default class BST extends Visualization {
         });
         this.tempNode = null;
     }
-    redo_unmakeHead() {
+    redo_unmakeRoot() {
         this.tempNode = this.nodes.splice(0, 1)[0];
         this.tempNode.shift(20,20);
         let stopID = ++this.stopID;
-        this.tempNode.addOnStop(() => {
+        this.tempNode.addOnStop((element) => {
+            element.frozen = true;
             this.stopDrawing(stopID);
         });
     }
 
     skipTempNode() {
         let oldTemp = this.tempNode;
-        this.head = this.head.next;
+        this.root = this.root.next;
         this.tempNode = null;
-        return [oldTemp]
+        if (!this.root) {
+            this.tail = null;
+        }
+        return [oldTemp, this.tail === null]
     }
-    undo_skipTempNode(oldTemp) {
+    undo_skipTempNode(oldTemp, noTail) {
         this.tempNode = oldTemp;
-        this.tempNode.next = this.head;
+        this.tempNode.next = this.root;
         this.tempNode.markForDeletion();
-        this.head = this.tempNode;
+        this.root = this.tempNode;
+        if (noTail) {
+            this.tail = this.tempNode;
+        }
     }
 
     shiftIntoNode() {
-        let node = this.head.next;
+        let node = this.root.next;
         while (node) {
             this.shiftNode(node, -1);
             node = node.next;
         }
     }
     undo_shiftIntoNode() {
-        let node = this.head.next;
+        let node = this.root.next;
         while (node) {
             this.shiftNode(node, 1);
             if (!node.next) {
@@ -259,7 +617,7 @@ export default class BST extends Visualization {
         }
     }
     redo_shiftIntoNode() {
-        let node = this.head.next;
+        let node = this.root.next;
         while (node) {
             this.shiftNode(node, -1);
             if (!node.next) {
@@ -273,11 +631,18 @@ export default class BST extends Visualization {
     }
 
     shiftNode(node, direction) {
-        node.shift(...this.getNodePosition(node.index + direction), direction);
+        if (direction > 0) {
+            node.shiftUp();
+        } else {
+            node.shiftDown();
+        }
     }
     undo_shiftNode(node, direction) {
-        // console.log("undo_shiftNode");
-        this.shiftNode(node, -direction);
+        if (direction > 0) {
+            node.shiftDown();
+        } else {
+            node.shiftUp();
+        }
     }
 
     sizeIncr() {
@@ -294,30 +659,30 @@ export default class BST extends Visualization {
         this.size++;
     }
 
-    getNodePosition(index) {
-        let maxPerRow = Math.max(1, Math.floor(this.width / BST.ELEMENT_SIZE));
-        let x = BST.ELEMENT_SIZE * index;
-        let y = 75 + Math.floor(index / maxPerRow) * 2 * BST.ELEMENT_HEIGHT;
-        x = (index % maxPerRow) * BST.ELEMENT_SIZE;
-        return [x + this.x,y + this.y];
+    getNodeY(depth) {
+        let y = depth * (BST.ELEMENT_SIZE + BST.VERTICAL_SPACING);
+        return y + this.y;
     }
 
-    getNodeAtPos(x,y) {
-        let node = this.head;
-        while (node) {
-            if (node.containsPos(x,y)) {
-                return node;
+    getTreeNodeAtPosRecursive(curr, x,y) {
+        if (curr) {
+            if (curr.containsPos(x,y)) {
+                return curr;
             }
-            node = node.next;
-        }
-        if (this.tempNode && this.tempNode.containsPos(x,y)) {
-            return this.tempNode;
+            return this.getTreeNodeAtPosRecursive(curr.left, x,y) || this.getTreeNodeAtPosRecursive(curr.right, x,y);
         }
         return null;
     }
 
-    getTailY() {
-        return this.getNodePosition(this.size-1)[1] + BST.ELEMENT_HEIGHT + BST.HEAD_TAIL_SIZE;
+    getNodeAtPos(x,y) {
+        if (this.tempNode && this.tempNode.containsPos(x,y)) {
+            return this.tempNode;
+        }
+        return this.getTreeNodeAtPosRecursive(this.root, x,y);
+    }
+
+    getMaxY() {
+        return this.getNodeY(this.root ? this.root.height + 1 : 1) + 20;
     }
 
     pin(node, x,y) {
@@ -331,19 +696,16 @@ export default class BST extends Visualization {
     }
 
     updateNode(node, animationSpeed, p5) {
-        node.update(animationSpeed, p5);
+        if (node) {
+            node.update(animationSpeed, p5);
+        }
     }
 
     update(animationSpeed, p5) {
         super.update(animationSpeed, p5, () => {
-            let node = this.head;
-            while (node) {
-                this.updateNode(node, animationSpeed, p5);
-                node = node.next;
-            }
-            if (this.tempNode) {
-                this.updateNode(this.tempNode, animationSpeed, p5);
-            }
+            this.updateNode(this.root, animationSpeed, p5);
+            this.updateNode(this.tempNode, animationSpeed, p5);
+            this.highlighter.update(animationSpeed, p5);
         });
     }
 
@@ -353,46 +715,32 @@ export default class BST extends Visualization {
         p5.push();
 
         p5.textAlign(p5.CENTER,p5.CENTER);
-        p5.textSize(this.ELEMENT_WIDTH/3 - 2);
+        p5.textSize(this.ELEMENT_SIZE/3 - 2);
 
         p5.noFill();
         p5.stroke(0);
         p5.textAlign(p5.CENTER, p5.CENTER);
-        let headY = 20;
-        p5.text("Head:",95-5,headY,BST.HEAD_TAIL_SIZE + 10,BST.HEAD_TAIL_SIZE);
-        p5.square(BST.HEAD_TAIL_X,headY,BST.HEAD_TAIL_SIZE);
-        if (this.head) {
+        let rootY = 20;
+        p5.text("Root:",95-5,rootY,BST.ROOT_SIZE + 10,BST.ROOT_SIZE);
+        p5.square(BST.ROOT_X,rootY,BST.ROOT_SIZE);
+        if (this.root) {
             p5.stroke(Colors.BLUE);
             p5.fill(Colors.BLUE);
-            p5.circle(BST.HEAD_TAIL_X + BST.HEAD_TAIL_SIZE / 2, headY + BST.HEAD_TAIL_SIZE / 2, 5);
-            p5.line(BST.HEAD_TAIL_X + BST.HEAD_TAIL_SIZE / 2, headY + BST.HEAD_TAIL_SIZE / 2, this.head.currentX + BST.ITEM_WIDTH / 2, this.head.currentY);
-            p5.rect(this.head.currentX + BST.ITEM_WIDTH / 2 - 3, this.head.currentY - 3, 6,6);
+            p5.circle(BST.ROOT_X + BST.ROOT_SIZE / 2, rootY + BST.ROOT_SIZE / 2, 5);
+            p5.line(BST.ROOT_X + BST.ROOT_SIZE / 2, rootY + BST.ROOT_SIZE / 2, this.root.currentX + BST.ELEMENT_SIZE / 2, this.root.currentY);
+            // p5.rect(this.root.currentX + BST.ELEMENT_SIZE / 2 - 3, this.root.currentY - 3, 6,6);
         } else {
-            p5.line(BST.HEAD_TAIL_X,headY,BST.HEAD_TAIL_X + BST.HEAD_TAIL_SIZE,headY + BST.HEAD_TAIL_SIZE);
-        }
-        p5.noFill();
-        p5.stroke(0);
-        let tailY = this.getTailY();
-        p5.text("Tail:",95,tailY,BST.HEAD_TAIL_SIZE,BST.HEAD_TAIL_SIZE);
-        p5.square(BST.HEAD_TAIL_X,tailY,BST.HEAD_TAIL_SIZE);
-        if (this.tail) {
-            p5.stroke(Colors.BLUE);
-            p5.fill(Colors.BLUE);
-            p5.circle(BST.HEAD_TAIL_X + BST.HEAD_TAIL_SIZE / 2, tailY + BST.HEAD_TAIL_SIZE / 2, 5);
-            p5.line(BST.HEAD_TAIL_X + BST.HEAD_TAIL_SIZE / 2, tailY + BST.HEAD_TAIL_SIZE / 2, this.tail.currentX + BST.ITEM_WIDTH / 2, this.tail.currentY + BST.ELEMENT_HEIGHT);
-            p5.rect(this.tail.currentX + BST.ITEM_WIDTH / 2 - 3, this.tail.currentY + BST.ELEMENT_HEIGHT - 3, 6,6);
-        } else {
-            p5.line(BST.HEAD_TAIL_X,tailY,BST.HEAD_TAIL_X + BST.HEAD_TAIL_SIZE,tailY + BST.HEAD_TAIL_SIZE);
+            p5.line(BST.ROOT_X,rootY,BST.ROOT_X + BST.ROOT_SIZE,rootY + BST.ROOT_SIZE);
         }
 
-        let node = this.head;
-        while (node) {
-            node.draw(p5, node.next === this.head);
-            node = node.next;
+
+        if (this.root) {
+            this.root.draw(p5);
         }
         if (this.tempNode) {
             this.tempNode.draw(p5);
         }
+        this.highlighter.draw(p5);
 
         p5.pop();
     }
@@ -403,6 +751,7 @@ export default class BST extends Visualization {
         if (pressedNode) {
             this.animator.loop();
             this.pin(pressedNode, p5.mouseX,p5.mouseY);
+            console.log(pressedNode,`\nleft:`,pressedNode.leftBoundingNode && pressedNode.leftBoundingNode.data,`\nright:`,pressedNode.rightBoundingNode && pressedNode.rightBoundingNode.data);
         }
         return false;
     }
@@ -420,13 +769,9 @@ export default class BST extends Visualization {
     }
 
     windowResized(p5, height, numScrollbars) {
-        super.windowResized(p5, height, numScrollbars, this.getTailY() + BST.HEAD_TAIL_SIZE + 20,() => {
+        super.windowResized(p5, height, numScrollbars, this.getMaxY(),() => {
             let shiftTemp = this.tempNode && this.tempNode.desiredX === 20 && this.tempNode.desiredY === 20;
-            let node = this.head;
-            while (node) {
-                node.shift(...this.getNodePosition(node.index));
-                node = node.next;
-            }
+            this.root && this.root.shiftX((p5.windowWidth - BST.ELEMENT_SIZE)/2);
             if (shiftTemp) {
                 this.tempNode.shift(20,20);
             }
@@ -435,36 +780,17 @@ export default class BST extends Visualization {
 }
 
 
-class BSTNode extends AttractedDraggableObject {
+class BSTNode extends TreeNode {
     static CAN_DRAG = true;
+    static SIZE = BST.ELEMENT_SIZE;
+    static VSPACE = BST.ELEMENT_SIZE + BST.VERTICAL_SPACING;
+    static HSPACE = BST.ELEMENT_SIZE + BST.HORIZONTAL_SPACING;
 
-    constructor({data, index, x,y} = {}) {
-        super(x,y);
-
-        this.data = data;
-        this.index = index;
-        this.next = null;
+    constructor({x=20,y=20,depth, data, parent, leftBoundingNode,rightBoundingNode} = {}) {
+        super(x,y,depth, data, parent, leftBoundingNode,rightBoundingNode);
 
         this.toDelete = false;
         this.handBroken = false;
-        this.frozen = false;
-        this.color = [0,0,0];
-    }
-
-    shift(x,y,direction = 0) {
-        super.shift(x,y);
-        this.index += Math.sign(direction);
-    }
-
-    containsPos(x,y) {
-        return ((this.currentX <= x && x <= (this.currentX + BST.ITEM_WIDTH)) && (this.currentY <= y && y <= (this.currentY + BST.ELEMENT_HEIGHT)))
-    }
-
-    highlight() {
-        this.color = [255,165,0];
-    }
-
-    unhighlight() {
         this.color = [0,0,0];
     }
 
@@ -475,26 +801,5 @@ class BSTNode extends AttractedDraggableObject {
     markForDeletion() {
         this.toDelete = true;
         this.highlightForDeletion();
-    }
-
-    draw(p5) {
-        p5.push();
-        p5.fill(255);
-        p5.stroke(...this.color);
-        p5.rect(this.currentX, this.currentY, BST.ITEM_WIDTH, BST.ELEMENT_HEIGHT);
-        p5.line(this.currentX + BST.ELEMENT_WIDTH, this.currentY, this.currentX + BST.ELEMENT_WIDTH, this.currentY + BST.ELEMENT_HEIGHT);
-        p5.textAlign(p5.CENTER, p5.CENTER);
-        p5.fill(...this.color);
-        p5.text(this.data.toString(), this.currentX,this.currentY, BST.ELEMENT_WIDTH,BST.ELEMENT_HEIGHT);
-        if (this.next) {
-            p5.stroke(...Utils.addArray(this.color, [0,0,255]));
-            p5.fill(...Utils.addArray(this.color, [0,0,255]));
-            p5.circle(this.currentX + BST.ELEMENT_WIDTH + BST.POINTER_WIDTH / 2, this.currentY + BST.ELEMENT_HEIGHT / 2, 5);
-            p5.line(this.currentX + BST.ELEMENT_WIDTH + BST.POINTER_WIDTH / 2, this.currentY + BST.ELEMENT_HEIGHT / 2, this.next.currentX, this.next.currentY + BST.ELEMENT_HEIGHT / 2);
-            p5.rect(this.next.currentX - 3, this.next.currentY + BST.ELEMENT_HEIGHT / 2 - 3, 6,6);
-        } else {
-            p5.line(this.currentX + BST.ELEMENT_WIDTH, this.currentY, this.currentX + BST.ITEM_WIDTH, this.currentY + BST.ELEMENT_HEIGHT);
-        }
-        p5.pop();
     }
 }

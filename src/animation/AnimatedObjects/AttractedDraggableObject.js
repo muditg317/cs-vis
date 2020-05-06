@@ -20,6 +20,7 @@ export default class AttractedDraggableObject {
     }
 
     shift(x,y) {
+        // console.log(this.data,":",x,y);
         this.desiredX = x;
         this.desiredY = y;
     }
@@ -38,7 +39,7 @@ export default class AttractedDraggableObject {
         this.currentY = this.desiredY;
         this.vy = 0;
         while (this.onStop.length > 0) {
-            this.onStop.shift()();
+            this.onStop.shift()(this);
         }
     }
 
@@ -74,6 +75,7 @@ export default class AttractedDraggableObject {
                 || (isNaN(this.currentX) || isNaN(this.currentY) || isNaN(this.vx) || isNaN(this.vy))) {
             this.stop();
         } else {
+            // console.log("moving", this.desiredY, this.currentY);
             if (deltaY !== 0 || deltaX !== 0) {
                 let angle = Math.atan(deltaY/deltaX);
                 if (deltaX < 0) {
@@ -96,6 +98,7 @@ export default class AttractedDraggableObject {
                 this.currentX += this.vx;
                 this.currentY += this.vy;
             } else {
+                // console.log("stop");
                 this.stop();
             }
         }

@@ -3,8 +3,8 @@ import { Utils, Colors } from 'utils';
 
 export default class Visualization {
 
-    static LOG_UNDO_REDO = false;
-    static LOG_ANIMATIONS = false;
+    static LOG_UNDO_REDO = true;
+    static LOG_ANIMATIONS = true;
     static LOG_DRAW = false;
 
     constructor(animator) {
@@ -149,7 +149,7 @@ export default class Visualization {
             if (textAnimation.method === this.showText) {
                 this.showText(...textAnimation.params);
             } else {
-
+                this.showText(textAnimation.explanation);
             }
         }
     }
@@ -171,7 +171,7 @@ export default class Visualization {
                 this.beginDrawLoop();
             }
             undoMethod.apply(scope, params);
-            this.undoText(previousAnimation.explanation);
+            this.undoText();//previousAnimation.explanation);
             if (!previousAnimation.customUndoEnd) {
                 this.stopDrawing(++this.stopID);
                 console.log(this.stopID);
@@ -186,11 +186,13 @@ export default class Visualization {
 
     unAnimate(doDraw) {
         if (doDraw) {
-            this.ensureDrawn();
+            this.ensureDrawn(true);
         }
         let previousAnimation = this.runningAnimation.pop();
+        let lastUndo = null;
         while (!(previousAnimation.isAnimationStep || previousAnimation.isBackStep)) {
             this.undoAnimation(previousAnimation,doDraw);
+            lastUndo = previousAnimation;
             previousAnimation = this.runningAnimation.pop();
             if (!previousAnimation) {
                 break;
@@ -198,8 +200,9 @@ export default class Visualization {
         }
         if (previousAnimation) {
             this.undoAnimation(previousAnimation,doDraw);
+            lastUndo = previousAnimation;
         }
-        if (doDraw) {
+        if (doDraw && !lastUndo.customUndoEnd) {
             this.ensureDrawn();
         }
     }
@@ -237,7 +240,7 @@ export default class Visualization {
         if (doDraw) {
             this.beginDrawLoop();
         }
-        let retVal
+        let retVal;
         if (!this.isAnimEnd(nextAnimation)) {
             if (Visualization.LOG_UNDO_REDO) {
                 console.log("redo",params,method);
@@ -271,15 +274,23 @@ export default class Visualization {
         if (!nextAnimation.customRedoEnd) {
             this.stopDrawing(++this.stopID);
         }
+        if (nextAnimation.returnsUndoData && !nextAnimation.undoData) {
+            nextAnimation.undoData = nextAnimation.explanationUsesReturn ? retVal[1] : retVal;
+        }
+        if (nextAnimation.returnsRedoData && !nextAnimation.redoData) {
+            nextAnimation.redoData = nextAnimation.explanationUsesReturn ? retVal[1] : retVal;
+        }
     }
 
     reAnimate(doDraw) {
         if (doDraw) {
-            this.ensureDrawn();
+            this.ensureDrawn(true);
         }
         let nextAnimation = this.animationQueue.shift();
+        let lastRedo = null;
         while (!(nextAnimation.isAnimationStep || nextAnimation.isForwardStep) && !this.isEndDrawLoopTrigger(nextAnimation)) {
             this.redoAnimation(nextAnimation,doDraw);
+            lastRedo = nextAnimation;
             nextAnimation = this.animationQueue.shift();
             if (!nextAnimation) {
                 break;
@@ -287,8 +298,9 @@ export default class Visualization {
         }
         if (nextAnimation) {
             this.redoAnimation(nextAnimation,doDraw);
+            lastRedo = nextAnimation;
         }
-        if (doDraw) {
+        if (doDraw && !lastRedo.customRedoEnd) {
             this.ensureDrawn();
         }
         // if (!nextAnimation.customRedoEnd && !this.isEndDrawLoopTrigger(nextAnimation)) {
@@ -318,6 +330,7 @@ export default class Visualization {
                 this.animator.enable("stepBack");
                 this.animator.enable("skipBack");
                 if (this.animationQueue.length === 0) {
+                    this.animator.emit("anim-end");
                     this.animator.disable("stepForward");
                     this.animator.disable("skipForward");
                 } else {
@@ -367,6 +380,7 @@ export default class Visualization {
                 this.animator.enable("stepBack");
                 this.animator.enable("skipBack");
                 if (this.animationQueue.length === 0) {
+                    this.animator.emit("anim-end");
                     this.animator.disable("stepForward");
                     this.animator.disable("skipForward");
                 }
@@ -447,7 +461,7 @@ export default class Visualization {
     noAnimation(animation) {
         return animation.noAnim
                 || (animation.method === this.animator.emit && (animation.params[0] === "anim-start" || animation.params[0] === "anim-end"))
-                || (animation.method === this.showText);
+                || false;
     }
 
     popAnimation(animationSpeed) {
@@ -456,7 +470,7 @@ export default class Visualization {
                 let animation = this.animationQueue.shift();
                 this.animating = true;
                 if (Visualization.LOG_ANIMATIONS) {
-                    console.log("animate",animation.method);
+                    console.log("animate",animation.params,animation.method);
                 }
                 let retVal = animation.method.apply(animation.scope || this, animation.params);
                 animation.returnValue = retVal;
