@@ -35,15 +35,15 @@ export default class DoublyLinkedList extends Visualization {
 
     addAtIndex(index, data) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index > this.size) {
-            console.log("index out of bounds");
+            //console.log("index out of bounds");
             return false;
         }
         if (data === null) {
-            console.log("Cannot add null to DoublyLinkedList.");
+            //console.log("Cannot add null to DoublyLinkedList.");
             return false;
         }
         let animation = [];
@@ -94,11 +94,11 @@ export default class DoublyLinkedList extends Visualization {
 
     removeFromIndex(index) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index >= this.size) {
-            console.log(`Index invalid: ${index} for DoublyLinkedList of length ${this.size}. Should be [0,${this.size-1}].`);
+            //console.log(`Index invalid: ${index} for DoublyLinkedList of length ${this.size}. Should be [0,${this.size-1}].`);
             return false;
         }
         let animation = [];

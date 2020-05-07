@@ -35,15 +35,15 @@ export default class CircularSinglyLinkedList extends Visualization {
 
     addAtIndex(index, data) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index > this.size) {
-            console.log("index out of bounds");
+            //console.log("index out of bounds");
             return false;
         }
         if (data === null) {
-            console.log("Cannot add null to CircularSinglyLinkedList.");
+            //console.log("Cannot add null to CircularSinglyLinkedList.");
             return false;
         }
         let animation = [];
@@ -96,11 +96,11 @@ export default class CircularSinglyLinkedList extends Visualization {
 
     removeFromIndex(index) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index >= this.size) {
-            console.log(`Index invalid: ${index} for CircularSinglyLinkedList of length ${this.size}. Should be [0,${this.size-1}].`);
+            //console.log(`Index invalid: ${index} for CircularSinglyLinkedList of length ${this.size}. Should be [0,${this.size-1}].`);
             return false;
         }
         let animation = [];

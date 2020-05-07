@@ -84,7 +84,7 @@ export default class DequeLinkedList extends Visualization {
 
     add(data,front) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();
@@ -128,7 +128,7 @@ export default class DequeLinkedList extends Visualization {
 
     remove(front) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();

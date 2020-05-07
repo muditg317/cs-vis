@@ -46,7 +46,7 @@ export default class StackArray extends Visualization {
 
     push(data) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();
@@ -73,7 +73,7 @@ export default class StackArray extends Visualization {
 
     pop() {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();

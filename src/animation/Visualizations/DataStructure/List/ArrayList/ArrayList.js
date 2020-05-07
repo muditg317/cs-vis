@@ -26,15 +26,15 @@ export default class ArrayList extends Visualization {
 
     addAtIndex(index, data) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index > this.size) {
-            console.log("index out of bounds");
+            //console.log("index out of bounds");
             return false;
         }
         if (data === null) {
-            console.log("Cannot add null to ArrayList.");
+            //console.log("Cannot add null to ArrayList.");
             return false;
         }
         this.animating = true;
@@ -63,11 +63,11 @@ export default class ArrayList extends Visualization {
 
     removeFromIndex(index) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index >= this.size) {
-            console.log(`Index invalid: ${index} for ArrayList of length ${this.size}. Should be [0,${this.size-1}].`);
+            //console.log(`Index invalid: ${index} for ArrayList of length ${this.size}. Should be [0,${this.size-1}].`);
             return false;
         }
         this.animating = true;

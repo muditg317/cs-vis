@@ -34,15 +34,15 @@ export default class SinglyLinkedList extends Visualization {
 
     addAtIndex(index, data) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index > this.size) {
-            console.log("index out of bounds");
+            //console.log("index out of bounds");
             return false;
         }
         if (data === null) {
-            console.log("Cannot add null to SinglyLinkedList.");
+            //console.log("Cannot add null to SinglyLinkedList.");
             return false;
         }
         let animation = [];
@@ -78,11 +78,11 @@ export default class SinglyLinkedList extends Visualization {
 
     removeFromIndex(index) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         if (index < 0 || index >= this.size) {
-            console.log(`Index invalid: ${index} for SinglyLinkedList of length ${this.size}. Should be [0,${this.size-1}].`);
+            //console.log(`Index invalid: ${index} for SinglyLinkedList of length ${this.size}. Should be [0,${this.size-1}].`);
             return false;
         }
         let animation = [];

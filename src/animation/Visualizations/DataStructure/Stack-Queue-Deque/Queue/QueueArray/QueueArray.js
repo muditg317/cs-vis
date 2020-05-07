@@ -99,7 +99,7 @@ export default class QueueArray extends Visualization {
 
     enqueue(data) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();
@@ -127,7 +127,7 @@ export default class QueueArray extends Visualization {
 
     dequeue() {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();

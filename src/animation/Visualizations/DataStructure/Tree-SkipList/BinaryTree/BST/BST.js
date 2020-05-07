@@ -101,7 +101,7 @@ export default class BST extends Visualization {
 
     insert(data) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();
@@ -135,7 +135,7 @@ export default class BST extends Visualization {
 
     delete() {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();
@@ -426,7 +426,7 @@ export default class BST extends Visualization {
             animation.push(...recurredAnimation);
             return [animation, foundRight, node ? node : curr]
         }
-        console.log(found, foundNode);
+        //console.log(found, foundNode);
         return [animation, found, foundNode];
     }
 
@@ -652,7 +652,7 @@ export default class BST extends Visualization {
         if (pressedNode) {
             this.animator.loop();
             this.pin(pressedNode, p5.mouseX,p5.mouseY);
-            console.log(pressedNode,`\nleft:`,pressedNode.leftBoundingNode && pressedNode.leftBoundingNode.data,`\nright:`,pressedNode.rightBoundingNode && pressedNode.rightBoundingNode.data);
+            //console.log(pressedNode,`\nleft:`,pressedNode.leftBoundingNode && pressedNode.leftBoundingNode.data,`\nright:`,pressedNode.rightBoundingNode && pressedNode.rightBoundingNode.data);
         }
         return false;
     }

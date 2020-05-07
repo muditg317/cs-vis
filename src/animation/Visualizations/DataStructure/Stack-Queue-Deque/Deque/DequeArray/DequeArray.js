@@ -105,7 +105,7 @@ export default class DequeArray extends Visualization {
 
     add(data,front) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();
@@ -149,7 +149,7 @@ export default class DequeArray extends Visualization {
 
     remove(front) {
         if (this.animating) {
-            console.log("animation in progress");
+            //console.log("animation in progress");
             return false;
         }
         this.beginDrawLoop();
@@ -399,7 +399,6 @@ export default class DequeArray extends Visualization {
         this.highlightTemp();
         this.tempElement.shift(...this.getElementPosition(index));
         let stopID = ++this.stopID;
-        console.log(stopID);
         this.tempElement.addOnStop((element) => {
             element.unhighlight();
             this.stopDrawing(stopID);
