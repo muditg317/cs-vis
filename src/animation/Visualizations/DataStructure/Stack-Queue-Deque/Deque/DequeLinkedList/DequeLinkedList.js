@@ -61,7 +61,7 @@ export default class DequeLinkedList extends Visualization {
             curr = curr.next;
         }
         if (maxNode && maxNode.displacement() > 0) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             maxNode.addOnStop(() => {
                 this.stopDrawing(stopID);
             });
@@ -76,7 +76,7 @@ export default class DequeLinkedList extends Visualization {
                 }
             }
         } else {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             this.stopDrawing(stopID);
         }
     }
@@ -236,7 +236,7 @@ export default class DequeLinkedList extends Visualization {
     undo_shiftNewHead() {
         this.tempNode = this.nodes[0];
         this.tempNode.shift(20,20);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
             this.stopDrawing(stopID);
         });
@@ -244,7 +244,7 @@ export default class DequeLinkedList extends Visualization {
     redo_shiftNewHead() {
         this.tempNode.shift(...this.getNodePosition(0));
         let temp = this.tempNode;
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         temp.addOnStop(() => {
             this.stopDrawing(stopID);
         });
@@ -261,14 +261,14 @@ export default class DequeLinkedList extends Visualization {
     undo_shiftNewTail() {
         this.tempNode = this.tail;
         this.tempNode.shift(20,20);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
             this.stopDrawing(stopID);
         });
     }
     redo_shiftNewTail() {
         this.tempNode.shift(...this.getNodePosition(this.size));
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
             this.stopDrawing(stopID);
         });
@@ -292,7 +292,7 @@ export default class DequeLinkedList extends Visualization {
     undo_unmakeNode(front) {
         this.tempNode.shift(...this.getNodePosition(front ? 0 : (this.size - 1)));
         this.nodes.splice(front ? 0 : (this.size - 1), 0, this.tempNode);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
             this.stopDrawing(stopID);
         });
@@ -301,7 +301,7 @@ export default class DequeLinkedList extends Visualization {
     redo_unmakeNode(front) {
         this.tempNode = this.nodes.splice(front ? 0 : (this.size - 1), 1)[0];
         this.tempNode.shift(20,20);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempNode.addOnStop(() => {
             this.stopDrawing(stopID);
         });
@@ -374,7 +374,7 @@ export default class DequeLinkedList extends Visualization {
             node = node.next;
         }
         if (furthest) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             furthest.addOnStop(() => {
                 this.stopDrawing(stopID);
             });
@@ -391,7 +391,7 @@ export default class DequeLinkedList extends Visualization {
             node = node.next;
         }
         if (furthest) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             furthest.addOnStop(() => {
                 this.stopDrawing(stopID);
             });
@@ -425,7 +425,7 @@ export default class DequeLinkedList extends Visualization {
             node = node.next;
         }
         if (furthest) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             furthest.addOnStop(() => {
                 this.stopDrawing(stopID);
             });
@@ -442,7 +442,7 @@ export default class DequeLinkedList extends Visualization {
             node = node.next;
         }
         if (furthest) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             furthest.addOnStop(() => {
                 this.stopDrawing(stopID);
             });

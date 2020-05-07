@@ -40,6 +40,7 @@ export default class Visualizer extends PureComponent {
 
 
         //FUNCTION BINDING
+        this.preload = this.preload.bind(this);
         this.setup = this.setup.bind(this);
         this.draw = this.draw.bind(this);
         this.mousePressed = this.mousePressed.bind(this);
@@ -140,8 +141,10 @@ export default class Visualizer extends PureComponent {
 
             extraGroups.push(ControlBuilder.createControlGroup("stepButtonGroup",skipBackButton,stepBackButton,playPauseButton,stepForwardButton,skipForwardButton));
             let animationControls = ControlBuilder.createControlGroup("animationControls",...extraGroups);
-            ControlBuilder.applyStyle(animationControls,"width","441px");
+            // ControlBuilder.applyStyle(animationControls,"width","441px");
             this.defaultControlGroups.push(animationControls);
+
+
         }
         this.defaultControlGroups.push(speedSliderGroup);
         this.defaultsLabel = "Animation controls";
@@ -208,13 +211,68 @@ export default class Visualizer extends PureComponent {
         });
     }
 
+    testVisualizationDimensions(p5) {
+        let height = document.querySelector(".canvas-container").getBoundingClientRect().height;
+        let width = document.querySelector(".canvas-container").getBoundingClientRect().width;
+        // console.log(height);
+        // p5.resizeCanvas(p5.windowWidth, p5.height);
+
+        //objects
+        let numScrollbars = this.controlBar.windowResized();
+        this.visualization.windowResized(p5, height, numScrollbars, this.constructor.VISUALIZATION_CLASS.HAS_MIN_WIDTH ? width : undefined);
+    }
+
     componentDidMount() {
         this[this.constructor.ADT_NAME] = new this.constructor.VISUALIZATION_CLASS(this.animator);
         this.visualization = this[this.constructor.ADT_NAME];
+        if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_ANIMATION_CONTROL) {
+            this.controlPressed = false;
+            this.shiftPressed = false;
+            this.pressedDict = {};
+            document.addEventListener("keydown", (event) => {
+                if (!this.pressedDict[event.key]) {
+                    this.pressedDict[event.key] = true;
+                    this.controlPressed = event.key === "Control" || this.controlPressed;
+                    this.shiftPressed = event.key === "Shift" || this.shiftPressed;
+                    if (event.key === "z" && this.controlPressed) {
+                        this.visualization.undo();
+                    }
+                    if (event.key === "ArrowLeft") {
+                        if (this.shiftPressed) {
+                            this.visualization.skipBack();
+                        } else {
+                            this.visualization.stepBack();
+                        }
+                    }
+                    if (event.key === "ArrowRight") {
+                        if (this.shiftPressed) {
+                            this.visualization.skipForward();
+                        } else {
+                            this.visualization.stepForward();
+                        }
+                    }
+                    if (event.key === " ") {
+                        this.visualization.playPause();
+                    }
+                }
+            });
+            document.addEventListener("keyup", (event) => {
+                if (this.pressedDict[event.key]) {
+                    this.pressedDict[event.key] = false;
+                    this.controlPressed = this.controlPressed && !(event.key === "Control");
+                    this.shiftPressed = this.shiftPressed && !(event.key === "Shift");
+                }
+            });
+        }
         if (Utils.isDev()) {
             window.vis = this.visualization;
         } else {
-            console.log = () => {};
+            let log = console.log;
+            console.log = (...args) => {
+                if (args[0] !== "animation in progress") {
+                    log(...args);
+                }
+            };
         }
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);
@@ -231,6 +289,12 @@ export default class Visualizer extends PureComponent {
 
     componentDidUpdate(prevProps, prevState) {
         // console.log("update");
+    }
+
+    preload(p5) {
+        if (Utils.isDev()) {
+            p5.disableFriendlyErrors = true;
+        }
     }
 
     setup(p5, canvasParentRef) {
@@ -298,6 +362,10 @@ export default class Visualizer extends PureComponent {
             // console.log("loop");
             p5.loop();
         });
+        this.animator.on("testWindowSize", () => {
+            // this.visualization.resizing = true;
+            this.testVisualizationDimensions(p5);
+        });
         this.windowResized(p5);
 
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
@@ -313,6 +381,7 @@ export default class Visualizer extends PureComponent {
         //objects
         this.visualization.update(animationSpeed, p5);
         this.visualization.draw(p5);
+
         // if (!this.animating) {
         //     if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_NO_LOOP) {
         //         this.animator.noLoop();
@@ -365,13 +434,7 @@ export default class Visualizer extends PureComponent {
         }
         // height = document.querySelector(".react-p5").getBoundingClientRect().height;
         document.querySelector(".canvas-container").style.height = height+"px";
-        height = document.querySelector(".canvas-container").getBoundingClientRect().height;
-        // console.log(height);
-        // p5.resizeCanvas(p5.windowWidth, p5.height);
-
-        //objects
-        let numScrollbars = this.controlBar.windowResized();
-        this.visualization.windowResized(p5, height, numScrollbars);
+        this.testVisualizationDimensions(p5);
     }
 
 
@@ -384,7 +447,7 @@ export default class Visualizer extends PureComponent {
                                 <div className="canvas-container">
                                     {
                                         this.mounted ?
-                                                <Sketch setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} touchEnded={this.mouseReleased} touchMoved={this.touchMoved}/>
+                                                <Sketch preload={this.preload} setup={this.setup} draw={this.draw} windowResized={this.windowResized} mousePressed={this.mousePressed} mouseReleased={this.mouseReleased} touchStarted={this.mousePressed} touchEnded={this.mouseReleased} touchMoved={this.touchMoved}/>
                                             :
                                                 <p>Loading Sketch</p>
                                     }

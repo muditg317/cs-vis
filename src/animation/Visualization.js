@@ -5,7 +5,7 @@ export default class Visualization {
 
     static LOG_UNDO_REDO = true;
     static LOG_ANIMATIONS = true;
-    static LOG_DRAW = false;
+    static LOG_DRAW = true;
 
     constructor(animator) {
         this.x = 20;
@@ -25,9 +25,11 @@ export default class Visualization {
 
         this.animator = animator;
 
+        // this.drawing = true;
         if (this.constructor.SUPPORTS_NO_LOOP) {
-            // this.drawing = false;
+            this.drawing = false;
         } else {
+            this.drawing = true;
             delete this.beginDrawLoop;
             delete this.endDrawLoop;
         }
@@ -39,21 +41,31 @@ export default class Visualization {
             delete this.playPause;
             delete this.play;
             delete this.pause;
+            delete this.skipBack;
+            delete this.stepBack;
+            delete this.undoAnimation;
+            delete this.undoText;
+            delete this.skipForward;
+            delete this.stepForward;
+            delete this.redoAnimation;
+
+            delete this.undo;
+            delete this.undoAction;
         }
 
         if (this.constructor.SUPPORTS_STOP_ID) {
             this.stopID = 0;
         }
 
-                this.animationHistory = [];
-                this.runningAnimation = [];
-                this.animationQueue = [];
-                this.animating = false;
+        this.reset();
     }
 
     reset() {
         if (this.constructor.SUPPORTS_TEXT) {
             this.displayText = "Animation Ready";
+            if (this.constructor.SUPPORTS_ANIMATION_CONTROL) {
+                this.displayText += " | Press ctrl-z to undo! (permanantly deletes action)";
+            }
             if (this.constructor.CAN_DRAG) {
                 this.displayText += " | Click and drag on a node to move it!";
             }
@@ -91,6 +103,7 @@ export default class Visualization {
         } else {
             this.animator.emit("anim-end");
         }
+        this.animator.enable("playPause");
         this.animator.disable("stepBack");
         this.animator.disable("skipBack");
         this.animator.disable("stepForward");
@@ -102,6 +115,7 @@ export default class Visualization {
             this.animationQueue.unshift({method:this.setPaused,noAnim:true});
         }
         this.beginDrawLoop();
+        this.animator.disable("playPause");
     }
 
     setPaused() {
@@ -174,7 +188,7 @@ export default class Visualization {
             this.undoText();//previousAnimation.explanation);
             if (!previousAnimation.customUndoEnd) {
                 this.stopDrawing(++this.stopID);
-                console.log(this.stopID);
+                // console.log(this.stopID);
             }
         } else {
             if (Visualization.LOG_UNDO_REDO) {
@@ -228,6 +242,9 @@ export default class Visualization {
             } else if (this.animationHistory.length > 0) {
                 this.popHistoryToRunningAnimation();
                 this.stepBack();
+            } else {
+                this.animator.disable("stepBack");
+                this.animator.disable("skipBack");
             }
         }
     }
@@ -337,6 +354,10 @@ export default class Visualization {
                     this.animator.enable("stepForward");
                     this.animator.enable("skipForward");
                 }
+            } else {
+                this.animator.emit("anim-end");
+                this.animator.disable("stepForward");
+                this.animator.disable("skipForward");
             }
         }
     }
@@ -360,6 +381,9 @@ export default class Visualization {
             } else if (this.animationHistory.length > 0) {
                 this.popHistoryToRunningAnimation();
                 this.skipBack();
+            } else {
+                this.animator.disable("stepBack");
+                this.animator.disable("skipBack");
             }
         }
     }
@@ -384,6 +408,10 @@ export default class Visualization {
                     this.animator.disable("stepForward");
                     this.animator.disable("skipForward");
                 }
+            } else {
+                this.animator.emit("anim-end");
+                this.animator.disable("stepForward");
+                this.animator.disable("skipForward");
             }
         }
     }
@@ -394,6 +422,51 @@ export default class Visualization {
         this.animationQueue.unshift({method:this.stopDrawing,params:this.constructor.SUPPORTS_STOP_ID ? [++this.stopID,true] : [],noAnim:true});
         this.animationQueue.unshift({method:this.animator.emit,scope:this.animator,params:["anim-end",],noAnim:true});
         this.runningAnimation = previousAnimationSequence;
+    }
+
+    noAnimStartsInQueue() {
+        let containsAnimStart = false;
+        for (let animation of this.animationQueue) {
+            if (this.isAnimStart(animation)) {
+                containsAnimStart = true;
+                break;
+            }
+        }
+        return !containsAnimStart;
+    }
+
+    canUndo() {
+        return this.noAnimStartsInQueue() && (this.animationHistory.length > 0 || (this.runningAnimation && this.runningAnimation.length > 0))
+    }
+    undo() {
+        if (this.canUndo()) {
+            if (!this.paused) {
+                if (this.animationQueue.length === 0 || !this.isUndoTrigger(this.animationQueue[0])) {
+                    this.animationQueue.unshift({method:this.undoAction,params:[false],noAnim:true});
+                }
+                this.beginDrawLoop();
+                return true;
+            } else {
+                this.undoAction(true);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    undoAction(wasPaused) {
+        if (!wasPaused) {
+            this.setPaused();
+        }
+        this.skipBack();
+        this.animationQueue.splice(0,this.animationQueue.length);
+        if (!wasPaused) {
+            this.play();
+        } else {
+            this.animator.emit("anim-end");
+            this.animator.disable("stepForward");
+            this.animator.disable("skipForward");
+        }
     }
 
     ensureDrawn() {
@@ -438,7 +511,13 @@ export default class Visualization {
             callForward();
         }
         if (!this.constructor.SUPPORTS_ANIMATION_CONTROL || !this.paused) {
-            this.popAnimation(animationSpeed);
+            let testsWindowSize = this.popAnimation(animationSpeed);
+            if (this.constructor.SUPPORTS_INFREQUENT_RESIZE && testsWindowSize) {
+                this.animator.testWindowSize();
+            }
+        }
+        if (!this.constructor.SUPPORTS_INFREQUENT_RESIZE) {
+            this.animator.testWindowSize();
         }
     }
 
@@ -456,6 +535,10 @@ export default class Visualization {
 
     isPauseTrigger(animation) {
         return animation.method === this.setPaused;
+    }
+
+    isUndoTrigger(animation) {
+        return animation.method === this.undoAction;
     }
 
     noAnimation(animation) {
@@ -483,7 +566,7 @@ export default class Visualization {
                     if (this.animationQueue.length > 0) {
                         this.beginDrawLoop();
                     }
-                } else if (this.isPauseTrigger(animation)) {
+                } else if (this.isPauseTrigger(animation) || this.isUndoTrigger(animation)) {
 
                 } else {
                     if (this.runningAnimation) {
@@ -520,6 +603,7 @@ export default class Visualization {
                         }
                     }
                 }
+                return animation.testsWindowSize;
             }
         }
     }
@@ -565,7 +649,9 @@ export default class Visualization {
     }
 
     windowResized(p5, height, numScrollbars, maxY, callback) {
-        height -= numScrollbars * 16;
+        if (!document.querySelector(".canvas-container").classList.contains("mobile")) {
+            height -= numScrollbars * 16;
+        }
         let width = p5.windowWidth;
         if (maxY > (height - (2*this.y))) {
             height = (maxY + (3*this.y))

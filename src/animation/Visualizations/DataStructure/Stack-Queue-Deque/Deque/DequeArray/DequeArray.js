@@ -73,7 +73,7 @@ export default class DequeArray extends Visualization {
             }
         }
         if (furthestObject.displacement() > 0) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             furthestObject.addOnStop(() => {
                 this.stopDrawing(stopID);
             });
@@ -97,7 +97,7 @@ export default class DequeArray extends Visualization {
                 }
             }
         } else {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             this.stopDrawing(stopID);
         }
     }
@@ -234,7 +234,7 @@ export default class DequeArray extends Visualization {
         element.highlightForMovement();
         element.shift(x,y);
         if (true || index === 0) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             element.addOnStop((el) => {
                 el.unhighlight();
                 this.stopDrawing(stopID);
@@ -250,7 +250,7 @@ export default class DequeArray extends Visualization {
         element.highlightForMovement();
         element.shift(x,y);
         if (true || index === this.size - 1) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             element.addOnStop((el) => {
                 el.unhighlight();
                 this.stopDrawing(stopID);
@@ -291,7 +291,7 @@ export default class DequeArray extends Visualization {
         let element = this.backingArray[index];
         element.shift(...this.getElementPosition(index,true));
         if (index === 0) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             element.addOnStop((el) => {
                 this.stopDrawing(stopID);
             })
@@ -301,7 +301,7 @@ export default class DequeArray extends Visualization {
         let element = this.backingArray[index];
         element.shift(...this.getElementPosition(element.index));
         if (index === this.size - 1) {
-            let stopID = ++this.stopID;console.log(stopID);
+            let stopID = ++this.stopID;
             element.addOnStop((el) => {
                 this.stopDrawing(stopID);
             })
@@ -342,7 +342,7 @@ export default class DequeArray extends Visualization {
     // undo_moveSizeTracker() {
     //     this.sizePointerHighlighter.shift(DequeArray.SIZE_LOCATION_X,DequeArray.SIZE_LOCATION_Y);
     //     this.sizePointerHighlighter.highlight();
-    //     let stopID = ++this.stopID;console.log(stopID);
+    //     let stopID = ++this.stopID;
     //     this.sizePointerHighlighter.addOnStop((element) => {
     //         element.unhighlight();
     //         this.stopDrawing(stopID);
@@ -353,7 +353,7 @@ export default class DequeArray extends Visualization {
     //     let pos = this.getElementPosition(this.size);
     //     this.sizePointerHighlighter.highlight();
     //     this.sizePointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
-    //     let stopID = ++this.stopID;console.log(stopID);
+    //     let stopID = ++this.stopID;
     //     this.sizePointerHighlighter.addOnStop((element) => {
     //         element.unhighlight();
     //         this.stopDrawing(stopID);
@@ -386,7 +386,7 @@ export default class DequeArray extends Visualization {
         let index = this.tempElement.index;
         this.highlightTemp();
         this.tempElement.shift(45,45);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempElement.addOnStop((element) => {
             element.unhighlight();
             this.stopDrawing(stopID);
@@ -398,7 +398,7 @@ export default class DequeArray extends Visualization {
         this.backingArray[index] = this.tempElement;
         this.highlightTemp();
         this.tempElement.shift(...this.getElementPosition(index));
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         console.log(stopID);
         this.tempElement.addOnStop((element) => {
             element.unhighlight();
@@ -454,7 +454,7 @@ export default class DequeArray extends Visualization {
     undo_moveFrontTracker(oldX,oldY) {
         this.frontPointerHighlighter.highlight();
         this.frontPointerHighlighter.shift(oldX, oldY);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.frontPointerHighlighter.addOnStop((element) => {
             element.unhighlight();
             this.stopDrawing(stopID);
@@ -465,7 +465,7 @@ export default class DequeArray extends Visualization {
         let pos = this.getElementPosition(index);
         this.frontPointerHighlighter.highlight();
         this.frontPointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.frontPointerHighlighter.addOnStop((element) => {
             element.unhighlight();
             this.stopDrawing(stopID);
@@ -487,7 +487,7 @@ export default class DequeArray extends Visualization {
         let index = this.getIndex(this.frontPointerValue + (front ? 0 : this.size - 1));
         this.tempElement.highlightForMovement();
         this.tempElement.shift(...this.getElementPosition(index));
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempElement.addOnStop((element) => {
             element.unhighlight();
             this.stopDrawing(stopID);
@@ -501,7 +501,7 @@ export default class DequeArray extends Visualization {
         this.backingArray[index] = null;
         this.tempElement.highlightForMovement();
         this.tempElement.shift(45,45);
-        let stopID = ++this.stopID;console.log(stopID);
+        let stopID = ++this.stopID;
         this.tempElement.addOnStop((element) => {
             element.unhighlight();
             this.stopDrawing(stopID);

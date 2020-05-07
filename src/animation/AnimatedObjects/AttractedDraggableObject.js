@@ -25,6 +25,15 @@ export default class AttractedDraggableObject {
         this.desiredY = y;
     }
 
+    goTo(x,y) {
+        // let oldX = this.desiredX;
+        // let oldY = this.desiredY;
+        this.desiredX = x;
+        this.desiredY = y;
+        this.stop();
+        // return [oldX, oldY];
+    }
+
     displacement() {
         return Math.sqrt(Math.pow(this.desiredX - this.currentX,2) + Math.pow(this.desiredY - this.currentY,2));
     }

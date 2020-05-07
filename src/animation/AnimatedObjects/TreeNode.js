@@ -54,60 +54,6 @@ export default class TreeNode extends AttractedDraggableObject {
     }
 
     update(animationSpeed, p5) {
-        // if (this.parent) {
-        //     if (this.parent.readyToFollow && !this.parent.containsMousePin()) {
-        //         this.desiredX += (this.parent.desiredX - this.desiredX) * AttractedDraggableObject.ATTRACTION * 2;//(this.parent.height + 2);
-        //     }
-        //     // this.desiredX = this.parent.currentX;
-        //     if (this.left && !this.left.containsMousePin()) {
-        //         // this.desiredX += (this.left.currentX - this.desiredX) * AttractedDraggableObject.ATTRACTION * 0.5;
-        //     }
-        //     if (this.right && !this.right.containsMousePin()) {
-        //         // this.desiredX += (this.right.currentX - this.desiredX) * AttractedDraggableObject.ATTRACTION * 0.5;
-        //     }
-        //     if (this.leftBoundingNode && this.rightBoundingNode) {
-        //         if (this.leftBoundingNode.height > this.rightBoundingNode.height) {
-        //             this.desiredX = this.leftBoundingNode.desiredX + this.constructor.HSPACE;
-        //         } else {
-        //             this.desiredX = this.rightBoundingNode.desiredX - this.constructor.HSPACE;
-        //         }
-        //     } else if (this.leftBoundingNode) {
-        //         this.desiredX = this.leftBoundingNode.desiredX + this.constructor.HSPACE;
-        //     } else if (this.rightBoundingNode) {
-        //         this.desiredX = this.rightBoundingNode.desiredX - this.constructor.HSPACE;
-        //     }
-        //     // if (this.rightBoundingNode) {
-        //     //     if (this.rightBoundingNode.readyToFollow) {//} && (!this.leftBoundingNode || !this.leftBoundingNode.containsMousePin()) && !this.rightBoundingNode.containsMousePin()) {
-        //     //         this.desiredX += (this.rightBoundingNode.desiredX - this.desiredX) * AttractedDraggableObject.ATTRACTION * 1;//(this.rightBoundingNode.height + 1);
-        //     //     }
-        //     //     // console.log("right bound", this.desiredX, this.rightBoundingNode);
-        //     //     let rightBoundingNode = this.rightBoundingNode;
-        //     //     let space = this.constructor.HSPACE;
-        //     //     while (rightBoundingNode) {
-        //     //         if (rightBoundingNode.readyToFollow && !rightBoundingNode.containsMousePin()) {
-        //     //             this.desiredX = Math.min(this.rightBoundingNode.desiredX - space);
-        //     //         }
-        //     //         rightBoundingNode = rightBoundingNode.rightBoundingNode;
-        //     //         // space += this.constructor.HSPACE;
-        //     //     }
-        //     // }
-        //     // if (this.leftBoundingNode) {
-        //     //     if (this.leftBoundingNode.readyToFollow) {//} && !this.leftBoundingNode.containsMousePin() && (!this.rightBoundingNode || !this.rightBoundingNode.containsMousePin())) {
-        //     //         this.desiredX += (this.leftBoundingNode.desiredX - this.desiredX) * AttractedDraggableObject.ATTRACTION * 1;//(this.leftBoundingNode.height + 1);
-        //     //     }
-        //     //     // console.log("left bound", this.desiredX, this.leftBoundingNode.desiredX);
-        //     //     let leftBoundingNode = this.leftBoundingNode;
-        //     //     let space = this.constructor.HSPACE;
-        //     //     while (leftBoundingNode) {
-        //     //         if (leftBoundingNode.readyToFollow && !leftBoundingNode.containsMousePin()) {
-        //     //             this.desiredX = Math.max(leftBoundingNode.desiredX + space);
-        //     //         }
-        //     //         leftBoundingNode = leftBoundingNode.leftBoundingNode;
-        //     //         // space += this.constructor.HSPACE;
-        //     //     }
-        //     // }
-        //     this.desiredX = Math.max(this.desiredX, 0);
-        // }
         super.update(animationSpeed, p5)
         if (this.left) {
             this.left.update(animationSpeed, p5);

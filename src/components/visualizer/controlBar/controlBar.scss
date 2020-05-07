@@ -10,6 +10,8 @@
 .control-container{
     margin: 0;
     padding: 1em;
+    padding-left: 0.3em;
+    padding-top: 0.5em;
 
     box-sizing: border-box;
     width: 100%;
@@ -120,8 +122,8 @@
 
 .control-group>.visual-control {
     margin: 0;
-    margin-left: 10px;
-    margin-top: 10px;
+    margin-left: 0.7em;
+    margin-top: 0.7em;
 }
 
 .expanding-group {

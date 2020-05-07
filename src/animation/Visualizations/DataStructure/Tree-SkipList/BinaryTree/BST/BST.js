@@ -12,6 +12,8 @@ export default class BST extends Visualization {
     static SUPPORTS_TEXT = true;
     static SUPPORTS_ANIMATION_CONTROL = true;
     static SUPPORTS_STOP_ID = true;
+    static SUPPORTS_INFREQUENT_RESIZE = true;
+    static HAS_MIN_WIDTH = true;
 
     static ELEMENT_SIZE = 40;
     static VERTICAL_SPACING = 7.5;
@@ -19,6 +21,8 @@ export default class BST extends Visualization {
 
     static ROOT_SIZE = 25;
     static ROOT_X = 130;
+    static ROOT_Y = 20;
+    static ROOT_HIGHLIGHT_DIAMETER = 10;
 
 
     constructor(animator) {
@@ -42,8 +46,8 @@ export default class BST extends Visualization {
         this.highlighter = new TrackingHighlighter(null, BST.ELEMENT_SIZE/2, {
             highlightInnerRadius: BST.ELEMENT_SIZE/2
         });
+        this.rootPointerPos = {currentX: BST.ROOT_X + BST.ROOT_SIZE / 2 - BST.ROOT_HIGHLIGHT_DIAMETER / 2, currentY: BST.ROOT_Y + BST.ROOT_SIZE / 2 - BST.ROOT_HIGHLIGHT_DIAMETER / 2};
 
-        this.resizing = false;
         if (this.made) {
             this.endDrawLoop();
         }
@@ -89,7 +93,8 @@ export default class BST extends Visualization {
                 this.highlighter.stop();
             }
         } else {
-            this.stopDrawing(++this.stopID);
+            let stopID = ++this.stopID;
+            this.stopDrawing(stopID);
         }
     }
 
@@ -105,21 +110,21 @@ export default class BST extends Visualization {
             return false;
         }
         let animation = [];
-        animation.push({method:this.showText,params:[`Searching tree for value: ${data}`],quick:true});
+        animation.push({method:this.showText,params:[`Attempt add: ${data} to BST`],noAnim:true});
+        animation.push({method:this.setHighlighter,params:[this.rootPointerPos],customEnd:true,customRedoEnd:true,returnsUndoData:true,});
+        animation.push({method:this.showText,params:[`Searching tree for value: ${data}`],quick:true,isForwardStep:true,customRedoEnd:true});
         let [ recurredAnimation, newRoot, nodeJustAdded, added ] = this.insertRecursive(this.root, data);
         animation.push(...recurredAnimation);
-        animation.push({method:this.setHighlighter,params:[null],noAnim:true,returnsUndoData:true,isBackStep:true,});
-        animation.push({method:this.setRoot,params:[newRoot],explanation:`${this.root ? "Res" : "S"}et root pointer to node containing ${newRoot.data}`,quick:true,isForwardStep:nodeJustAdded,returnsUndoData:true});
-        animation.push({method:this.clearTemp,params:[],noAnim:true,returnsUndoData:true,});
+        animation.push({method:this.setHighlighter,params:[this.rootPointerPos],customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
+        animation.push({method:this.setRoot,params:[newRoot],explanation:`${this.root ? "Res" : "S"}et root pointer to node containing ${newRoot.data}`,quick:true,isForwardStep:true,returnsUndoData:true,customRedoEnd:true});
         if (nodeJustAdded) {
-            animation[0].isForwardStep = true;
-            animation.push({method:this.shiftByLevelOrder,explanation:`Add node:${data} to root of tree`,customEnd:true,isBackStep:true,returnsUndoData:true});
+            animation.push({method:this.shiftByLevelOrder,testsWindowSize:true,explanation:`Add node:${data} to root of tree`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true});
         }
+        animation.push({method:this.setHighlighter,params:[null],noAnim:true,isBackStep:true,customUndoEnd:true,returnsUndoData:true,});
+        animation.push({method:this.clearTemp,noAnim:true,returnsUndoData:true,});
         if (added) {
-            animation[0].isForwardStep = true;
             animation.push({method:this.showText,params:[`Successfully inserted ${data} into BST.`, Colors.GREEN],noAnim:true});
         } else {
-            animation[0].isForwardStep = true;
             animation.push({method:this.showText,params:[`Failed to insert duplicate ${data} into BST.`, Colors.RED],noAnim:true});
         }
         this.addAnimation(animation);
@@ -166,42 +171,35 @@ export default class BST extends Visualization {
         let animation = [];
         let justAdded = false;
         let added = false;
-        animation.push({method:this.setHighlighter,params:[curr],customEnd:curr!==null,noAnim:curr===null,isBackStep:curr!==null,returnsUndoData:true});
+        animation.push({method:this.setHighlighter,params:[curr],customEnd:curr!==null,noAnim:curr===null,isBackStep:true,customUndoEnd:true,customRedoEnd:curr!==null,returnsUndoData:true});
         if (!curr) {
             animation.push({method:this.showText,params:[`Reached null: ${value} not found in tree`],quick:true,isForwardStep:true,});
             curr = new BSTNode({data: value});
-            // curr.frozen = true;
             animation.push({method:this.makeNode,params:[curr],explanation:`Create value: ${value}`,quick:true,isAnimationStep:true,returnsRedoData:true});
-            // if (this.size > 0) {
-            //     animation.push({method:this.setTempNodeFromParent,params:[foundNode,],explanation:`Assign |RETURN| pointer`,explanationUsesReturn:true,isAnimationStep:true,});
-            // }
-            // animation.push({method:this.shiftRoot,explanation:`${curr ? "Res" : "S"}et tail pointer`,isAnimationStep:true,returnsUndoData:true,});
-            // animation.push({method:this.setTempNodeY,customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,});
             animation.push({method:this.sizeIncr,noAnim:true,});
             justAdded = true;
             added = true;
-            // animation.push({method:this.showText,params:[`Successfully inserted ${value} into BST.`, Colors.GREEN],noAnim:true,isAnimationStep:true});
         } else if (value === curr.data) {
-            animation.push({method:this.showText,params:[`${value} == ${curr.data}: value found in tree`],quick:true,isForwardStep:true,});
+            animation.push({method:this.showText,params:[`${value} == ${curr.data}: value found in tree`],quick:true,isForwardStep:true,customRedoEnd:true,});
             animation.push({method:this.showText,params:[`${value} already in BST, failed to add.`],noAnim:true,isAnimationStep:true,});
         } else if (value < curr.data) {
-            animation.push({method:this.showText,params:[`${value} < ${curr.data}: look to left subtree`],quick:true,isForwardStep:true,});
+            animation.push({method:this.showText,params:[`${value} < ${curr.data}: look to left subtree`],quick:true,isForwardStep:true,customRedoEnd:true,});
             let [recurredAnimation, newLeft, nodeJustAdded, nodeAdded] = this.insertRecursive(curr.left, value);
             animation.push(...recurredAnimation);
-            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,isBackStep:true,returnsUndoData:true,});
-            animation.push({method:this.setLeft,params:[curr, newLeft],explanation:`${curr.left ? "Res" : "S"}et left pointer to node containing ${newLeft.data}`,quick:true,returnsUndoData:true,isForwardStep:true});
+            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
+            animation.push({method:this.setLeft,params:[curr, newLeft],explanation:`${curr.left ? "Res" : "S"}et left pointer to node containing ${newLeft.data}`,quick:true,returnsUndoData:true,isForwardStep:true,customRedoEnd:true});
             if (nodeJustAdded) {
-                animation.push({method:this.shiftByLevelOrder,explanation:`Add node:${value} to left of node:${curr.data}`,customEnd:true,isAnimationStep:true,returnsUndoData:true});
+                animation.push({method:this.shiftByLevelOrder,testsWindowSize:true,explanation:`Add node:${value} to left of node:${curr.data}`,customEnd:true,isAnimationStep:true,returnsUndoData:true});
             }
             added = nodeAdded;
         } else if (value > curr.data) {
-            animation.push({method:this.showText,params:[`${value} > ${curr.data}: look to right subtree`],quick:true,isForwardStep:true,});
+            animation.push({method:this.showText,params:[`${value} > ${curr.data}: look to right subtree`],quick:true,isForwardStep:true,customRedoEnd:true,});
             let [recurredAnimation, newRight, nodeJustAdded, nodeAdded] = this.insertRecursive(curr.right, value);
             animation.push(...recurredAnimation);
-            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,isBackStep:true,returnsUndoData:true,});
-            animation.push({method:this.setRight,params:[curr, newRight],explanation:`${curr.right ? "Res" : "S"}et right pointer to node containing ${newRight.data}`,quick:true,returnsUndoData:true,isForwardStep:true});
+            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
+            animation.push({method:this.setRight,params:[curr, newRight],explanation:`${curr.right ? "Res" : "S"}et right pointer to node containing ${newRight.data}`,quick:true,returnsUndoData:true,isForwardStep:true,customRedoEnd:true,});
             if (nodeJustAdded) {
-                animation.push({method:this.shiftByLevelOrder,explanation:`Add node:${value} to right of node:${curr.data}`,customEnd:true,isAnimationStep:true,returnsUndoData:true});
+                animation.push({method:this.shiftByLevelOrder,testsWindowSize:true,explanation:`Add node:${value} to right of node:${curr.data}`,customEnd:true,isAnimationStep:true,returnsUndoData:true});
             }
             added = nodeAdded;
         }
@@ -212,15 +210,8 @@ export default class BST extends Visualization {
         let oldRoot = this.root;
         this.root = newRoot;
         let oldParamsOfNewRoot = {parent: newRoot.parent, depth: newRoot.depth};
-        // this.root.frozen = false;
-        // this.root.shiftX((this.width - BST.ELEMENT_SIZE)/2);
         this.root.parent = null;
         this.root.depth = 0;
-        // this.root.setY(this.getNodeY(this.root.depth));
-        // this.root.addOnStop((node) => {
-        //     node.readyToFollow = true;
-        //     this.doneAnimating(0);
-        // });
         return [oldRoot,oldParamsOfNewRoot];
     }
     undo_setRoot(oldRoot, oldParamsOfNewRoot) {
@@ -237,16 +228,8 @@ export default class BST extends Visualization {
         let oldParamsOfParent = {height: parent.height};
         let oldRightOfLeftOfNew = null;
         newLeft.parent = parent;
-        // newLeft.frozen = false;
         newLeft.depth = parent.depth + 1;
         parent.height = Math.max(newLeft.height, (parent.right && parent.right.height) || -1) + 1;
-        // newLeft.setY(this.getNodeY(newLeft.depth));
-        // newLeft.rightBoundingNode = newLeft.rightBoundingNode || parent;
-        // newLeft.leftBoundingNode = parent.leftBoundingNode !== newLeft ? parent.leftBoundingNode : (newLeft.leftBoundingNode || null);
-        // parent.leftBoundingNode = newLeft;
-        // while (parent.leftBoundingNode.right) {
-        //     parent.leftBoundingNode = parent.leftBoundingNode.right;
-        // }
         if (!oldLeft) {
             Object.assign(oldParamsOfNewLeft, {leftBoundingNode: newLeft.leftBoundingNode, rightBoundingNode: newLeft.rightBoundingNode});
             Object.assign(oldParamsOfParent, {leftBoundingNode: parent.leftBoundingNode});
@@ -258,10 +241,6 @@ export default class BST extends Visualization {
                 newLeft.leftBoundingNode.rightBoundingNode = newLeft;
             }
         }
-        // newLeft.addOnStop((node) => {
-        //     node.readyToFollow = true;
-        //     this.doneAnimating(0);
-        // });
         return [parent, oldLeft, oldParamsOfNewLeft, oldParamsOfParent, oldRightOfLeftOfNew];
     }
     undo_setLeft(parent, oldLeft, oldParamsOfNewLeft, oldParamsOfParent, oldRightOfLeftOfNew) {
@@ -284,16 +263,8 @@ export default class BST extends Visualization {
         let oldParamsOfParent = {height: parent.height};
         let oldLeftOfRightOfNew = null;
         newRight.parent = parent;
-        // newRight.frozen = false;
         newRight.depth = parent.depth + 1;
         parent.height = Math.max(newRight.height, (parent.left && parent.left.height) || -1) + 1;
-        // newRight.setY(this.getNodeY(newRight.depth));
-        // newRight.leftBoundingNode = newRight.leftBoundingNode || parent;
-        // newRight.rightBoundingNode = parent.rightBoundingNode !== newRight ? parent.rightBoundingNode : (newRight.rightBoundingNode || null);
-        // parent.rightBoundingNode = newRight;
-        // while (parent.rightBoundingNode.left) {
-        //     parent.rightBoundingNode = parent.rightBoundingNode.left;
-        // }
         if (!oldRight) {
             Object.assign(oldParamsOfNewRight, {leftBoundingNode: newRight.leftBoundingNode, rightBoundingNode: newRight.rightBoundingNode});
             Object.assign(oldParamsOfParent, {rightBoundingNode: parent.rightBoundingNode});
@@ -305,10 +276,6 @@ export default class BST extends Visualization {
                 newRight.rightBoundingNode.leftBoundingNode = newRight;
             }
         }
-        // newRight.addOnStop((node) => {
-        //     node.readyToFollow = true;
-        //     this.doneAnimating(0);
-        // });
         return [parent, oldRight, oldParamsOfNewRight, oldParamsOfParent, oldLeftOfRightOfNew];
     }
     undo_setRight(parent, oldRight, oldParamsOfNewRight, oldParamsOfParent, oldLeftOfRightOfNew) {
@@ -326,8 +293,7 @@ export default class BST extends Visualization {
 
     setHighlighter(node) {
         let oldTarget = this.highlighter.target;
-        console.log(oldTarget);
-        this.highlighter.setTarget(node);
+        this.highlighter.setTarget(node, node === this.rootPointerPos ? BST.ROOT_HIGHLIGHT_DIAMETER/2 : BST.ELEMENT_SIZE/2);
         if (node) {
             this.highlighter.addOnStop((highlighter) => {
                 this.doneAnimating(0);
@@ -336,19 +302,23 @@ export default class BST extends Visualization {
         return [oldTarget];
     }
     undo_setHighlighter(oldTarget) {
-        this.highlighter.setTarget(oldTarget);
-        let stopID = ++this.stopID;
-        this.highlighter.addOnStop((highlighter) => {
-            this.stopDrawing(stopID);
-        });
+        this.highlighter.setTarget(oldTarget, oldTarget === this.rootPointerPos ? BST.ROOT_HIGHLIGHT_DIAMETER/2 : BST.ELEMENT_SIZE/2);
+        if (oldTarget) {
+            let stopID = ++this.stopID;
+            this.highlighter.addOnStop((highlighter) => {
+                this.stopDrawing(stopID);
+            });
+        }
     }
     redo_setHighlighter(node) {
         let oldTarget = this.highlighter.target;
-        this.highlighter.setTarget(node);
-        let stopID = ++this.stopID;
-        this.highlighter.addOnStop((highlighter) => {
-            this.stopDrawing(stopID);
-        });
+        this.highlighter.setTarget(node, node === this.rootPointerPos ? BST.ROOT_HIGHLIGHT_DIAMETER/2 : BST.ELEMENT_SIZE/2);
+        if (node) {
+            let stopID = ++this.stopID;
+            this.highlighter.addOnStop((highlighter) => {
+                this.stopDrawing(stopID);
+            });
+        }
         return [oldTarget];
     }
 
@@ -371,14 +341,16 @@ export default class BST extends Visualization {
         let centerIndex = 0;
         while (curr) {
             order.push(curr);
-            oldPositions.push([curr.desiredX,curr.desiredY]);
+            oldPositions.push([curr.desiredX - ((this.width - BST.ELEMENT_SIZE)/2),curr.desiredY]);
             curr = curr.rightBoundingNode;
             if (curr === this.root) {
                 centerIndex = order.length;
             }
         }
         let displaced = null;
+        // console.log(centerIndex);
         order.forEach((node, i) => {
+            // console.log(node.data,":",i - centerIndex, ((this.width - BST.ELEMENT_SIZE)/2), node.constructor.HSPACE);
             node.shiftX(((this.width - BST.ELEMENT_SIZE)/2) + (i - centerIndex) * node.constructor.HSPACE);
             node.setY(this.getNodeY(node.depth));
             if ((!displaced && node.displacement()) || (displaced && node.displacement() > displaced.displacement())) {
@@ -396,10 +368,10 @@ export default class BST extends Visualization {
     undo_shiftByLevelOrder(order, oldPositions) {
         let stopID = ++this.stopID;
         if (order) {
-            console.log(oldPositions);
+            // console.log(oldPositions);
             let displaced = null;
             order.forEach((node, i) => {
-                node.shift(...oldPositions[i]);
+                node.shift(((this.width - BST.ELEMENT_SIZE)/2) + oldPositions[i][0], oldPositions[i][1]);
                 if ((!displaced && node.displacement()) || (displaced && node.displacement() > displaced.displacement())) {
                     node.addOnStop((element) => {
                         this.stopDrawing(stopID);
@@ -424,7 +396,7 @@ export default class BST extends Visualization {
         }
         let [recurredAnimation, found, foundNode] = this.recursiveNodeFinder(this.root, value);
         animation.push(...recurredAnimation);
-        animation.push({method:this.setHighlighter,params:[null],customEnd:true,});
+        animation.push({method:this.setHighlighter,params:[null],customEnd:true,customUndoEnd:true,customRedoEnd:true});
         node = foundNode;
         return [animation, found, node];
     }
@@ -434,7 +406,7 @@ export default class BST extends Visualization {
         let found = false;
         let foundNode = curr;
         if (curr) {
-            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,});
+            animation.push({method:this.setHighlighter,params:[curr],customEnd:true,customUndoEnd:true,customRedoEnd:true,});
         }
         if (!curr) {
             animation.push({method:this.showText,params:[`Reached null: ${value} not found in tree`],quick:true,});
@@ -468,78 +440,7 @@ export default class BST extends Visualization {
     }
     redo_makeNode(newTemp) {
         this.tempNode = newTemp;
-    }
-
-    setTempNodeFromParent(parent) {
-        console.log(this.tempNode, parent);
-        this.tempNode.parent = parent;
-        if (this.tempNode.data < parent.data) {
-            parent.left = this.tempNode;
-            this.tempNode.rightBoundingNode = parent;
-            this.tempNode.leftBoundingNode = parent.leftBoundingNode;
-            parent.leftBoundingNode = parent.left;
-            return "left";
-        } else {
-            parent.right = this.tempNode;
-            this.tempNode.leftBoundingNode = parent;
-            this.tempNode.rightBoundingNode = parent.rightBoundingNode;
-            parent.rightBoundingNode = parent.right;
-            return "right";
-        }
-    }
-    undo_setTempNodeFromParent(parent) {
-        this.tempNode.parent = null;
-        this.tempNode.leftBoundingNode = this.tempNode.rightBoundingNode = null;
-        if (this.tempNode.data < parent.data) {
-            parent.left = null;
-        } else {
-            parent.right = null;
-        }
-    }
-
-    shiftRoot() {
-        let oldTail = this.tail;
-        this.nodes.splice(this.size, 0, this.tempNode);
-        this.tail = this.tempNode;
-        if (!oldTail) {
-            this.root = this.tempNode;
-            this.tempNode.shiftX((this.width - BST.ELEMENT_SIZE)/2);
-        }
-        return [oldTail];
-    }
-    undo_shiftRoot(oldTail) {
-        this.tail = oldTail;
-        if (!oldTail) {
-            this.root = null;
-        }
-        this.nodes.splice(this.size, 1);
-    }
-
-    setTempNodeY() {
-        this.tempNode.setY(this.getNodeY(this.tempNode.depth));
-        this.tempNode.frozen = false;
-        this.tempNode.addOnStop((element) => {
-            this.doneAnimating(0);
-        });
-        this.tempNode = null;
-    }
-    undo_setTempNodeY() {
-        this.tempNode = this.tail;
-        this.tempNode.shift(20,20);
-        let stopID = ++this.stopID;
-        this.tempNode.addOnStop((element) => {
-            element.frozen = true;
-            this.stopDrawing(stopID);
-        });
-    }
-    redo_setTempNodeY() {
-        this.tempNode.setY(this.getNodeY(this.tempNode.depth));
-        this.tempNode.frozen = false;
-        let stopID = ++this.stopID;
-        this.tempNode.addOnStop(() => {
-            this.stopDrawing(stopID);
-        });
-        this.tempNode = null;
+        this.tempNode.goTo(20,20);
     }
 
     markRootForDeletion() {
@@ -713,6 +614,7 @@ export default class BST extends Visualization {
         // console.log("draw");
         super.draw(p5);
         p5.push();
+        // p5.translate(this.x,this.y);
 
         p5.textAlign(p5.CENTER,p5.CENTER);
         p5.textSize(this.ELEMENT_SIZE/3 - 2);
@@ -720,17 +622,16 @@ export default class BST extends Visualization {
         p5.noFill();
         p5.stroke(0);
         p5.textAlign(p5.CENTER, p5.CENTER);
-        let rootY = 20;
-        p5.text("Root:",95-5,rootY,BST.ROOT_SIZE + 10,BST.ROOT_SIZE);
-        p5.square(BST.ROOT_X,rootY,BST.ROOT_SIZE);
+        p5.text("Root:",95-5,BST.ROOT_Y,BST.ROOT_SIZE + 10,BST.ROOT_SIZE);
+        p5.square(BST.ROOT_X,BST.ROOT_Y,BST.ROOT_SIZE);
         if (this.root) {
             p5.stroke(Colors.BLUE);
             p5.fill(Colors.BLUE);
-            p5.circle(BST.ROOT_X + BST.ROOT_SIZE / 2, rootY + BST.ROOT_SIZE / 2, 5);
-            p5.line(BST.ROOT_X + BST.ROOT_SIZE / 2, rootY + BST.ROOT_SIZE / 2, this.root.currentX + BST.ELEMENT_SIZE / 2, this.root.currentY);
+            p5.circle(BST.ROOT_X + BST.ROOT_SIZE / 2, BST.ROOT_Y + BST.ROOT_SIZE / 2, 5);
+            p5.line(BST.ROOT_X + BST.ROOT_SIZE / 2, BST.ROOT_Y + BST.ROOT_SIZE / 2, this.root.currentX + BST.ELEMENT_SIZE / 2, this.root.currentY);
             // p5.rect(this.root.currentX + BST.ELEMENT_SIZE / 2 - 3, this.root.currentY - 3, 6,6);
         } else {
-            p5.line(BST.ROOT_X,rootY,BST.ROOT_X + BST.ROOT_SIZE,rootY + BST.ROOT_SIZE);
+            p5.line(BST.ROOT_X,BST.ROOT_Y,BST.ROOT_X + BST.ROOT_SIZE,BST.ROOT_Y + BST.ROOT_SIZE);
         }
 
 
@@ -771,7 +672,25 @@ export default class BST extends Visualization {
     windowResized(p5, height, numScrollbars) {
         super.windowResized(p5, height, numScrollbars, this.getMaxY(),() => {
             let shiftTemp = this.tempNode && this.tempNode.desiredX === 20 && this.tempNode.desiredY === 20;
-            this.root && this.root.shiftX((p5.windowWidth - BST.ELEMENT_SIZE)/2);
+            if (this.root) {
+                let order = [];
+                let curr = this.root;
+                while (curr.left) {
+                    curr = curr.left;
+                }
+                let centerIndex = 0;
+                while (curr) {
+                    order.push(curr);
+                    curr = curr.rightBoundingNode;
+                    if (curr === this.root) {
+                        centerIndex = order.length;
+                    }
+                }
+                order.forEach((node, i) => {
+                    node.shiftX(((this.width - BST.ELEMENT_SIZE)/2) + (i - centerIndex) * node.constructor.HSPACE);
+                    node.setY(this.getNodeY(node.depth));
+                });
+            }
             if (shiftTemp) {
                 this.tempNode.shift(20,20);
             }
