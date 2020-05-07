@@ -30,7 +30,9 @@ export default class Visualizer extends PureComponent {
                     if (this[this.constructor.ADT_NAME][methodName]) {
                         return this[this.constructor.ADT_NAME][methodName](...args);
                     } else {
-                        return console.log(this[this.constructor.ADT_NAME], methodName, ...args);
+                        if (Utils.isDev()) {
+                            console.log(this[this.constructor.ADT_NAME], methodName, ...args);
+                        }
                     }
                     // return this[this.constructor.ADT_NAME][methodName](...args);
                 };
@@ -267,12 +269,7 @@ export default class Visualizer extends PureComponent {
         if (Utils.isDev()) {
             window.vis = this.visualization;
         } else {
-            let log = console.log;
-            console.log = (...args) => {
-                if (args[0] !== "animation in progress") {
-                    log(...args);
-                }
-            };
+            
         }
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);
