@@ -58,21 +58,65 @@ export const SiteMap =
                         link: "arraylist",
                         title_text: "ArrayList",
                         component: ArrayListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "sll",
                         title_text: "Singly LinkedList",
                         component: SinglyLinkedListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "dll",
                         title_text: "Doubly LinkedList",
                         component: DoublyLinkedListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "c-sll",
                         title_text: "Circular Singly LinkedList",
                         component: CircularSinglyLinkedListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },
@@ -84,31 +128,97 @@ export const SiteMap =
                         link: "stack-array",
                         title_text: "Stack (Array)",
                         component: StackArrayVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "stack-linkedlist",
                         title_text: "Stack (LinkedList)",
                         component: StackLinkedListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "queue-array",
                         title_text: "Queue (Array)",
                         component: QueueArrayVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "queue-linkedlist",
                         title_text: "Queue (LinkedList)",
                         component: QueueLinkedListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "deque-array",
                         title_text: "Deque (Array)",
                         component: DequeArrayVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "deque-linkedlist",
                         title_text: "Deque (LinkedList)",
                         component: DequeLinkedListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },
@@ -120,31 +230,97 @@ export const SiteMap =
                         link: "bst",
                         title_text: "Binary Search Tree",
                         component: BSTVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "heap-pq",
                         title_text: "Heap / Priority Queue",
                         component: HeapVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "avl",
                         title_text: "AVL",
                         component: AVLVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "24-tree",
                         title_text: "2-4 Tree",
                         component: BTreeVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "splaytree",
                         title_text: "SplayTree",
                         component: SplayTreeVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "skiplist",
                         title_text: "SkipList",
                         component: SkipListVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },
@@ -156,11 +332,33 @@ export const SiteMap =
                         link: "hashmap-probing",
                         title_text: "HashMap (Probing)",
                         component: HashMapProbingVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "hashmap-chaining",
                         title_text: "HashMap (Chaining)",
                         component: HashMapChainingVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },
@@ -179,41 +377,129 @@ export const SiteMap =
                         link: "bubble-sort",
                         title_text: "Bubble Sort",
                         component: BubbleSortVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "cocktail-shaker-sort",
                         title_text: "Cocktail Shaker Sort",
                         component: CocktailShakerSortVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "insertion-sort",
                         title_text: "Insertion Sort",
                         component: InsertionSortVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "selection-sort",
                         title_text: "Selection Sort",
                         component: SelectionSortVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "quick-sort",
                         title_text: "Quick Sort",
                         component: QuickSortVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "quick-select",
                         title_text: "Quick Select / kᵗʰ select",
                         component: QuickSelectVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "merge-sort",
                         title_text: "Merge Sort",
                         component: MergeSortVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "lsd-radix-sort",
                         title_text: "LSD Radix Sort",
                         component: LSDRadixSortVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },
@@ -225,21 +511,65 @@ export const SiteMap =
                         link: "brute-force",
                         title_text: "Brute Force",
                         component: BruteForceVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "boyer-moore",
                         title_text: "Boyer Moore",
                         component: BoyerMooreVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "kmp",
                         title_text: "KMP",
                         component: KMPVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "rabin-karp",
                         title_text: "Rabin Karp",
                         component: RabinKarpVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },
@@ -251,26 +581,81 @@ export const SiteMap =
                         link: "bfs",
                         title_text: "Breadth-First Search",
                         component: BFSVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "dfs",
                         title_text: "Depth-First Search",
                         component: DFSVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "dijkstras",
                         title_text: "Dijkstra's",
                         component: DijkstrasVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "prims",
                         title_text: "Prim's",
                         component: PrimsVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "kruskals",
                         title_text: "Kruskal's",
                         component: KruskalsVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },
@@ -282,11 +667,33 @@ export const SiteMap =
                         link: "lcs",
                         title_text: "LCS",
                         component: LCSVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                     {
                         link: "floyd-warshall",
                         title_text: "Floyd-Warshall",
                         component: FloydWarshallVisualizer,
+                        bigOData: {
+                            defaultConfig: {
+                                name: "",
+                                op1Name: {
+                                    best: "O()",
+                                    average: "O()",
+                                    worst: "O()",
+                                    amortized: "O()",
+                                },
+                            },
+                        }
                     },
                 ],
             },

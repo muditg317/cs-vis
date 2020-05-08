@@ -14,10 +14,10 @@ const BigOWindow = React.forwardRef((props, ref) => {
             }
         }
         document.addEventListener("click", documentClickHandler);
-        console.log("open big o");
+        // console.log("open big o");
         return () => {
             document.removeEventListener("click", documentClickHandler);
-            console.log("close big o");
+            // console.log("close big o");
         }
     }, [closeBigODisplay]);
 
@@ -26,7 +26,9 @@ const BigOWindow = React.forwardRef((props, ref) => {
     return (
             <div className="big-o-window-container" ref={ref}>
                 <div className="big-o-window" ref={containerRef}>
-                    <FontAwesomeIcon id="exit-big-o" icon={["far","times-circle"]} onClick={closeBigODisplay }/>
+                    <FontAwesomeIcon id="exit-big-o" icon={["far","times-circle"]} className="hoverable-icon" onClick={closeBigODisplay }/>
+                    <p id="close-box-tip">(Click outside to close.)</p>
+                    <h2 id="big-o-title">{props.title} Big-O</h2>
                 </div>
             </div>
         );

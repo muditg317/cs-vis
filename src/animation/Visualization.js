@@ -666,9 +666,12 @@ export default class Visualization {
             p5.fill(...this.displayTextColor);
             p5.textSize(15);
             p5.textAlign(p5.LEFT, p5.TOP);
-            p5.text(this.displayText, 2.5,2.5, this.width,60);
+            p5.text(this.displayText, 2.5,2.5, p5.width-2.5,(this.getDisplayTextExtraLines(p5) + 1)*20);
         }
         p5.pop();
+        if (this.constructor.SUPPORTS_TEXT) {
+            p5.translate(0,this.getDisplayTextExtraLines(p5)*20);
+        }
     }
 
     mousePressed(p5) {
@@ -679,26 +682,51 @@ export default class Visualization {
         return true;
     }
 
-    windowResized(p5, height, numScrollbars, maxY, callback) {
+    getDisplayTextExtraLines(p5) {
+        p5.push();
+        p5.textSize(15);
+        let width = p5.textWidth(this.displayText);
+        let lines = Math.ceil(width / (p5.width - 10));
+        // console.log(width,lines);
+        p5.pop();
+        return lines - 1;
+    }
+
+    windowResized(p5, height, numScrollbars, maxY, callback, maxWidth) {
+        maxY += this.getDisplayTextExtraLines(p5)*20;
         if (!document.querySelector(".canvas-container").classList.contains("mobile")) {
             height -= numScrollbars * 16;
         }
         let width = p5.windowWidth;
         if (maxY > (height - (2*this.y))) {
-            height = (maxY + (3*this.y))
+            height = (maxY + (3*this.y));
             if (!document.querySelector(".canvas-container").classList.contains("mobile")) {
                 width -= 16;
             }
-            document.querySelector(".canvas-container").classList.add("overflow");
+            document.querySelector(".canvas-container").classList.add("overflow-y");
         } else {
-            document.querySelector(".canvas-container").classList.remove("overflow");
+            document.querySelector(".canvas-container").classList.remove("overflow-y");
+        }
+        if (maxWidth) {
+            if (maxWidth > (width - (2*this.x))) {
+                width = (maxWidth + (4*this.x));
+                if (!document.querySelector(".canvas-container").classList.contains("mobile")) {
+                    height -= 16;
+                    if (maxY > (height - (3*this.y))) {
+                        height = (maxY + (3*this.y));
+                        document.querySelector(".canvas-container").classList.add("overflow-y");
+                    } else {
+                        document.querySelector(".canvas-container").classList.remove("overflow-y");
+                    }
+                }
+                document.querySelector(".canvas-container").classList.add("overflow-x");
+            } else {
+                document.querySelector(".canvas-container").classList.remove("overflow-x");
+            }
         }
 
-        if (height > p5.height) {
-            p5.resizeCanvas(width, height);
-        } else {
-            p5.resizeCanvas(width, p5.height);
-        }
+        height = Math.max(height, p5.height);
+        p5.resizeCanvas(width, height);
 
         if (this.constructor.SET_BOUNDS) {
             this.width = p5.width - 2 * this.x;

@@ -59,7 +59,6 @@
         color: #fff;
         text-align: center;
         border-radius: 0.5em;
-        border: medium solid #778beb;
         padding: 0 0.3em;
 
         /* Position the tooltip */
@@ -69,10 +68,13 @@
         // left: 60%;
 
         font-size: 0.8em;
+        $delay: 0.4s;
+        transition: visibility $delay step-end;
     }
 
     &:hover:not(.mobile)::after {
         visibility: visible;
+        border: medium solid #778beb;
         content: attr(data-tooltip);
     }
 
@@ -106,5 +108,12 @@
         &[tt-left-#{$perc*10}]::after {
             right: #{$perc*10%};
         }
+    }
+}
+
+.hoverable-icon {
+    border-radius: 50%;
+    &:hover:not([disabled]) {
+        background: #0003;
     }
 }

@@ -28,5 +28,16 @@
             top: 1em;
             right: 1em;
         }
+        &>#close-box-tip {
+            position: absolute;
+            top: 0.5em;
+            left: 0.5em;
+            font-size: 0.8em;
+            margin: 0;
+        }
+
+        &>#big-o-title {
+            margin-left: 1em;
+        }
     }
 }

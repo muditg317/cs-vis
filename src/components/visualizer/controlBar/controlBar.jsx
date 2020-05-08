@@ -96,7 +96,7 @@ export default class ControlBar extends PureComponent {
                                         {this.mainLabel}
                                     </p>
                                     <div id="big-o-icon" data-tooltip="Big-O Info" tt-bottom="" tt-right="" onClick={this.props.showBigODisplay}>
-                                        <FontAwesomeIcon icon={["far","clock"]} fixedWidth size="lg" />
+                                        <FontAwesomeIcon icon={["far","clock"]} size="lg" className="hoverable-icon" />
                                         {// <span id="big-o-tooltip" className="tooltip tt-bottom tt-right">Big-O Info</span>
                                         }
                                     </div>

@@ -5,7 +5,7 @@ import './visualizer-type.scss';
 import { SiteMap } from 'utils';
 import { default as VisualizerTitle } from './visualizer-title';
 
-export const VisualizerType = (props) => {
+export const BigOType = (props) => {
     let match = useRouteMatch({
         path: `/${props.group}/${props.type}/:visualizerClass`
     });

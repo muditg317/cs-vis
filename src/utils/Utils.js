@@ -30,7 +30,7 @@ export function unfoldUndoRedo(object) {
     }
 }
 
-export const DOM_CLASSES_USING_MOBILE = ["tooltip-container","canvas-container"];
+export const DOM_SELECORS_USING_MOBILE = ["[data-tooltip]",".canvas-container"];
 
 export function isMobile() {
     return window.ontouchstart !== undefined;
@@ -38,8 +38,8 @@ export function isMobile() {
 
 export function addMobileClasses() {
     if (isMobile()) {
-        DOM_CLASSES_USING_MOBILE.forEach((className) => {
-            document.querySelectorAll(`.${className}`).forEach((node) => {
+        DOM_SELECORS_USING_MOBILE.forEach((selector) => {
+            document.querySelectorAll(`${selector}`).forEach((node) => {
                 node.classList.add("mobile");
                 console.log(node);
             });

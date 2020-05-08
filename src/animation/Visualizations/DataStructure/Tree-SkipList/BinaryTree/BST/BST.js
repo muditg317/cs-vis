@@ -599,6 +599,28 @@ export default class BST extends Visualization {
         return this.getNodeY(this.root ? this.root.height + 1 : 1) + 20;
     }
 
+    getMaxWidth() {
+        if (!this.root) {
+            return BST.ROOT_X+BST.ROOT_SIZE;
+        }
+        let order = [];
+        let curr = this.root;
+        while (curr.left) {
+            curr = curr.left;
+        }
+        let centerIndex = 0;
+        while (curr) {
+            order.push(curr);
+            curr = curr.rightBoundingNode;
+            if (curr === this.root) {
+                centerIndex = order.length;
+            }
+        }
+        let leftOffset = centerIndex * order[0].constructor.HSPACE;
+        let rightOffset = (order.length - 1 - centerIndex) * order[0].constructor.HSPACE;
+        return Math.max(leftOffset,rightOffset)*2+order[0].constructor.SIZE;
+    }
+
     pin(node, x,y) {
         this.pinnedNode = node;
         node.pin(x,y);
@@ -707,7 +729,7 @@ export default class BST extends Visualization {
             if (shiftTemp) {
                 this.tempNode.shift(20,20);
             }
-        });
+        }, this.getMaxWidth());
     }
 }
 

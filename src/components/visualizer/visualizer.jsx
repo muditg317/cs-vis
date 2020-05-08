@@ -54,7 +54,6 @@ export default class Visualizer extends PureComponent {
         this.mouseReleased = this.mouseReleased.bind(this);
         this.windowResized = this.windowResized.bind(this);
 
-
         this.controlBarRef = React.createRef();
 
         this.controlGroups = [];
@@ -88,6 +87,7 @@ export default class Visualizer extends PureComponent {
         this.state = {
             showBigO: false
         };
+        this.disabledControls = [];
         this.bigOWindow = React.createRef();
     }
 
@@ -99,8 +99,8 @@ export default class Visualizer extends PureComponent {
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_ANIMATION_CONTROL) {
             ControlBuilder.applyNewCallbackButton(this, {name: "skipBack", longName: "Skip Back",
                     options: {
-                        tooltipText: "Shift+←",
                         attributes: {
+                            "data-tooltip": "Shift+←",
                             "tt-bottom-110":true,
                             "tt-left-0":true,
                             disabled: true
@@ -109,8 +109,8 @@ export default class Visualizer extends PureComponent {
                 }});
             ControlBuilder.applyNewCallbackButton(this, {name: "stepBack", longName: "Step Back",
                     options: {
-                        tooltipText: "←",
                         attributes: {
+                            "data-tooltip": "←",
                             "tt-bottom-110":true,
                             "tt-left-0":true,
                             disabled: true
@@ -119,19 +119,19 @@ export default class Visualizer extends PureComponent {
                 }});
             ControlBuilder.applyNewCallbackButton(this, {name: "playPause", longName: "Pause",
                     options: {
-                        tooltipText: "SpaceBar",
                         attributes: {
+                            "data-tooltip": "SpaceBar",
                             "tt-bottom-110":true,
                             "tt-h-mid":true
                         },
                 }});
             this.animator.on("enable-playPause", () => {
-                this.playPauseButton.setAttribute("value", this.visualization.paused ? "Play" : "Pause");
+                this.playPauseButton.innerHTML = this.visualization.paused ? "Play" : "Pause";
             });
             ControlBuilder.applyNewCallbackButton(this, {name: "stepForward", longName: "Step Forward",
                     options: {
-                        tooltipText: "→",
                         attributes: {
+                            "data-tooltip": "→",
                             "tt-bottom-110":true,
                             "tt-right-0":true,
                             disabled: true
@@ -140,8 +140,8 @@ export default class Visualizer extends PureComponent {
                 }});
             ControlBuilder.applyNewCallbackButton(this, {name: "skipForward", longName: "Skip Forward",
                     options: {
-                        tooltipText: "Shift+→",
                         attributes: {
+                            "data-tooltip": "Shift+→",
                             "tt-bottom-110":true,
                             "tt-right-0":true,
                             disabled: true
@@ -453,10 +453,21 @@ export default class Visualizer extends PureComponent {
 
     showBigODisplay() {
         this.setState({showBigO: true});
+        this.disabledControls = [];
+        document.querySelectorAll(".control-bar input, .control-bar button").forEach((input) => {
+            if (!input.disabled) {
+                this.disabledControls.push(input);
+                input.disabled = true;
+            }
+        });
+
     }
 
     closeBigODisplay() {
         this.setState({showBigO: false});
+        while (this.disabledControls.length) {
+            this.disabledControls.pop().disabled = false;
+        }
     }
 
     render() {

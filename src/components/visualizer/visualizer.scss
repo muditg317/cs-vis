@@ -1,9 +1,14 @@
 .canvas-container {
     height: -webkit-fill-available;
-    overflow: hidden;
-    // overflow-y: scroll;
-}
-.canvas-container.overflow, .mobile {
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: hidden;
+
+    &.overflow-y, .mobile {
+        // overflow-x: hidden;
+        overflow-y: scroll;
+    }
+
+    &.overflow-x, .mobile {
+        overflow-x: scroll;
+    }
 }
