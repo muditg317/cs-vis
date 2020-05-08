@@ -20,35 +20,20 @@ export default class DequeArray extends Visualization {
     static SIZE_LOCATION_X = 125;
     static SIZE_LOCATION_Y = 55;
 
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-        this.made = true;
-    }
-
     reset() {
-        super.reset();
-        if (this.made) {
-            this.beginDrawLoop();
-        }
-
-        this.backingArray = new Array(DequeArray.INITIAL_CAPACITY);
-        this.size = 0;
-        this.copyArray = null;
-        this.tempElement = null;
-        this.frontPointerValue = 0;
-        this.frontPointerHighlighter = new AttractedHighlightableObject(DequeArray.FRONT_LOCATION_X, DequeArray.FRONT_LOCATION_Y, {
-            highlightOuterRadius: 15
+        super.reset(() => {
+            this.backingArray = new Array(DequeArray.INITIAL_CAPACITY);
+            this.size = 0;
+            this.copyArray = null;
+            this.tempElement = null;
+            this.frontPointerValue = 0;
+            this.frontPointerHighlighter = new AttractedHighlightableObject(DequeArray.FRONT_LOCATION_X, DequeArray.FRONT_LOCATION_Y, {
+                highlightOuterRadius: 15
+            });
+            this.sizePointerHighlighter = new AttractedHighlightableObject(DequeArray.SIZE_LOCATION_X, DequeArray.SIZE_LOCATION_Y, {
+                highlightOuterRadius: 15
+            });
         });
-        this.sizePointerHighlighter = new AttractedHighlightableObject(DequeArray.SIZE_LOCATION_X, DequeArray.SIZE_LOCATION_Y, {
-            highlightOuterRadius: 15
-        });
-
-        if (this.made) {
-            // this.updateText("Animation Ready");
-            this.endDrawLoop();
-        }
     }
 
     ensureDrawn(skipDraw = false) {
@@ -104,8 +89,7 @@ export default class DequeArray extends Visualization {
 
 
     add(data,front) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -148,8 +132,7 @@ export default class DequeArray extends Visualization {
     }
 
     remove(front) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();

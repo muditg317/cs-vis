@@ -47,3 +47,64 @@
     width: 100%;
     position: relative;
 }
+
+[data-tooltip] {
+    position: relative;
+
+    &::after {
+        content: "";
+        visibility: hidden;
+        width: max-content;
+        background-color: #aaa;
+        color: #fff;
+        text-align: center;
+        border-radius: 0.5em;
+        border: medium solid #778beb;
+        padding: 0 0.3em;
+
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 1;
+        // top: 70%;
+        // left: 60%;
+
+        font-size: 0.8em;
+    }
+
+    &:hover:not(.mobile)::after {
+        visibility: visible;
+        content: attr(data-tooltip);
+    }
+
+    &[tt-top]::after {
+        bottom: 70%;
+    }
+    &[tt-bottom]::after {
+        top: 70%;
+    }
+    &[tt-right]::after {
+        left: 60%;
+    }
+    &[tt-left]::after {
+        right: 60%;
+    }
+    &[tt-h-mid]::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    @for $perc from 0 through 12 {
+        &[tt-top-#{$perc*10}]::after {
+            bottom: #{$perc*10%};
+        }
+        &[tt-bottom-#{$perc*10}]::after {
+            top: #{$perc*10%};
+        }
+        &[tt-right-#{$perc*10}]::after {
+            left: #{$perc*10%};
+        }
+        &[tt-left-#{$perc*10}]::after {
+            right: #{$perc*10%};
+        }
+    }
+}

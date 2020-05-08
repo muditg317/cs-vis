@@ -3,11 +3,15 @@ import Sketch from 'react-p5';
 import './visualizer.scss';
 
 import ControlBar from './controlBar';
+import BigOWindow from './bigOWindow';
 
 import { ControlBuilder, Utils } from 'utils';
 import { Animator } from 'animation';
 
 export default class Visualizer extends PureComponent {
+    static VISUALIZATION_METHODS = ["skipBack","stepBack","playPause","stepForward","skipForward"];
+
+    static CONTROLS_ONLY_ACTIVE_UNPAUSED = ["radio","checkbox"];
 
     static INITIAL_SPEED = 50;
     static MAX_SPEED = 20;
@@ -24,8 +28,8 @@ export default class Visualizer extends PureComponent {
 
         //INHERIT METHODS FROM VISUALIZATION
         let currConstructor = this.constructor;
-        while (currConstructor.VISUALIZATION_METHODS) {
-            currConstructor.VISUALIZATION_METHODS.forEach((methodName) => {
+        while (currConstructor) {
+            (currConstructor.VISUALIZATION_METHODS || []).forEach((methodName) => {
                 this[methodName] = (...args) => {
                     if (this[this.constructor.ADT_NAME][methodName]) {
                         return this[this.constructor.ADT_NAME][methodName](...args);
@@ -80,6 +84,11 @@ export default class Visualizer extends PureComponent {
         this.addControlLabel(this.constructor.NAME);
         this.addControls();
         this.addDefaultControls();
+
+        this.state = {
+            showBigO: false
+        };
+        this.bigOWindow = React.createRef();
     }
 
     addDefaultControls() {
@@ -88,60 +97,59 @@ export default class Visualizer extends PureComponent {
         let speedSliderGroup = ControlBuilder.createControlGroup("speedSliderGroup", this.speedSlider, sliderLabel);
         let extraGroups = []
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_ANIMATION_CONTROL) {
-            let skipBackButton = ControlBuilder.createButton("Skip Back");
-            skipBackButton.addEventListener("click", () => {
-                this.visualization.skipBack();
-            });
-            skipBackButton.disabled = true;
-            this.animator.on("disable-skipBack", () => {
-                skipBackButton.disabled = true;
-            });
-            this.animator.on("enable-skipBack", () => {
-                skipBackButton.disabled = false;
-            });
-            let stepBackButton = ControlBuilder.createButton("Step Back");
-            stepBackButton.addEventListener("click", () => {
-                this.visualization.stepBack();
-            });
-            stepBackButton.disabled = true;
-            this.animator.on("disable-stepBack", () => {
-                stepBackButton.disabled = true;
-            });
-            this.animator.on("enable-stepBack", () => {
-                stepBackButton.disabled = false;
-            });
-            let playPauseButton = ControlBuilder.createButton("Pause");
-            playPauseButton.addEventListener("click", () => {
-                this.visualization.playPause();
-                playPauseButton.setAttribute("value", this.visualization.paused ? "Play" : "Pause");
-            });
+            ControlBuilder.applyNewCallbackButton(this, {name: "skipBack", longName: "Skip Back",
+                    options: {
+                        tooltipText: "Shift+←",
+                        attributes: {
+                            "tt-bottom-110":true,
+                            "tt-left-0":true,
+                            disabled: true
+                        },
+                        addAnimatorEnableDisable: true
+                }});
+            ControlBuilder.applyNewCallbackButton(this, {name: "stepBack", longName: "Step Back",
+                    options: {
+                        tooltipText: "←",
+                        attributes: {
+                            "tt-bottom-110":true,
+                            "tt-left-0":true,
+                            disabled: true
+                        },
+                        addAnimatorEnableDisable: true
+                }});
+            ControlBuilder.applyNewCallbackButton(this, {name: "playPause", longName: "Pause",
+                    options: {
+                        tooltipText: "SpaceBar",
+                        attributes: {
+                            "tt-bottom-110":true,
+                            "tt-h-mid":true
+                        },
+                }});
             this.animator.on("enable-playPause", () => {
-                playPauseButton.setAttribute("value", this.visualization.paused ? "Play" : "Pause");
+                this.playPauseButton.setAttribute("value", this.visualization.paused ? "Play" : "Pause");
             });
-            let stepForwardButton = ControlBuilder.createButton("Step Forward");
-            stepForwardButton.addEventListener("click", () => {
-                this.visualization.stepForward();
-            });
-            stepForwardButton.disabled = true;
-            this.animator.on("disable-stepForward", () => {
-                stepForwardButton.disabled = true;
-            });
-            this.animator.on("enable-stepForward", () => {
-                stepForwardButton.disabled = false;
-            });
-            let skipForwardButton = ControlBuilder.createButton("Skip Forward");
-            skipForwardButton.addEventListener("click", () => {
-                this.visualization.skipForward();
-            });
-            skipForwardButton.disabled = true;
-            this.animator.on("disable-skipForward", () => {
-                skipForwardButton.disabled = true;
-            });
-            this.animator.on("enable-skipForward", () => {
-                skipForwardButton.disabled = false;
-            });
+            ControlBuilder.applyNewCallbackButton(this, {name: "stepForward", longName: "Step Forward",
+                    options: {
+                        tooltipText: "→",
+                        attributes: {
+                            "tt-bottom-110":true,
+                            "tt-right-0":true,
+                            disabled: true
+                        },
+                        addAnimatorEnableDisable: true
+                }});
+            ControlBuilder.applyNewCallbackButton(this, {name: "skipForward", longName: "Skip Forward",
+                    options: {
+                        tooltipText: "Shift+→",
+                        attributes: {
+                            "tt-bottom-110":true,
+                            "tt-right-0":true,
+                            disabled: true
+                        },
+                        addAnimatorEnableDisable: true
+                }});
 
-            extraGroups.push(ControlBuilder.createControlGroup("stepButtonGroup",skipBackButton,stepBackButton,playPauseButton,stepForwardButton,skipForwardButton));
+            extraGroups.push(ControlBuilder.createControlGroup("stepButtonGroup",this.skipBackButton,this.stepBackButton,this.playPauseButton,this.stepForwardButton,this.skipForwardButton));
             let animationControls = ControlBuilder.createControlGroup("animationControls",...extraGroups);
             // ControlBuilder.applyStyle(animationControls,"width","441px");
             this.defaultControlGroups.push(animationControls);
@@ -159,7 +167,7 @@ export default class Visualizer extends PureComponent {
     addControlGroups(...controlGroups) {
         this.controlGroups.push(...controlGroups);
         controlGroups.forEach((controlGroup) => {
-            if (controlGroup.tagName === "INPUT") {
+            if (!controlGroup.classList.contains("control-group")) {
                 this.controls.push(controlGroup);
             } else {
                 this.registerControlGroup(controlGroup);
@@ -169,7 +177,7 @@ export default class Visualizer extends PureComponent {
 
     registerControlGroup(controlGroup) {
         controlGroup.childNodes.forEach((child) => {
-            if (child.tagName === "INPUT") {
+            if (!controlGroup.classList.contains("control-group")) {
                 this.controls.push(child);
             } else {
                 this.registerControlGroup(child);
@@ -206,7 +214,7 @@ export default class Visualizer extends PureComponent {
     enableUI() {
         // console.log("enable");
         this.controls.forEach((control) => {
-            control.disabled = false;
+            control.disabled = this.visualization.paused && this.constructor.CONTROLS_ONLY_ACTIVE_UNPAUSED.includes(control.type);
             if (control === this.focusedElement) {
                 control.focus();
             }
@@ -236,25 +244,26 @@ export default class Visualizer extends PureComponent {
                     this.pressedDict[event.key] = true;
                     this.controlPressed = event.key === "Control" || this.controlPressed;
                     this.shiftPressed = event.key === "Shift" || this.shiftPressed;
+                    let visEventHappened = false;
                     if (event.key === "z" && this.controlPressed) {
-                        this.visualization.undo();
-                    }
-                    if (event.key === "ArrowLeft") {
+                        visEventHappened = this.visualization.undo();
+                    } else if (event.key === "ArrowLeft") {
                         if (this.shiftPressed) {
-                            this.visualization.skipBack();
+                            visEventHappened = this.visualization.skipBack();
                         } else {
-                            this.visualization.stepBack();
+                            visEventHappened = this.visualization.stepBack();
                         }
-                    }
-                    if (event.key === "ArrowRight") {
+                    } else if (event.key === "ArrowRight") {
                         if (this.shiftPressed) {
-                            this.visualization.skipForward();
+                            visEventHappened = this.visualization.skipForward();
                         } else {
-                            this.visualization.stepForward();
+                            visEventHappened = this.visualization.stepForward();
                         }
+                    } else if (event.key === " ") {
+                        visEventHappened = this.visualization.playPause();
                     }
-                    if (event.key === " ") {
-                        this.visualization.playPause();
+                    if (visEventHappened) {
+                        event.preventDefault();
                     }
                 }
             });
@@ -269,7 +278,7 @@ export default class Visualizer extends PureComponent {
         if (Utils.isDev()) {
             window.vis = this.visualization;
         } else {
-            
+
         }
         this.controlBar = this.controlBarRef.current;
         this.controlBar.setMainLabel(this.mainLabel);
@@ -286,6 +295,11 @@ export default class Visualizer extends PureComponent {
 
     componentDidUpdate(prevProps, prevState) {
         // console.log("update");
+        Utils.addMobileClasses();
+    }
+
+    componentWillUnmount() {
+
     }
 
     preload(p5) {
@@ -300,12 +314,12 @@ export default class Visualizer extends PureComponent {
                 - document.querySelector("#main-control").getBoundingClientRect().height
                 - document.querySelector("#default-control").getBoundingClientRect().height;
 
-        this.mobile = window.ontouchstart !== undefined;
-        if (this.mobile) {
-            height = 1000;
-            // document.querySelector(".canvas-container").style.height = height + "px";
-            document.querySelector(".canvas-container").classList.add("mobile");
-        }
+        // this.mobile = window.ontouchstart !== undefined;
+        // if (this.mobile) {
+        //     height = 1000;
+        //     // document.querySelector(".canvas-container").style.height = height + "px";
+        //     document.querySelector(".canvas-container").classList.add("mobile");
+        // }
 
         //config
         let canvas = p5.createCanvas(p5.windowWidth
@@ -359,6 +373,9 @@ export default class Visualizer extends PureComponent {
             // console.log("loop");
             p5.loop();
         });
+        // this.animator.on("paused", () => {
+        //
+        // });
         this.animator.on("testWindowSize", () => {
             // this.visualization.resizing = true;
             this.testVisualizationDimensions(p5);
@@ -434,13 +451,23 @@ export default class Visualizer extends PureComponent {
         this.testVisualizationDimensions(p5);
     }
 
+    showBigODisplay() {
+        this.setState({showBigO: true});
+    }
+
+    closeBigODisplay() {
+        this.setState({showBigO: false});
+    }
 
     render() {
         return (
                 <div className={`visualizer ${this.constructor.DIV_CLASS}`}>
-                    <ControlBar ref={this.controlBarRef}/>
+                    <ControlBar ref={this.controlBarRef} showBigODisplay={this.showBigODisplay.bind(this)}/>
+                    {this.state.showBigO &&
+                        <BigOWindow ref={this.bigOWindow} title={this.mainLabel} closeBigODisplay={this.closeBigODisplay.bind(this)}/>
+                    }
                     {
-                        true || this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
+                        this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
                                 <div className="canvas-container">
                                     {
                                         this.mounted ?

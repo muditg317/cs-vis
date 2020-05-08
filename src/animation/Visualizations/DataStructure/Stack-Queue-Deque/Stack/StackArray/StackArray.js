@@ -16,37 +16,23 @@ export default class StackArray extends Visualization {
     static TOP_LOCATION_X = 125;
     static TOP_LOCATION_Y = 45;
 
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-        this.made = true;
-    }
-
     reset() {
-        if (this.made) {
-            this.beginDrawLoop();
-        }
-        super.reset();
-        this.backingArray = new Array(StackArray.INITIAL_CAPACITY);
-        this.size = 0;
-        this.copyArray = null;
-        this.tempElement = null;
-        this.topPointerValue = 0;
-        this.topPointerHighlighter = new AttractedHighlightableObject(StackArray.TOP_LOCATION_X, StackArray.TOP_LOCATION_Y, {
-            highlightOuterRadius: 15//StackArray.ELEMENT_SIZE/2,
-        });
+        super.reset(() => {
+            this.backingArray = new Array(StackArray.INITIAL_CAPACITY);
+            this.size = 0;
+            this.copyArray = null;
+            this.tempElement = null;
+            this.topPointerValue = 0;
+            this.topPointerHighlighter = new AttractedHighlightableObject(StackArray.TOP_LOCATION_X, StackArray.TOP_LOCATION_Y, {
+                highlightOuterRadius: 15//StackArray.ELEMENT_SIZE/2,
+            });
 
-        this.resizing = false;
-        if (this.made) {
-            this.updateText("Animation Ready");
-            this.endDrawLoop();
-        }
+            this.resizing = false;
+        });
     }
 
     push(data) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -72,8 +58,7 @@ export default class StackArray extends Visualization {
     }
 
     pop() {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();

@@ -168,7 +168,7 @@ export const SiteMap =
     },
     {
         link: "algorithms",
-        icon: "stack-overflow",
+        icon: ["fab","stack-overflow"],
         title_text: "Algorithms",
         types: [
             {

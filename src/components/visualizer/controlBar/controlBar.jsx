@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import './controlBar.scss';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 export default class ControlBar extends PureComponent {
 
     constructor(props) {
@@ -88,7 +90,18 @@ export default class ControlBar extends PureComponent {
                 <div className="control-bar">
                     <div className="control-container" id="main-control" ref={this.mainContainer}>
                         <div className="control-wrapper">
-                            {this.mainLabel && <p className="control-label" id="main-control-label">{this.mainLabel}</p>}
+                            {this.mainLabel &&
+                                <div id="main-control-label" className="control-title">
+                                    <p className="control-label">
+                                        {this.mainLabel}
+                                    </p>
+                                    <div id="big-o-icon" data-tooltip="Big-O Info" tt-bottom="" tt-right="" onClick={this.props.showBigODisplay}>
+                                        <FontAwesomeIcon icon={["far","clock"]} fixedWidth size="lg" />
+                                        {// <span id="big-o-tooltip" className="tooltip tt-bottom tt-right">Big-O Info</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
                             <div className="controls control-group"  ref={this.controlBar}></div>
                         </div>
                     </div>

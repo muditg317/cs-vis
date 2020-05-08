@@ -20,36 +20,21 @@ export default class QueueArray extends Visualization {
     static TAIL_LOCATION_X = 125;
     static TAIL_LOCATION_Y = 55;
 
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-        this.made = true;
-    }
-
     reset() {
-        super.reset();
-        if (this.made) {
-            this.beginDrawLoop();
-        }
-
-        this.backingArray = new Array(QueueArray.INITIAL_CAPACITY);
-        this.size = 0;
-        this.copyArray = null;
-        this.tempElement = null;
-        this.headPointerValue = 0;
-        this.headPointerHighlighter = new AttractedHighlightableObject(QueueArray.HEAD_LOCATION_X, QueueArray.HEAD_LOCATION_Y, {
-            highlightOuterRadius: 15
+        super.reset(() => {
+            this.backingArray = new Array(QueueArray.INITIAL_CAPACITY);
+            this.size = 0;
+            this.copyArray = null;
+            this.tempElement = null;
+            this.headPointerValue = 0;
+            this.headPointerHighlighter = new AttractedHighlightableObject(QueueArray.HEAD_LOCATION_X, QueueArray.HEAD_LOCATION_Y, {
+                highlightOuterRadius: 15
+            });
+            this.tailPointerValue = 0;
+            this.tailPointerHighlighter = new AttractedHighlightableObject(QueueArray.TAIL_LOCATION_X, QueueArray.TAIL_LOCATION_Y, {
+                highlightOuterRadius: 15
+            });
         });
-        this.tailPointerValue = 0;
-        this.tailPointerHighlighter = new AttractedHighlightableObject(QueueArray.TAIL_LOCATION_X, QueueArray.TAIL_LOCATION_Y, {
-            highlightOuterRadius: 15
-        });
-
-        if (this.made) {
-            // this.updateText("Animation Ready");
-            this.endDrawLoop();
-        }
     }
 
     ensureDrawn(skipDraw = false) {
@@ -98,8 +83,7 @@ export default class QueueArray extends Visualization {
 
 
     enqueue(data) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -126,8 +110,7 @@ export default class QueueArray extends Visualization {
     }
 
     dequeue() {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();

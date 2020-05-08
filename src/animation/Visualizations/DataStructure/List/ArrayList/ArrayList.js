@@ -6,27 +6,20 @@ export default class ArrayList extends Visualization {
     static ELEMENT_SIZE = 50;
     static INITIAL_CAPACITY = 9;
 
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-    }
-
-
     reset() {
-        super.reset();
-        this.backingArray = {};
-        this.backingArray.length = ArrayList.INITIAL_CAPACITY;
-        for (let i = 0; i < this.backingArray.length; i++) {
-            this.backingArray[i] = new ArrayElement("");
-        }
-        this.size = 0;
+        super.reset(() => {
+            this.backingArray = {};
+            this.backingArray.length = ArrayList.INITIAL_CAPACITY;
+            for (let i = 0; i < this.backingArray.length; i++) {
+                this.backingArray[i] = new ArrayElement("");
+            }
+            this.size = 0;
+        });
     }
 
 
     addAtIndex(index, data) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         if (index < 0 || index > this.size) {
@@ -62,8 +55,7 @@ export default class ArrayList extends Visualization {
 
 
     removeFromIndex(index) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         if (index < 0 || index >= this.size) {

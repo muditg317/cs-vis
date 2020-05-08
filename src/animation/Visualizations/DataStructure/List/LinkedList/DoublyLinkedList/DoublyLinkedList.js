@@ -16,26 +16,20 @@ export default class DoublyLinkedList extends Visualization {
 
     static MAX_DIST_REMOVE = 300;
 
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-    }
-
     reset() {
-        super.reset();
-        this.head = null;
-        this.tail = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
+        super.reset(() => {
+            this.head = null;
+            this.tail = null;
+            this.size = 0;
+            this.nodes = [];
+            this.tempNode = null;
+            this.pinnedNode = null;
+        });
     }
 
 
     addAtIndex(index, data) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         if (index < 0 || index > this.size) {
@@ -93,8 +87,7 @@ export default class DoublyLinkedList extends Visualization {
 
 
     removeFromIndex(index) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         if (index < 0 || index >= this.size) {

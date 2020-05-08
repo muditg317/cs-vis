@@ -24,30 +24,17 @@ export default class QueueLinkedList extends Visualization {
     static HEAD_TAIL_X = 130;
 
 
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-        this.made = true;
-    }
-
     reset() {
-        super.reset();
-        if (this.made) {
-            this.beginDrawLoop();
-        }
+        super.reset(() => {
+            this.head = null;
+            this.tail = null;
+            this.size = 0;
+            this.nodes = [];
+            this.tempNode = null;
+            this.pinnedNode = null;
 
-        this.head = null;
-        this.tail = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
-
-        this.resizing = false;
-        if (this.made) {
-            this.endDrawLoop();
-        }
+            this.resizing = false;
+        });
     }
 
     ensureDrawn(skipDraw = false) {
@@ -82,8 +69,7 @@ export default class QueueLinkedList extends Visualization {
 
 
     enqueue(data) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -108,8 +94,7 @@ export default class QueueLinkedList extends Visualization {
 
 
     dequeue() {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();

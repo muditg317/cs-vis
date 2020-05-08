@@ -29,7 +29,7 @@ export default class Visualization {
         if (this.constructor.SUPPORTS_NO_LOOP) {
             this.drawing = false;
         } else {
-            this.drawing = true;
+            // this.drawing = true;
             delete this.beginDrawLoop;
             delete this.endDrawLoop;
         }
@@ -58,9 +58,16 @@ export default class Visualization {
         }
 
         this.reset();
+        this.made = true;
     }
 
-    reset() {
+    reset(callback) {
+        if (this.made) {
+            if (this.constructor.SUPPORTS_NO_LOOP) {
+                this.beginDrawLoop();
+            }
+        }
+
         if (this.constructor.SUPPORTS_TEXT) {
             this.displayText = "Animation Ready";
             if (this.constructor.SUPPORTS_ANIMATION_CONTROL) {
@@ -83,6 +90,19 @@ export default class Visualization {
         if (this.constructor.SUPPORTS_ANIMATION_CONTROL) {
             // this.paused = false;
         }
+
+        if (callback) {
+            callback();
+        } else {
+            this.animator.noLoop();
+        }
+
+        if (this.made) {
+            if (this.constructor.SUPPORTS_NO_LOOP) {
+                this.endDrawLoop();
+                this.stepForward();
+            }
+        }
     }
 
     noAction() {}
@@ -94,6 +114,7 @@ export default class Visualization {
         } else {
             this.pause();
         }
+        return true;
     }
 
     play() {
@@ -121,6 +142,7 @@ export default class Visualization {
     setPaused() {
         this.stopDrawing.apply(this, (this.constructor.SUPPORTS_STOP_ID ? [++this.stopID,true] : []));
         this.paused = true;
+        this.animator.emit("paused");
         this.animator.enable("playPause");
         if (this.canStepBack()) {
             this.animator.enable("stepBack");
@@ -239,6 +261,7 @@ export default class Visualization {
                         this.animator.disable("skipBack");
                     }
                 }
+                return true;
             } else if (this.animationHistory.length > 0) {
                 this.popHistoryToRunningAnimation();
                 this.stepBack();
@@ -247,6 +270,7 @@ export default class Visualization {
                 this.animator.disable("skipBack");
             }
         }
+        return false;
     }
 
     redoAnimation(nextAnimation,doDraw) {
@@ -354,12 +378,14 @@ export default class Visualization {
                     this.animator.enable("stepForward");
                     this.animator.enable("skipForward");
                 }
+                return true;
             } else {
                 this.animator.emit("anim-end");
                 this.animator.disable("stepForward");
                 this.animator.disable("skipForward");
             }
         }
+        return false;
     }
 
     canSkipBack() {
@@ -378,6 +404,7 @@ export default class Visualization {
                     this.animator.disable("skipBack");
                 }
                 this.ensureDrawn(true);
+                return true;
             } else if (this.animationHistory.length > 0) {
                 this.popHistoryToRunningAnimation();
                 this.skipBack();
@@ -386,6 +413,7 @@ export default class Visualization {
                 this.animator.disable("skipBack");
             }
         }
+        return false;
     }
 
     canSkipForward() {
@@ -408,12 +436,14 @@ export default class Visualization {
                     this.animator.disable("stepForward");
                     this.animator.disable("skipForward");
                 }
+                return true;
             } else {
                 this.animator.emit("anim-end");
                 this.animator.disable("stepForward");
                 this.animator.disable("skipForward");
             }
         }
+        return false;
     }
 
     popHistoryToRunningAnimation() {
@@ -441,6 +471,7 @@ export default class Visualization {
     undo() {
         if (this.canUndo()) {
             if (!this.paused) {
+                this.ensureDrawn(true);
                 if (this.animationQueue.length === 0 || !this.isUndoTrigger(this.animationQueue[0])) {
                     this.animationQueue.unshift({method:this.undoAction,params:[false],noAnim:true});
                 }
@@ -516,9 +547,9 @@ export default class Visualization {
                 this.animator.testWindowSize();
             }
         }
-        if (!this.constructor.SUPPORTS_INFREQUENT_RESIZE) {
-            this.animator.testWindowSize();
-        }
+        // if (!this.constructor.SUPPORTS_INFREQUENT_RESIZE) {
+        //     this.animator.testWindowSize();
+        // }
     }
 
     isAnimStart(animation) {

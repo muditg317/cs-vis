@@ -4,6 +4,13 @@ import './nav-bar.scss';
 
 import logo from 'res/images/logo.svg';
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+
+library.add(fas, far, fab);
 
 export default class NavBar extends Component {
 
@@ -65,7 +72,7 @@ export default class NavBar extends Component {
                                 <NavBarItem key={`nav-${nav_item.link}`} content={nav_item} container={this}/>
                             );
                     })}
-                    <button className="not-a-button nav-bar-item nav-item nav-item-title" id="top-nav-menu" onClick={() => this.toggleResponsiveNav()}><i className="fa fa-bars"></i></button>
+                    <button className="not-a-button nav-bar-item nav-item nav-item-title" id="top-nav-menu" onClick={() => this.toggleResponsiveNav()}><FontAwesomeIcon icon={"bars"} fixedWidth size={"sm"} /></button>
                 </div>
             );
     }
@@ -191,9 +198,9 @@ class NavBarItemTitle extends Component {
     render() {
         return (
                 this.state.parentNavItem.state.drop_down_items ?
-                    <div onMouseDown={this.onMouseDown} className="nav-bar-item-title nav-item-title" id={`nav-${this.state.link}`}><i className={`fa fa-fw fa-${this.state.icon}`}></i> {this.state.title_text}</div>
+                    <div onMouseDown={this.onMouseDown} className="nav-bar-item-title nav-item-title" id={`nav-${this.state.link}`}><FontAwesomeIcon icon={this.state.icon} fixedWidth size={this.state.icon.includes("stack-overflow") ? "1x" : "sm"} /> {this.state.title_text}</div>
                 :
-                    <Link onMouseDown={this.onMouseDown} className="nav-bar-item-title nav-item-title" id={`nav-${this.state.link}`} to={`/${this.state.link}`}><i className={`fa fa-fw fa-${this.state.icon}`}></i> {this.state.title_text}</Link>
+                    <Link onMouseDown={this.onMouseDown} className="nav-bar-item-title nav-item-title" id={`nav-${this.state.link}`} to={`/${this.state.link}`}><FontAwesomeIcon icon={this.state.icon} fixedWidth size={this.state.icon.includes("stack-overflow") ? "1x" : "sm"} /> {this.state.title_text}</Link>
             );
     }
 }

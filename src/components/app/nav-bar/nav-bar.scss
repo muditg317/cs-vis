@@ -1,4 +1,4 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+//@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 @import '../constants.scss';
 
 
@@ -101,6 +101,17 @@
 
         display: flex;
         align-items: center;
+
+        &>svg {
+            // display: inline-block;
+            // font: normal normal normal 14px/1 FontAwesome;
+            //font-size: 0.8em;
+            // text-rendering: auto;
+            // -webkit-font-smoothing: antialiased;
+            // width: 1.3em;
+            // text-align: center;
+            // font-weight: bold;
+        }
 
     }
 

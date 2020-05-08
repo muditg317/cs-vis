@@ -104,8 +104,7 @@ export default class Heap extends Visualization {
 
 
     add(data,front) {
-        if (this.animating) {
-            console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -148,8 +147,7 @@ export default class Heap extends Visualization {
     }
 
     remove(front) {
-        if (this.animating) {
-            console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();

@@ -29,3 +29,20 @@ export function unfoldUndoRedo(object) {
         }
     }
 }
+
+export const DOM_CLASSES_USING_MOBILE = ["tooltip-container","canvas-container"];
+
+export function isMobile() {
+    return window.ontouchstart !== undefined;
+}
+
+export function addMobileClasses() {
+    if (isMobile()) {
+        DOM_CLASSES_USING_MOBILE.forEach((className) => {
+            document.querySelectorAll(`.${className}`).forEach((node) => {
+                node.classList.add("mobile");
+                console.log(node);
+            });
+        });
+    }
+}

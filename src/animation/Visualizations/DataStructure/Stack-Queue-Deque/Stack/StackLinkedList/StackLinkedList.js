@@ -20,29 +20,16 @@ export default class StackLinkedList extends Visualization {
     static SPACING = 50;
     static ELEMENT_SIZE = StackLinkedList.ITEM_WIDTH + StackLinkedList.SPACING;
 
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-        this.made = true;
-    }
-
     reset() {
-        super.reset();
-        if (this.made) {
-            this.beginDrawLoop();
-        }
+        super.reset(() => {
+            this.head = null;
+            this.size = 0;
+            this.nodes = [];
+            this.tempNode = null;
+            this.pinnedNode = null;
 
-        this.head = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
-
-        this.resizing = false;
-        if (this.made) {
-            this.endDrawLoop();
-        }
+            this.resizing = false;
+        });
     }
 
     ensureDrawn(skipDraw = false) {
@@ -74,8 +61,7 @@ export default class StackLinkedList extends Visualization {
 
 
     push(data) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -101,8 +87,7 @@ export default class StackLinkedList extends Visualization {
 
 
     pop() {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();

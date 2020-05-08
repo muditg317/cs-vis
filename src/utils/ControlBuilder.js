@@ -16,8 +16,22 @@ export function createControl(type, value) {
     return newControl;
 };
 
-export function createButton(label) {
-    let button = createControl("button", label);
+export function createButton(label, options) {
+    // let button = createControl("button", label);
+
+    let button = document.createElement("button");
+    button.classList.add("visual-control", "button");
+    button.setAttribute("type", "button");
+    button.innerHTML = label;
+
+    if (options) {
+        if (options.tooltipText) {
+            button.setAttribute("data-tooltip",options.tooltipText);
+        }
+        for (let attr in options.attributes) {
+            button.setAttribute(attr, options.attributes[attr]);
+        }
+    }
 
     return button;
 };
@@ -60,13 +74,19 @@ export function addButtonSubmit(button, callback, ...fields) {
 }
 
 export function applyNewCallbackButton(visualizer, name, ...fields) {
-    let longName = name;
-    if (name.longName) {
-        longName = name.longName;
-        name = name.name;
-    }
-    visualizer[name + "Button"] = createButton(longName);
+    let longName = name.longName || name;
+    let options = name.options || undefined;
+    name = name.name || name;
+    visualizer[name + "Button"] = createButton(longName, options);
     addButtonSubmit(visualizer[name + "Button"], visualizer[name], ...fields);
+    if (options && options.addAnimatorEnableDisable) {
+        visualizer.animator.on(`disable-${name}`, () => {
+            visualizer[name + "Button"].disabled = true;
+        });
+        visualizer.animator.on(`enable-${name}`, () => {
+            visualizer[name + "Button"].disabled = false;
+        });
+    }
 }
 
 export function applyResetButton(visualizer, prompt, fieldToFocus) {
@@ -320,6 +340,10 @@ function createRadioButton(name, value) {
     buttonContainer.classList.add("radio-button-container");
     let radioButton = createControl("radio", value);
     radioButton.name = name;
+    radioButton.tabindex = 0;
+    radioButton.addEventListener("focus", (event) => {
+        radioButton.blur();
+    });
     let label = createLabel(text, radioButton);
     buttonContainer.appendChild(radioButton);
     buttonContainer.appendChild(label);
@@ -358,6 +382,10 @@ function createCheckButton(name, value) {
     buttonContainer.classList.add("check-button-container");
     let checkButton = createControl("checkbox", value);
     checkButton.name = name;
+    checkButton.tabindex = 0;
+    checkButton.addEventListener("focus", (event) => {
+        checkButton.blur();
+    });
     if (checked) {
         checkButton.checked = true;
     }

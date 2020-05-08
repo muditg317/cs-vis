@@ -24,33 +24,20 @@ export default class BST extends Visualization {
     static ROOT_Y = 20;
     static ROOT_HIGHLIGHT_DIAMETER = 10;
 
-
-    constructor(animator) {
-        super(animator);
-
-        this.reset();
-        this.made = true;
-    }
-
     reset() {
-        super.reset();
-        if (this.made) {
-            this.beginDrawLoop();
-        }
-
-        this.root = null;
-        this.size = 0;
-        this.nodes = [];
-        this.tempNode = null;
-        this.pinnedNode = null;
-        this.highlighter = new TrackingHighlighter(null, BST.ELEMENT_SIZE/2, {
-            highlightInnerRadius: BST.ELEMENT_SIZE/2
+        super.reset(() => {
+            this.root = null;
+            this.size = 0;
+            this.mode = this.mode || "Predecessor";
+            this.nodes = [];
+            this.tempNode = null;
+            this.pinnedNode = null;
+            this.highlighter = new TrackingHighlighter(null, BST.ELEMENT_SIZE/2, {
+                highlightInnerRadius: BST.ELEMENT_SIZE/2
+            });
+            this.rootPointerPos = {currentX: BST.ROOT_X + BST.ROOT_SIZE / 2 - BST.ROOT_HIGHLIGHT_DIAMETER / 2, currentY: BST.ROOT_Y + BST.ROOT_SIZE / 2 - BST.ROOT_HIGHLIGHT_DIAMETER / 2};
         });
-        this.rootPointerPos = {currentX: BST.ROOT_X + BST.ROOT_SIZE / 2 - BST.ROOT_HIGHLIGHT_DIAMETER / 2, currentY: BST.ROOT_Y + BST.ROOT_SIZE / 2 - BST.ROOT_HIGHLIGHT_DIAMETER / 2};
 
-        if (this.made) {
-            this.endDrawLoop();
-        }
     }
 
     mostDisplacedRecursive(curr) {
@@ -100,8 +87,7 @@ export default class BST extends Visualization {
 
 
     insert(data) {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -134,8 +120,7 @@ export default class BST extends Visualization {
     }
 
     delete() {
-        if (this.animating) {
-            //console.log("animation in progress");
+        if (this.animationQueue.length !== 0) {
             return false;
         }
         this.beginDrawLoop();
@@ -165,6 +150,20 @@ export default class BST extends Visualization {
 
     print() {
 
+    }
+
+    togglePredecessorSuccessor(which) {
+        if (this.animationQueue.length !== 0) {
+            return false;
+        }
+        this.beginDrawLoop();
+        let animation = [];
+        animation.push({method:this.switchMode,params:[which],explanation:`Switching BST modes`,quick:true});
+        animation.push({method:this.showText,params:[`Successfully changed to ${which} mode.`, Colors.GREEN],noAnim:true});
+        this.addAnimation(animation);
+        this.endDrawLoop();
+        this.stepForward();
+        return true;
     }
 
     insertRecursive(curr, value) {
@@ -386,6 +385,20 @@ export default class BST extends Visualization {
             this.stopDrawing(stopID);
         }
     }
+
+
+
+
+
+
+    switchMode(which) {
+        this.mode = which;
+    }
+    undo_switchMode(which) {
+        this.mode = which === "Predecessor" ? "Successor" : "Predecessor";
+    }
+
+
 
     highlightNodesUntilValueFound(value) {
         let animation = [];
