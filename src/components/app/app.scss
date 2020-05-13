@@ -12,6 +12,11 @@ html, body, #root, .app {
     background-color: #fff;
     position: relative;
     // overflow-y: hidden;
+
+    &.mobile {
+        padding-bottom: 2em;
+        box-sizing: border-box;
+    }
 }
 
 .app-content {
@@ -19,6 +24,8 @@ html, body, #root, .app {
     margin-top: $nav-bar-height;
     margin-bottom: $footer-height;
     height: -webkit-fill-available;
+
+    overflow: auto !important;
 
     // padding: 1em;
 }

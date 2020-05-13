@@ -1,8 +1,10 @@
 @import 'components/app/constants.scss';
 
 .big-o-window-container {
-    width: 80%;
-    height: 80%;
+    width: max-content;
+    max-width: 80%;
+    height: min-content;
+    max-height: 80%;
     position: absolute;
     margin: auto;
     left: 0;
@@ -16,7 +18,9 @@
 
     &>.big-o-window {
         width: 100%;
-        height: 100%;
+        height: max-content;
+        // max-height: 100%;
+        // margin: 0 8em;
         background: #f7f7f7;
         border-radius: 1em;
         border-width: thick;
@@ -38,6 +42,11 @@
 
         &>#big-o-title {
             margin-left: 1em;
+            margin-right: 1em;
+        }
+
+        .big-o-cell {
+            background-color: #f7f7f7;
         }
     }
 }

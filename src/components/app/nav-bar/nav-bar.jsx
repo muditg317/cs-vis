@@ -240,7 +240,7 @@ class NavBarDropDownItem extends Component {
         this.state = {
             link: this.props.content.link,
             title_text: this.props.content.title_text,
-            side_pane_items: this.props.content.visualizers,
+            side_pane_items: this.props.content.classes,
             parentRoute: this.props.parentRoute,
             parent: this.props.parent,
         };

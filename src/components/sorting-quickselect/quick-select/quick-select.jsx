@@ -6,5 +6,5 @@ import './quick-select.scss';
 export default class QuickSelectVisualizer extends SelectVisualizer {
     static VISUALIZATION_CLASS = QuickSelect;
     static DIV_CLASS = "quick-select";
-    static NAME = "Quick Select";
+    static NAME = "kᵗʰ Select / Quick Select";
 }

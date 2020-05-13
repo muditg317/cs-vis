@@ -53,22 +53,40 @@ export const SiteMap =
             {
                 link: "lists",
                 title_text: "Lists",
-                visualizers: [
+                classes: [
                     {
                         link: "arraylist",
                         title_text: "ArrayList",
                         component: ArrayListVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["add", "remove", "get"],
+                                cols: ["Front", "AtIndex(i)", "Back"],
+                                col1Name: "Operation",
+                                add_Front: {
+                                    average: "O(n)",
+                                },
+                                add_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                add_Back: {
+                                    amortized: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                remove_Front: {
+                                    average: "O(n)",
+                                },
+                                remove_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                remove_Back: {
+                                    average: "O(1)",
+                                },
+                                get: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "sll",
@@ -76,15 +94,47 @@ export const SiteMap =
                         component: SinglyLinkedListVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["add", "remove", "get"],
+                                cols: ["Front", "AtIndex(i)", "Back"],
+                                col1Name: "Operation",
+                                add_Front: {
+                                    average: "O(1)",
+                                },
+                                add_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                add_Back: {
+                                    average: "O(n)",
+                                },
+                                remove_Front: {
+                                    average: "O(1)",
+                                },
+                                remove_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                remove_Back: {
+                                    average: "O(n)",
+                                },
+                                get_Front: {
+                                    average: "O(1)",
+                                },
+                                get_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                get_Back: {
+                                    average: "O(n)",
                                 },
                             },
-                        }
+                            withTailConfig: {
+                                name: "With Tail Pointer",
+                                add_Back: {
+                                    newBigO: "O(1)",
+                                },
+                                get_Back: {
+                                    newBigO: "O(1)",
+                                },
+                            },
+                        },
                     },
                     {
                         link: "dll",
@@ -92,15 +142,44 @@ export const SiteMap =
                         component: DoublyLinkedListVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["add", "remove", "get"],
+                                cols: ["Front", "AtIndex(i)", "Back"],
+                                col1Name: "Operation",
+                                add_Front: {
+                                    average: "O(1)",
+                                },
+                                add_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                add_Back: {
+                                    average: "O(n)",
+                                },
+                                remove_Front: {
+                                    average: "O(1)",
+                                },
+                                remove_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                remove_Back: {
+                                    average: "O(n)",
+                                },
+                                get_Front: {
+                                    average: "O(1)",
+                                },
+                                get_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                get_Back: {
+                                    average: "O(n)",
                                 },
                             },
-                        }
+                            withTailConfig: {
+                                name: "With Tail Pointer",
+                                Back: {
+                                    newBigO: "O(1)",
+                                },
+                            },
+                        },
                     },
                     {
                         link: "c-sll",
@@ -108,53 +187,96 @@ export const SiteMap =
                         component: CircularSinglyLinkedListVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["add", "remove", "get"],
+                                cols: ["Front", "AtIndex(i)", "Back"],
+                                col1Name: "Operation",
+                                add_Front: {
+                                    average: "O(1)",
+                                },
+                                add_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                add_Back: {
+                                    average: "O(1)",
+                                },
+                                remove_Front: {
+                                    average: "O(1)",
+                                },
+                                remove_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                remove_Back: {
+                                    average: "O(n)",
+                                },
+                                get_Front: {
+                                    average: "O(1)",
+                                },
+                                get_AtIndex: {
+                                    average: "O(n)",
+                                },
+                                get_Back: {
+                                    average: "O(n)",
                                 },
                             },
-                        }
+                            withTailConfig: {
+                                name: "With Tail Pointer",
+                                get_Back: {
+                                    newBigO: "O(1)",
+                                },
+                            },
+                        },
                     },
                 ],
             },
             {
                 link: "stacks-queues-deques",
                 title_text: "Stacks/Queues/Deques",
-                visualizers: [
+                bigOOverride: "ADT_INFOS",
+                bigOData: [
+                    {
+                        title_text: "Stack",
+                        class: "stack-array"
+                    },
+                    {
+                        title_text: "Queue",
+                        class: "queue-array"
+                    },
+                    {
+                        title_text: "Deque",
+                        class: "deque-array"
+                    },
+                ],
+                classes: [
                     {
                         link: "stack-array",
                         title_text: "Stack (Array)",
                         component: StackArrayVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Array", "LinkedList"],
+                                cols: ["push", "pop", "peek"],
+                                col1Name: "Backing Structure",
+                                Array_push: {
+                                    amortized: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                Array_pop: {
+                                    average: "O(1)",
+                                },
+                                Array_peek: {
+                                    average: "O(1)",
+                                },
+                                LinkedList: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "stack-linkedlist",
                         title_text: "Stack (LinkedList)",
                         component: StackLinkedListVisualizer,
-                        bigOData: {
-                            defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
-                                },
-                            },
-                        }
+                        bigOData: ["datastructures", "stacks-queues-deques", "stack-array"],
                     },
                     {
                         link: "queue-array",
@@ -162,31 +284,54 @@ export const SiteMap =
                         component: QueueArrayVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Circular Array", "SinglyLinkedList", "DoublyLinkedList"],
+                                cols: ["enqueue", "dequeue", "peek"],
+                                col1Name: "Backing Structure",
+                                Circular_enqueue: {
+                                    amortized: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                Circular_dequeue: {
+                                    average: "O(1)",
+                                },
+                                Circular_peek: {
+                                    average: "O(1)",
+                                },
+                                SinglyLinkedList_enqueue: {
+                                    average: "O(n)",
+                                },
+                                SinglyLinkedList_dequeue: {
+                                    average: "O(1)",
+                                },
+                                SinglyLinkedList_peek: {
+                                    average: "O(1)",
+                                },
+                                DoublyLinkedList_enqueue: {
+                                    average: "O(n)",
+                                },
+                                DoublyLinkedList_dequeue: {
+                                    average: "O(1)",
+                                },
+                                DoublyLinkedList_peek: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                            withTailConfig: {
+                                name: "With Tail Pointer",
+                                SinglyLinkedList_enqueue: {
+                                    newBigO: "O(1)",
+                                },
+                                DoublyLinkedList_enqueue: {
+                                    newBigO: "O(1)",
+                                },
+                            }
+                        },
                     },
                     {
                         link: "queue-linkedlist",
                         title_text: "Queue (LinkedList)",
                         component: QueueLinkedListVisualizer,
-                        bigOData: {
-                            defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
-                                },
-                            },
-                        }
+                        bigOData: ["datastructures", "stacks-queues-deques", "queue-array"],
                     },
                     {
                         link: "deque-array",
@@ -194,53 +339,71 @@ export const SiteMap =
                         component: DequeArrayVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Circular Array", "DLL w/ Tail Pointer"],
+                                cols: ["addFirst", "addLast", "removeFirst", "removeLast"],
+                                col1Name: "Backing Structure",
+                                Circular_addFirst: {
+                                    amortized: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                Circular_addLast: {
+                                    amortized: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                Circular_removeFirst: {
+                                    average: "O(1)",
+                                },
+                                Circular_removeLast: {
+                                    average: "O(1)",
+                                },
+                                DLL: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "deque-linkedlist",
                         title_text: "Deque (LinkedList)",
                         component: DequeLinkedListVisualizer,
-                        bigOData: {
-                            defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
-                                },
-                            },
-                        }
+                        bigOData: ["datastructures", "stacks-queues-deques", "deque-array"],
                     },
                 ],
             },
             {
                 link: "trees-skiplist",
                 title_text: "Trees and SkipList",
-                visualizers: [
+                classes: [
                     {
                         link: "bst",
                         title_text: "Binary Search Tree",
                         component: BSTVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Efficiency"],
+                                cols: ["add", "remove", "search", "height", "traversal"],
+                                col1Name: "",
+                                add: {
+                                    average: "O(log(n))",
+                                    worst: "O(n)",
+                                },
+                                remove: {
+                                    average: "O(log(n))",
+                                    worst: "O(n)",
+                                },
+                                search: {
+                                    best: "O(1)",
+                                    average: "O(log(n))",
+                                    worst: "O(n)",
+                                },
+                                height: {
+                                    average: "O(n)",
+                                },
+                                traversal: {
+                                    average: "O(n)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "heap-pq",
@@ -248,15 +411,32 @@ export const SiteMap =
                         component: HeapVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Efficiency"],
+                                cols: ["add", "remove", "search", "upHeap", "downHeap", "buildHeap"],
+                                col1Name: "",
+                                add: {
+                                    best: "O(1)",
+                                    amortized: "O(log(n))",
+                                    worst: "O(n)",
+                                },
+                                remove: {
+                                    best: "O(1)",
+                                    average: "O(log(n))",
+                                },
+                                search: {
+                                    average: "O(n)",
+                                },
+                                upHeap: {
+                                    average: "O(log(n))",
+                                },
+                                downHeap: {
+                                    average: "O(log(n))",
+                                },
+                                buildHeap: {
+                                    average: "O(n)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "avl",
@@ -264,15 +444,27 @@ export const SiteMap =
                         component: AVLVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Efficiency"],
+                                cols: ["add", "remove", "search", "single rotation", "double rotation"],
+                                col1Name: "",
+                                add: {
+                                    average: "O(log(n))",
+                                },
+                                remove: {
+                                    average: "O(log(n))",
+                                },
+                                search: {
+                                    best: "O(1)",
+                                    average: "O(log(n))",
+                                },
+                                single: {
+                                    average: "O(1)",
+                                },
+                                double: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "24-tree",
@@ -280,15 +472,21 @@ export const SiteMap =
                         component: BTreeVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Efficiency"],
+                                cols: ["add", "remove", "search"],
+                                col1Name: "",
+                                add: {
+                                    average: "O(log(n))",
+                                },
+                                remove: {
+                                    average: "O(log(n))",
+                                },
+                                search: {
+                                    best: "O(1)",
+                                    average: "O(log(n))",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "splaytree",
@@ -296,15 +494,20 @@ export const SiteMap =
                         component: SplayTreeVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Efficiency"],
+                                cols: ["add", "remove", "search"],
+                                col1Name: "",
+                                add: {
+                                    average: "O(log(n))",
+                                },
+                                remove: {
+                                    average: "O(log(n))",
+                                },
+                                search: {
+                                    average: "O(log(n))",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "skiplist",
@@ -312,37 +515,59 @@ export const SiteMap =
                         component: SkipListVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Efficiency"],
+                                cols: ["add", "remove", "search", "Space"],
+                                col1Name: "",
+                                add: {
+                                    average: "O(log(n))",
+                                    worst: "O(n)",
+                                },
+                                remove: {
+                                    average: "O(log(n))",
+                                    worst: "O(n)",
+                                },
+                                search: {
+                                    best: "O(1)",
+                                    average: "O(log(n))",
+                                    worst: "O(n)",
+                                },
+                                Space: {
+                                    average: "O(n)",
+                                    worst: "O(log(n))",
                                 },
                             },
-                        }
+                        },
                     },
                 ],
             },
             {
                 link: "hashmaps",
                 title_text: "HashMaps",
-                visualizers: [
+                classes: [
                     {
                         link: "hashmap-probing",
                         title_text: "HashMap (Probing)",
                         component: HashMapProbingVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["linear/quadratic", "double hash"],
+                                cols: ["put", "remove", "search"],
+                                col1Name: "Probing Method",
+                                put: {
+                                    average: "O(1)",
+                                    worst: "O(n)",
+                                    unamortized: "O(n²)",
+                                },
+                                remove: {
+                                    average: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                search: {
+                                    average: "O(1)",
+                                    worst: "O(n)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "hashmap-chaining",
@@ -350,15 +575,35 @@ export const SiteMap =
                         component: HashMapChainingVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["LinkedList Chaining", "AVL Chaining"],
+                                cols: ["put", "remove", "search"],
+                                col1Name: "External Chain Type",
+                                LinkedList_put: {
+                                    average: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                LinkedList_remove: {
+                                    average: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                LinkedList_search: {
+                                    average: "O(1)",
+                                    worst: "O(n)",
+                                },
+                                AVL_put: {
+                                    average: "O(1)",
+                                    worst: "O(log(n))",
+                                },
+                                AVL_remove: {
+                                    average: "O(1)",
+                                    worst: "O(log(n))",
+                                },
+                                AVL_search: {
+                                    average: "O(1)",
+                                    worst: "O(log(n))",
                                 },
                             },
-                        }
+                        },
                     },
                 ],
             },
@@ -366,28 +611,34 @@ export const SiteMap =
     },
     {
         link: "algorithms",
-        icon: ["fab","stack-overflow"],
+        icon: ["fas","code-branch"],
         title_text: "Algorithms",
         types: [
             {
                 link: "sorting-quickselect",
                 title_text: "Sorting and QuickSelect",
-                visualizers: [
+                bigOOverride: "MERGE_ROWS",
+                classes: [
                     {
                         link: "bubble-sort",
                         title_text: "Bubble Sort",
                         component: BubbleSortVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Adaptive", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    best: "O(n)",
+                                    average: "O(n²)",
+                                },
+                                Stable: ["fas", "check-circle"],
+                                Adaptive: ["fas", "check-circle"],
+                                Extra: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "cocktail-shaker-sort",
@@ -395,15 +646,20 @@ export const SiteMap =
                         component: CocktailShakerSortVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Adaptive", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    best: "O(n)",
+                                    average: "O(n²)",
+                                },
+                                Stable: ["fas", "check-circle"],
+                                Adaptive: ["fas", "check-circle"],
+                                Extra: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "insertion-sort",
@@ -411,15 +667,20 @@ export const SiteMap =
                         component: InsertionSortVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Adaptive", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    best: "O(n)",
+                                    average: "O(n²)",
+                                },
+                                Stable: ["fas", "check-circle"],
+                                Adaptive: ["fas", "check-circle"],
+                                Extra: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "selection-sort",
@@ -427,15 +688,19 @@ export const SiteMap =
                         component: SelectionSortVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Adaptive", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    average: "O(n²)",
+                                },
+                                Stable: ["fas", "times-circle"],
+                                Adaptive: ["fas", "times-circle"],
+                                Extra: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "quick-sort",
@@ -443,31 +708,50 @@ export const SiteMap =
                         component: QuickSortVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Adaptive", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    average: "O(log(n))",
+                                },
+                                Stable: ["fas", "times-circle"],
+                                Adaptive: ["fas", "times-circle"],
+                                Extra: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                            pivotConfig: {
+                                name: "Pivot always @ min/max",
+                                Time: {
+                                    newBigO: "O(n²)"
+                                }
+                            },
+                        },
                     },
                     {
-                        link: "quick-select",
-                        title_text: "Quick Select / kᵗʰ select",
+                        link: "kth-select",
+                        title_text: "kᵗʰ Select / Quick Select",
                         component: QuickSelectVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    average: "O(log(n))",
+                                },
+                                Stable: ["fas", "times-circle"],
+                                Extra: {
+                                    average: "O(1)",
                                 },
                             },
-                        }
+                            pivotConfig: {
+                                name: "Pivot always @ min/max",
+                                Time: {
+                                    newBigO: "O(n²)"
+                                }
+                            },
+                        },
                     },
                     {
                         link: "merge-sort",
@@ -475,15 +759,19 @@ export const SiteMap =
                         component: MergeSortVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Adaptive", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    average: "O(n log(n))",
+                                },
+                                Stable: ["fas", "check-circle"],
+                                Adaptive: ["fas", "times-circle"],
+                                Extra: {
+                                    average: "O(n)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "lsd-radix-sort",
@@ -491,37 +779,53 @@ export const SiteMap =
                         component: LSDRadixSortVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Stable", "Adaptive", "Extra Space"],
+                                col1Name: "",
+                                Time: {
+                                    average: "O(nk)",
+                                },
+                                Stable: ["fas", "check-circle"],
+                                Adaptive: ["fas", "times-circle"],
+                                Extra: {
+                                    average: "O(n+k)",
                                 },
                             },
-                        }
+                        },
                     },
                 ],
             },
             {
                 link: "string-searching",
                 title_text: "String Searching",
-                visualizers: [
+                bigOOverride: "MERGE_ROWS",
+                classes: [
                     {
                         link: "brute-force",
                         title_text: "Brute Force",
                         component: BruteForceVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["No Matches", "Single Occurrence", "All Occurrences", "General"],
+                                col1Name: "",
+                                No: {
+                                    best: "O(n)",
+                                    explanation: "mismatches always at first character of pattern",
+                                },
+                                Single: {
+                                    best: "O(m)",
+                                },
+                                All: {
+                                    best: "O(mn)",
+                                },
+                                General: {
+                                    average: "O(mn)",
+                                    worst: "O(mn)",
+                                    explanation: "mismatches always at last character of pattern",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "boyer-moore",
@@ -529,15 +833,23 @@ export const SiteMap =
                         component: BoyerMooreVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Single Occurrence", "All Occurrences", "General"],
+                                col1Name: "",
+                                Single: {
+                                    best: "O(m)",
+                                },
+                                All: {
+                                    best: "O(m+n/m)",
+                                    explanation: "O(m): building last occurrence table\nO(n/m): best case tracing",
+                                    tier: 3,
+                                },
+                                General: {
+                                    worst: "O(mn)",
+                                    explanation: "average: implementation dependent\nworst O(mn): mismatches always at first character of pattern",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "kmp",
@@ -545,15 +857,22 @@ export const SiteMap =
                         component: KMPVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Single Occurrence", "All Occurrences", "General"],
+                                col1Name: "",
+                                Single: {
+                                    best: "O(m)",
+                                },
+                                All: {
+                                    best: "O(m+n)",
+                                },
+                                General: {
+                                    average: "O(m+n)",
+                                    worst: "O(m+n)",
+                                    explanation: "O(m) creating failure table\nO(n) tracing",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "rabin-karp",
@@ -561,37 +880,101 @@ export const SiteMap =
                         component: RabinKarpVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Single Occurrence", "All Occurrences", "General"],
+                                col1Name: "",
+                                Single: {
+                                    best: "O(m)",
+                                },
+                                All: {
+                                    best: "O(m+n)",
+                                },
+                                General: {
+                                    average: "O(m+n)",
+                                    worst: "O(mn)",
                                 },
                             },
-                        }
+                        },
                     },
                 ],
             },
             {
                 link: "graphs",
-                title_text: "Graph Algorithms",
-                visualizers: [
+                title_text: "Graph Algorithms",//do custom big o data ----- each gets time and space
+                bigOOverride: "MERGE_COLS|EXTRA_TABLES",
+                bigOData: [
+                    {
+                        title_text: "Graph Structure Performance",
+                        data: {
+                            rows: ["Space", "incidentEdges(u)", "areAdjacent(u,w)", "insertVertex(data)", "insertEdge(u,w,f)", "removeVertex(u)", "removeEdge(f)"],
+                            cols: ["AdjacencyList", "AdjacencyMatrix", "EdgeList"],
+                            col1Name: "Operation",
+                            insertEdge: {
+                                average: "O(1)",
+                            },
+                            removeEdge: {
+                                average: "O(1)",
+                            },
+                            AdjacencyMatrix: {
+                                average: "O(v²)",
+                                tier: 5,
+                            },
+                            EdgeList: {
+                                average: "O(e)",
+                                tier: 3,
+                            },
+                            Space_AdjacencyList: {
+                                average: "O(v+e)",
+                                tier: 4,
+                            },
+                            Space_EdgeList: {
+                                average: "O(v+e)",
+                                tier: 4,
+                            },
+                            incidentEdges_AdjacencyList: {
+                                average: "O(deg(u))",
+                                tier: 2,
+                            },
+                            incidentEdges_AdjacencyMatrix: {
+                                average: "O(v)",
+                                tier: 3,
+                            },
+                            areAdjacent_AdjacencyList: {
+                                average: "O(min(deg(u),deg(w)))",
+                                tier: 2,
+                            },
+                            areAdjacent_AdjacencyMatrix: {
+                                average: "O(1)",
+                            },
+                            insertVertex_AdjacencyList: {
+                                average: "O(1)",
+                            },
+                            insertVertex_EdgeList: {
+                                average: "O(1)",
+                            },
+                            removeVertex_AdjacencyList: {
+                                average: "O(deg(v))",
+                                tier: 2,
+                            },
+                        }
+                    }
+                ],
+                classes: [
                     {
                         link: "bfs",
                         title_text: "Breadth-First Search",
                         component: BFSVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time"],
+                                col1Name: "",
+                                Time: {
+                                    worst: "O(v+e)",
+                                    tier: 3,
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "dfs",
@@ -599,15 +982,15 @@ export const SiteMap =
                         component: DFSVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time"],
+                                col1Name: "",
+                                Time: {
+                                    worst: "O(v+e)",
+                                    tier: 3,
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "dijkstras",
@@ -615,15 +998,15 @@ export const SiteMap =
                         component: DijkstrasVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time"],
+                                col1Name: "",
+                                Time: {
+                                    worst: "O((v+e)log(v))",
+                                    tier: 4,
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "prims",
@@ -631,15 +1014,15 @@ export const SiteMap =
                         component: PrimsVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time"],
+                                col1Name: "",
+                                Time: {
+                                    worst: "O((v+e)log(v))",
+                                    tier: 4,
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "kruskals",
@@ -647,37 +1030,36 @@ export const SiteMap =
                         component: KruskalsVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time"],
+                                col1Name: "",
+                                Time: {
+                                    worst: "O(e log(v))",
+                                    tier: 4,
                                 },
                             },
-                        }
+                        },
                     },
                 ],
             },
             {
                 link: "dynamic",
                 title_text: "Dynamic Programming",
-                visualizers: [
+                classes: [
                     {
                         link: "lcs",
                         title_text: "LCS",
                         component: LCSVisualizer,
-                        bigOData: {
+                        bigOData: {//do time and space
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time"],
+                                col1Name: "",
+                                Time: {
+                                    average: "O(mn)",
                                 },
                             },
-                        }
+                        },
                     },
                     {
                         link: "floyd-warshall",
@@ -685,15 +1067,17 @@ export const SiteMap =
                         component: FloydWarshallVisualizer,
                         bigOData: {
                             defaultConfig: {
-                                name: "",
-                                op1Name: {
-                                    best: "O()",
-                                    average: "O()",
-                                    worst: "O()",
-                                    amortized: "O()",
+                                rows: ["Specs"],
+                                cols: ["Time", "Space"],
+                                col1Name: "",
+                                Time: {
+                                    average: "O(v³)",
+                                },
+                                Space: {
+                                    average: "O(v²)",
                                 },
                             },
-                        }
+                        },
                     },
                 ],
             },

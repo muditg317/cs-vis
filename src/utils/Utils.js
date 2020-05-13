@@ -30,7 +30,7 @@ export function unfoldUndoRedo(object) {
     }
 }
 
-export const DOM_SELECORS_USING_MOBILE = ["[data-tooltip]",".canvas-container"];
+export const DOM_SELECORS_USING_MOBILE = ["[data-tooltip]", ".canvas-container", ".app"];
 
 export function isMobile() {
     return window.ontouchstart !== undefined;
@@ -45,4 +45,18 @@ export function addMobileClasses() {
             });
         });
     }
+}
+
+export function isReactComponent(component) {
+    (typeof component === 'function' &&
+                (!!component.prototype.isReactComponent
+                    || String(component).includes('return React.createElement')))
+}
+
+export function windowWidth() {
+    return Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+}
+
+export function windowHeight() {
+    return Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 }

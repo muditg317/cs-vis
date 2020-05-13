@@ -1,0 +1,47 @@
+@import 'components/app/constants.scss';
+
+.visualizer-title {
+    @media screen and (min-width: 120em) {
+        width: 25%;
+    }
+    @media screen and (max-width: 120em) and (min-width: 90em) {
+        width: 33.333%;
+    }
+    @media screen and (max-width: 90em) and (min-width: 60em) {
+        width: 50%;
+    }
+    @media screen and (max-width: 60em) {
+        width: 100%;
+    }
+
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+
+    padding: 1em;
+    box-sizing: border-box;
+
+
+    // border:;
+
+    &>.title-text {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 0;
+        padding: 0.5em 0.1em;
+        width: -webkit-fill-available;
+        text-align: center;
+
+        background-clip: padding-box;
+        background-color: $nav-bkgd-color1;
+        background-image: linear-gradient(10deg, darken($nav-bkgd-color1,2%) 0%, lighten($nav-bkgd-color2,5%) 100%);
+
+        border-radius: 0.3em;
+        // border: solid thin black;
+        box-shadow: inset 0 0 6px 0px #999;
+
+        &:hover {
+            background-image: linear-gradient(10deg, lighten($nav-bkgd-color2,5%) 0%, darken($nav-bkgd-color1,2%) 100%);
+        }
+    }
+}

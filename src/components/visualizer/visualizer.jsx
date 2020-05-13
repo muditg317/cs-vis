@@ -473,12 +473,12 @@ export default class Visualizer extends PureComponent {
     render() {
         return (
                 <div className={`visualizer ${this.constructor.DIV_CLASS}`}>
-                    <ControlBar ref={this.controlBarRef} showBigODisplay={this.showBigODisplay.bind(this)}/>
+                    <ControlBar ref={this.controlBarRef} showBigODisplay={this.showBigODisplay.bind(this)} hasExamples={!!this.props.visualizerClass.examples && this.props.visualizerClass.examples.length > 0}/>
                     {this.state.showBigO &&
                         <BigOWindow ref={this.bigOWindow} title={this.mainLabel} closeBigODisplay={this.closeBigODisplay.bind(this)}/>
                     }
                     {
-                        this.constructor.VISUALIZATION_CLASS.USE_CANVAS ?
+                        !Utils.isReactComponent(this.constructor.VISUALIZATION_CLASS) ?
                                 <div className="canvas-container">
                                     {
                                         this.mounted ?

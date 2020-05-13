@@ -1,2 +1,2 @@
-import { VisualizerTitle } from './visualizer-title';
-export default VisualizerTitle;
+import { BigODisplay } from './big-o-display';
+export default BigODisplay;
