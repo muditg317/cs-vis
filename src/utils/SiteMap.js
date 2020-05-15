@@ -553,6 +553,7 @@ export const SiteMap =
                                 rows: ["linear/quadratic", "double hash"],
                                 cols: ["put", "remove", "search"],
                                 col1Name: "Probing Method",
+                                explanation: "requires good hash function and tolerant load factor",
                                 put: {
                                     average: "O(1)",
                                     worst: "O(n)",
@@ -578,6 +579,7 @@ export const SiteMap =
                                 rows: ["LinkedList Chaining", "AVL Chaining"],
                                 cols: ["put", "remove", "search"],
                                 col1Name: "External Chain Type",
+                                explanation: "requires good hash function and tolerant load factor",
                                 LinkedList_put: {
                                     average: "O(1)",
                                     worst: "O(n)",

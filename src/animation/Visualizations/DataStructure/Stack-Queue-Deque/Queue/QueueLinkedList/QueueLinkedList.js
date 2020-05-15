@@ -127,6 +127,9 @@ export default class QueueLinkedList extends Visualization {
         this.tempNode = null;
     }
     redo_makeNode(newTemp) {
+        if (typeof newTemp !== "object") {
+            return this.makeNode(...arguments);
+        }
         this.tempNode = newTemp;
     }
 

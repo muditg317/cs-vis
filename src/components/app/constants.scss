@@ -1,6 +1,7 @@
 //NAVBAR
-$nav-bar-height: 50px;
-$horizontal-border: 14px;
+$nav-bar-height: 3.25rem;
+$horizontal-border: 0.875rem;
+$nav-font-size: 1.2em;
 $logo-height: $nav-bar-height * 0.9;
     //COLORS
     $nav-bkgd-color1: #546de5;
@@ -13,7 +14,7 @@ $logo-height: $nav-bar-height * 0.9;
     $nav-hovor-text-color: #fff;
 
 //FOOTER
-$footer-height: 0px;
+$footer-height: 0;
     //COLORS
     $footer-bkgd-color1: #546de5;
     $footer-bkgd-color2: #778beb;

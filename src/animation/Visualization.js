@@ -5,11 +5,58 @@ export default class Visualization {
 
     static LOG_UNDO_REDO = false;
     static LOG_ANIMATIONS = false;
+    static LOG_DONE_ANIMATING = false;
     static LOG_DRAW = false;
+    static TEST_ANIMATION_STEPS = false;
 
-    constructor(animator) {
+    testAnimation(howMany = 1) {
+        this.animationHistory.slice(-howMany).forEach(animationSet => {
+            let stepData = animationSet.map(animation => {
+                return {
+                    method: animation.method.name,
+                    isBackStep: animation.isBackStep || animation.isAnimationStep,
+                    isForwardStep: animation.isForwardStep || animation.isAnimationStep
+                };
+            });
+            let success = true;
+            let i = 0;
+            let alsoForward = false;
+            while (i < stepData.length) {
+                let lastForward = alsoForward ? i - 1 : null;
+                while (i < stepData.length && !stepData[i].isBackStep) {
+                    console.log(stepData[i]);
+                    if (stepData[i].isForwardStep) {
+                        if (lastForward !== null) {
+                            console.log("EARLY FORWARD");
+                            success = false;
+                        }
+                        lastForward = i;
+                    }
+                    i++;
+                }
+                if (i < stepData.length) {
+                    console.log(stepData[i]);
+                    if (lastForward === null) {
+                        console.log("EARLY BACK");
+                        success = false;
+                    }
+                    alsoForward = stepData[i].isForwardStep;
+                }
+                i++;
+            }
+            if (success) {
+                console.log("ANIMATION PASSED");
+            }
+        });
+    }
+
+    constructor(animator, width, height) {
         this.x = 20;
         this.y = 20;
+        if (this.constructor.SET_BOUNDS) {
+            this.width = width;
+            this.height = height;
+        }
 
         if (this.constructor.SUPPORTS_TEXT) {
             // this.displayText = "Animation Ready";
@@ -167,9 +214,13 @@ export default class Visualization {
             }
         }
         for (let i = this.animationHistory.length - 1; i >= 0; i--) {
-            for (let j = this.animationHistory[i].length - 1; j >= 0; j++) {
-                if (this.animationHistory[i][j].method === this.showText || this.animationHistory[i][j].explanation) {
-                    return this.animationHistory[i][j];
+            for (let j = this.animationHistory[i].length - 1; j >= 0; j--) {
+                if (this.animationHistory[i][j]) {
+                    if (this.animationHistory[i][j].method === this.showText || this.animationHistory[i][j].explanation) {
+                        return this.animationHistory[i][j];
+                    }
+                } else {
+                    console.log(this.animationHistory, i, j, this.animationHistory[i], this.animationHistory[i][j]);
                 }
             }
         }
@@ -197,7 +248,7 @@ export default class Visualization {
         let params = previousAnimation.undoData || previousAnimation.params || [];
         // console.log(require('util').inspect(previousAnimation, { depth: null }));
         if (undoMethod) {
-            if (Visualization.LOG_UNDO_REDO) {
+            if (this.constructor.LOG_UNDO_REDO) {
                 console.log("undo",params,undoMethod);
             }
             // if (previousAnimation.returnsUndoData) {
@@ -213,7 +264,7 @@ export default class Visualization {
                 // console.log(this.stopID);
             }
         } else {
-            if (Visualization.LOG_UNDO_REDO) {
+            if (this.constructor.LOG_UNDO_REDO) {
                 console.log("failed",previousAnimation);
             }
         }
@@ -283,7 +334,7 @@ export default class Visualization {
         }
         let retVal;
         if (!this.isAnimEnd(nextAnimation)) {
-            if (Visualization.LOG_UNDO_REDO) {
+            if (this.constructor.LOG_UNDO_REDO) {
                 console.log("redo",params,method);
             }
             retVal = method.apply(scope, params);
@@ -523,13 +574,19 @@ export default class Visualization {
         this.animationQueue.push({method:this.animator.emit,scope:this.animator,params:["anim-end",],noAnim:true});
     }
 
-    doneAnimating(time = 250) {
+    doneAnimating(time = 250, caller = "") {
         if (time === 0) {
             this.animating = false;
+            if (this.constructor.LOG_DONE_ANIMATING) {
+                console.log("done",caller);
+            }
             return;
         }
         setTimeout(() => {
             this.animating = false;
+            if (this.constructor.LOG_DONE_ANIMATING) {
+                console.log("done",caller);
+            }
         }, time);
     }
 
@@ -583,7 +640,7 @@ export default class Visualization {
             if (this.animationQueue.length > 0) {
                 let animation = this.animationQueue.shift();
                 this.animating = true;
-                if (Visualization.LOG_ANIMATIONS) {
+                if (this.constructor.LOG_ANIMATIONS) {
                     console.log("animate",animation.params,animation.method);
                 }
                 let retVal = animation.method.apply(animation.scope || this, animation.params);
@@ -592,6 +649,9 @@ export default class Visualization {
                     this.runningAnimation = [];
                 } else if (this.isAnimEnd(animation)) {
                     this.animationHistory.push(this.runningAnimation);
+                    if (this.constructor.TEST_ANIMATION_STEPS) {
+                        this.testAnimation();
+                    }
                     this.runningAnimation = null;
                 } else if (this.isEndDrawLoopTrigger(animation)) {
                     if (this.animationQueue.length > 0) {
@@ -628,9 +688,9 @@ export default class Visualization {
                         this.animating = false;
                     } else if (!animation.customEnd) {
                         if (animationSpeed >= Math.floor(Visualizer.maxAnimationSpeed())) {
-                            this.doneAnimating(0);
+                            this.doneAnimating(0, animation.method.name);
                         } else {
-                            this.doneAnimating(this.constructor.MAX_ANIM_TIME / animationSpeed / (animation.quick ? 2 : 1));
+                            this.doneAnimating(this.constructor.MAX_ANIM_TIME / animationSpeed / (animation.quick ? 2 : 1), animation.method.name);
                         }
                     }
                 }
@@ -658,7 +718,7 @@ export default class Visualization {
     }
 
     draw(p5) {
-        if (Visualization.LOG_DRAW) {
+        if (this.constructor.LOG_DRAW) {
             console.log("draw");
         }
         p5.push();

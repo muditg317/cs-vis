@@ -201,7 +201,7 @@ export default class StackArray extends Visualization {
         this.tempElement.shift(45,45);
         this.tempElement.addOnStop(() => {
             this.tempElement.unhighlight();
-            this.doneAnimating();
+            this.doneAnimating(0);
         });
     }
 

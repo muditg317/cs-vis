@@ -314,6 +314,9 @@ export default class Heap extends Visualization {
         this.tempElement = null;
     }
     redo_createElement(newTemp) {
+        if (typeof newTemp !== "object") {
+            return this.createElement(...arguments);
+        }
         this.tempElement = newTemp;
         this.tempElement.goTo(45,45);
     }

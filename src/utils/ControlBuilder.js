@@ -42,7 +42,7 @@ export function addButtonSubmit(button, callback, ...fields) {
         return;
     }
     if (callback === undefined) {
-        console.log("cannot set button submit to undefined callback");
+        console.log(button, "cannot set button submit to undefined callback");
         return;
     }
     button.addEventListener("click", (event) => {

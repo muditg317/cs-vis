@@ -230,6 +230,8 @@ export default class DequeArray extends Visualization {
     }
     redo_shiftElementToCopyArray(index, x, y) {
         let element = this.copyArray[index];
+        let oldX = element.desiredX;
+        let oldY = element.desiredY;
         element.highlightForMovement();
         element.shift(x,y);
         if (true || index === this.size - 1) {
@@ -243,6 +245,7 @@ export default class DequeArray extends Visualization {
                 el.unhighlight();
             });
         }
+        return [index, oldX, oldY];
     }
 
     useCopyArr() {
@@ -299,50 +302,12 @@ export default class DequeArray extends Visualization {
         this.tempElement = null;
     }
     redo_createElement(newTemp) {
+        if (typeof newTemp !== "object") {
+            return this.createElement(...arguments);
+        }
         this.tempElement = newTemp;
         this.tempElement.goTo(45,45);
     }
-
-    useSizePointer() {
-        let animation = [];
-        animation.push({method:this.sizePointerHighlighter.highlight,scope:this.sizePointerHighlighter,noAnim:true,});
-        animation.push({method:this.moveSizeTracker,customEnd:true,explanation:`Size points to index |RETURN|`,explanationUsesReturn:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,});
-        animation.push({method:this.sizePointerHighlighter.unhighlight,scope:this.sizePointerHighlighter,noAnim:true,});
-        animation.push({method:this.sizePointerHighlighter.goTo,scope:this.sizePointerHighlighter,params:[DequeArray.SIZE_LOCATION_X,DequeArray.SIZE_LOCATION_Y,],noAnim:true,returnsUndoData:true});
-        return animation;
-    }
-
-    // moveSizeTracker() {
-    //     let pos = this.getElementPosition(this.size);
-    //     this.sizePointerHighlighter.highlight();
-    //     this.sizePointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
-    //     this.sizePointerHighlighter.addOnStop((element) => {
-    //         element.unhighlight();
-    //         this.doneAnimating(0);
-    //     });
-    //     return this.size;
-    // }
-    // undo_moveSizeTracker() {
-    //     this.sizePointerHighlighter.shift(DequeArray.SIZE_LOCATION_X,DequeArray.SIZE_LOCATION_Y);
-    //     this.sizePointerHighlighter.highlight();
-    //     let stopID = ++this.stopID;
-    //     this.sizePointerHighlighter.addOnStop((element) => {
-    //         element.unhighlight();
-    //         this.stopDrawing(stopID);
-    //     });
-    //     return this.size;
-    // }
-    // redo_moveSizeTracker() {
-    //     let pos = this.getElementPosition(this.size);
-    //     this.sizePointerHighlighter.highlight();
-    //     this.sizePointerHighlighter.shift(pos[0], pos[1] + DequeArray.ELEMENT_SIZE);
-    //     let stopID = ++this.stopID;
-    //     this.sizePointerHighlighter.addOnStop((element) => {
-    //         element.unhighlight();
-    //         this.stopDrawing(stopID);
-    //     });
-    //     return this.size;
-    // }
 
     highlightTemp(color = Colors.BLUE) {
         this.tempElement.highlight(color);
@@ -386,7 +351,9 @@ export default class DequeArray extends Visualization {
             element.unhighlight();
             this.stopDrawing(stopID);
         });
+        let oldTemp = this.tempElement;
         this.tempElement = null;
+        return [oldTemp];
     }
 
     useFrontPointer(end = false) {
@@ -443,6 +410,8 @@ export default class DequeArray extends Visualization {
         });
     }
     redo_moveFrontTracker(offset, fromSize) {
+        let oldX = this.frontPointerHighlighter.desiredX;
+        let oldY = this.frontPointerHighlighter.desiredY;
         let index = this.getIndex(this.frontPointerValue + offset + (fromSize ? this.size : 0));
         let pos = this.getElementPosition(index);
         this.frontPointerHighlighter.highlight();
@@ -452,6 +421,7 @@ export default class DequeArray extends Visualization {
             element.unhighlight();
             this.stopDrawing(stopID);
         });
+        return [index, [oldX,oldY]];
     }
 
     extractElement(front) {

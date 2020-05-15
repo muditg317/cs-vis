@@ -12,6 +12,7 @@ const bigODatumToDivClass = (bigODatum) => {
 const extractDataFromSpecs = (BIG_O_DATA, bigOSpecs) => {
     const DATA = [];
     let headers = [bigOSpecs.col1Name, ...bigOSpecs.cols].map(header => { return { dataString: header, styleClass: "big-o-header col"}});
+    headers[0].explanation = bigOSpecs.explanation;
     DATA.push(headers);
     for (let row of bigOSpecs.rows) {
         const ROW = [{ dataString: row, styleClass: "big-o-header row"}];

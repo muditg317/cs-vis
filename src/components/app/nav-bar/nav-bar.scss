@@ -12,8 +12,8 @@
     top: 0;
     width: 100%;
     min-height: $nav-bar-height;
-    height: $nav-bar-height+1;
-    max-height: $nav-bar-height+1;
+    height: $nav-bar-height;
+    max-height: $nav-bar-height;
     z-index: 5;
     overflow: visible;
 
@@ -45,6 +45,7 @@
         display: flex;
         flex-flow: column nowrap;
         position: relative;
+        height: 100%;
 
         >.nav-bar-drop-down {
             display: flex;
@@ -89,7 +90,8 @@
         color: $nav-text-color;
         text-align: left;
         text-decoration: none;
-        font-size: 17px;
+        font-size: $nav-font-size;
+        vertical-align: middle;
         min-height: $nav-bar-height;
         height: $nav-bar-height;
         max-height: $nav-bar-height;
@@ -157,7 +159,7 @@
 
 }
 
-@media screen and (max-width: 505px) {
+@media screen and (max-width: 32em) {
     .nav-bar {
         justify-content: space-between;
 

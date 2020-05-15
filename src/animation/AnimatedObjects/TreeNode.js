@@ -4,22 +4,15 @@ import { Colors, Utils } from 'utils';
 export default class TreeNode extends AttractedDraggableObject {
     static SIZE = 50;
 
-    constructor(x,y,depth, data, parent, leftBoundingNode,rightBoundingNode) {
+    constructor(x,y, data) {
         super(x,y);
 
         this.data = data;
 
         this.left = null;
         this.right = null;
-        this.parent = parent;
-
-        this.depth = depth;
-        this.height = 0;
 
         this.readyToFollow = true;
-
-        this.leftBoundingNode = leftBoundingNode;
-        this.rightBoundingNode = rightBoundingNode;
     }
 
     getCenterXY() {

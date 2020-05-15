@@ -8,7 +8,7 @@ export default class SkipListADTVisualizer extends Visualizer {
 
     addControls() {
         ControlBuilder.applyFieldWithOptions(this, {name: "value", callback: false, args: {size: 10}}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
-        ControlBuilder.applyFieldWithOptions(this, {name: "heads", prompt: "num heads", callback: false, args: {size: 10}}, ControlBuilder.validatorSkipListHeads());
+        ControlBuilder.applyFieldWithOptions(this, {name: "heads", prompt: "num heads", callback: false, args: {size: 10}}, ControlBuilder.validatorMaxLength(2), ControlBuilder.validatorPositiveIntOnly());
         ControlBuilder.addFieldSubmit(this.valueField, this.addRandomly,
                 {
                     secondary: {
@@ -40,8 +40,6 @@ export default class SkipListADTVisualizer extends Visualizer {
         ControlBuilder.applyFieldWithOptions(this, {name: "get", longName: "value", args: {size: 10}}, ControlBuilder.validatorMaxLength(5), ControlBuilder.validatorIntOnly());
 
         ControlBuilder.applyNewCallbackButton(this, "get", this.getField);
-
-        ControlBuilder.applyNewCallbackButton(this, "print");
 
         ControlBuilder.applyResetButton(this, "reset", this.insertField);
 

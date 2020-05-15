@@ -195,6 +195,8 @@ export default class QueueArray extends Visualization {
     }
     redo_shiftElementToCopyArray(index, x, y) {
         let element = this.copyArray[index];
+        let oldX = element.desiredX;
+        let oldY = element.desiredY;
         element.highlightForMovement();
         element.shift(x,y);
         if (true || index === this.size - 1) {
@@ -208,6 +210,7 @@ export default class QueueArray extends Visualization {
                 el.unhighlight();
             });
         }
+        return [index, oldX, oldY];
     }
 
     useCopyArr() {
@@ -290,7 +293,6 @@ export default class QueueArray extends Visualization {
             element.unhighlight();
             this.stopDrawing(stopID);
         });
-        return this.tailPointerValue;
     }
     redo_moveTailTracker() {
         let pos = this.getElementPosition(this.tailPointerValue);
@@ -377,7 +379,6 @@ export default class QueueArray extends Visualization {
             element.unhighlight();
             this.stopDrawing(stopID);
         });
-        return this.headPointerValue;
     }
     redo_moveHeadTracker() {
         let pos = this.getElementPosition(this.headPointerValue);

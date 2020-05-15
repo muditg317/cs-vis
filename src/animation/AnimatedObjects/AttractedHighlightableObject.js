@@ -22,7 +22,7 @@ export default class AttractedHighlightableObject {
         this.onStop = [];
 
         this.highlighted = false;
-        this.highlightColor = Colors.BLACK;
+        this.highlightColor = Colors.BLUE;
         this.highlightShape = AttractedHighlightableObject.HIGHLIGHT_CIRCLE;
 
         Object.entries(options).forEach((option) => {

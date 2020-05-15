@@ -177,7 +177,7 @@ export default class Visualizer extends PureComponent {
 
     registerControlGroup(controlGroup) {
         controlGroup.childNodes.forEach((child) => {
-            if (!controlGroup.classList.contains("control-group")) {
+            if (!child.classList.contains("control-group")) {
                 this.controls.push(child);
             } else {
                 this.registerControlGroup(child);
@@ -233,7 +233,9 @@ export default class Visualizer extends PureComponent {
     }
 
     componentDidMount() {
-        this[this.constructor.ADT_NAME] = new this.constructor.VISUALIZATION_CLASS(this.animator);
+        let height = document.querySelector(".canvas-container").getBoundingClientRect().height;
+        let width = document.querySelector(".canvas-container").getBoundingClientRect().width;
+        this[this.constructor.ADT_NAME] = new this.constructor.VISUALIZATION_CLASS(this.animator, width, height);
         this.visualization = this[this.constructor.ADT_NAME];
         if (this.constructor.VISUALIZATION_CLASS.SUPPORTS_ANIMATION_CONTROL) {
             this.controlPressed = false;
