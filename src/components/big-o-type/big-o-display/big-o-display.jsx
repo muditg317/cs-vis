@@ -83,6 +83,40 @@ const extractDataFromSpecs = (BIG_O_DATA, bigOSpecs) => {
         }
         DATA.push(ROW);
     }
+    if (DATA.length > 2) {
+        for (let col = 1; col < headers.length; col++) {
+            let allSame = true;
+            for (let row = 2; row < DATA.length; row++) {
+                if (DATA[row][col].explanation !== DATA[row-1][col].explanation) {
+                    allSame = false;
+                    break;
+                }
+            }
+            if (allSame) {
+                headers[col].explanation = DATA[1][col].explanation;
+                for (let row = 1; row < DATA.length; row++) {
+                    DATA[row][col].explanation = "";
+                }
+            }
+        }
+    }
+    if (headers.length > 2) {
+        for (let row = 1; row < DATA.length; row++) {
+            let allSame = true;
+            for (let col = 2; col < DATA[row].length; col++) {
+                if (DATA[row][col].explanation !== DATA[row][col-1].explanation) {
+                    allSame = false;
+                    break;
+                }
+            }
+            if (allSame) {
+                DATA[row][0].explanation = DATA[row][1].explanation;
+                for (let col = 1; col < DATA[row].length; col++) {
+                    DATA[row][col].explanation = "";
+                }
+            }
+        }
+    }
     return DATA;
 }
 

@@ -31,6 +31,7 @@ export const BigOType = (props) => {
                     data.rows.push(currClass.title_text);
                     if (currClass.bigOData.defaultConfig.cols.length > data.cols.length) {
                         data.cols = currClass.bigOData.defaultConfig.cols;
+                        data.colExplanations = currClass.bigOData.defaultConfig.colExplanations;
                     }
                     for (let col in currClass.bigOData.defaultConfig) {
                         if (col !== "rows" && col !== "cols" && col !== "col1Name") {

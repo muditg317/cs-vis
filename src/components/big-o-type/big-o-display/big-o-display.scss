@@ -37,6 +37,21 @@
                     }
                 }
                 &.col{
+                    //
+                    // @for $i from 1 to 10 {
+                    //     &:nth-last-child(#{$i}) {
+                    //         z-index: $i+1;
+                    //     }
+                    // }
+                    // &:first-child {
+                    //     z-index: 10;
+                    // }
+
+                    &.big-o-has-explanation:hover {
+                        $delay: 0.4s;
+                        z-index: 10;
+                        transition: z-index $delay step-end;
+                    }
 
                     &>.big-o-datum {
                         width: -webkit-fill-available;
@@ -158,45 +173,37 @@
                             min-width: 1.2em;
                             min-height: 1.2em;
                         }
+                        &>.big-o-explanation-container {
+                            visibility: hidden;
+                            width: fit-content;
+                            max-width: 90%;
+                            background-color: #aaa;
+                            color: #fff;
+                            text-align: center;
+                            border-radius: 0.5em;
+                            border: medium solid #778beb;
+                            padding: 0.3em;
+                            margin: 0;
+
+                            position: fixed;
+                            z-index: 99;
+                            // right: 50%;
+                            // left: 50%;
+                            // top: 50%;
+                            // transform: translate(-50%, -50%);
+
+                            font-size: 0.8em;
+                            white-space: pre-wrap;
+                        }
+                        &:hover {
+
+                            &>.big-o-explanation-container {
+                                $delay: 0.4s;
+                                visibility: visible;
+                                transition: visibility $delay step-end;
+                            }
+                        }
                     }
-
-                    &>.big-o-explanation-container {
-                        visibility: hidden;
-                        width: fit-content;
-                        max-width: 90%;
-                        background-color: #aaa;
-                        color: #fff;
-                        text-align: center;
-                        border-radius: 0.5em;
-                        border: medium solid #778beb;
-                        padding: 0.3em;
-                        margin: 0;
-
-                        position: fixed;
-                        z-index: 99;
-                        // right: 50%;
-                        // left: 50%;
-                        // top: 50%;
-                        // transform: translate(-50%, -50%);
-
-                        font-size: 0.8em;
-                        white-space: pre-wrap;
-                    }
-                    &:hover>.big-o-explanation-container {
-                        visibility: visible;
-                        $delay: 0.4s;
-                        transition: visibility $delay step-end;
-                    }
-
-                    &:nth-child(2):not(:last-child)>.big-o-explanation-container {
-                        // right: unset;
-                        // left: 50%;
-                    }
-                }
-
-                &:last-child .big-o-explanation-container {
-                    // top: unset;
-                    // bottom: 50%;
                 }
             }
         }

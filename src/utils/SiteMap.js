@@ -817,6 +817,7 @@ export const SiteMap =
                                 },
                                 Single: {
                                     best: "O(m)",
+                                    explanation: "match at beginning of text",
                                 },
                                 All: {
                                     best: "O(mn)",
@@ -840,6 +841,7 @@ export const SiteMap =
                                 col1Name: "",
                                 Single: {
                                     best: "O(m)",
+                                    explanation: "match at beginning of text",
                                 },
                                 All: {
                                     best: "O(m+n/m)",
@@ -864,6 +866,7 @@ export const SiteMap =
                                 col1Name: "",
                                 Single: {
                                     best: "O(m)",
+                                    explanation: "match at beginning of text",
                                 },
                                 All: {
                                     best: "O(m+n)",
@@ -887,6 +890,7 @@ export const SiteMap =
                                 col1Name: "",
                                 Single: {
                                     best: "O(m)",
+                                    explanation: "match at beginning of text",
                                 },
                                 All: {
                                     best: "O(m+n)",
