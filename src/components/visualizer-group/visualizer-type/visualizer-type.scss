@@ -1,11 +1,11 @@
 .visualizer-type {
     &>.visualizer-type-title {
         margin: 0;
-        margin-top: 1rem;
-        margin-left: 2.5rem;
+        padding: 1rem 2.5rem 0;
         font-size: 1.8em;
 
         width: max-content;
+        box-sizing: border-box;
         max-width: 100%;
     }
 

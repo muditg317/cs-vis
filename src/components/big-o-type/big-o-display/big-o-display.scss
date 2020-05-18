@@ -12,6 +12,10 @@
         // border: solid thin black;
         max-width: 100%;
 
+        @media (max-width: 30em) {
+            font-size: 0.6em;
+        }
+
         &>.sticky-table-table {
 
             & .big-o-header {
