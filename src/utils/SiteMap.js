@@ -378,6 +378,53 @@ export const SiteMap =
                         link: "bst",
                         title_text: "Binary Search Tree",
                         component: BSTVisualizer,
+                        examples: [
+                            {
+                                exampleText: "To get a degenerate BST, add ascending/descending data, such as 1,2,3,...",
+                                tryItText: "Add 100,200,300",
+                                operationList: [
+                                    { methodName: "insert", params: [1], },
+                                    { methodName: "insert", params: [2], },
+                                    { methodName: "insert", params: [3], },
+                                ],
+                                needsReset: true,
+                            },
+                            {
+                                exampleText: "To get a full BST, you can add 2,1,4,3,5, in that order",
+                                tryItText: "Add 200,100,400,300,500",
+                                operationList: [
+                                    { methodName: "insert", params: [200], },
+                                    { methodName: "insert", params: [100], },
+                                    { methodName: "insert", params: [400], },
+                                    { methodName: "insert", params: [300], },
+                                    { methodName: "insert", params: [500], },
+                                ],
+                                needsReset: true,
+                            },
+                            {
+                                exampleText: "To get a complete BST, you can add 3,2,4,1, in that order",
+                                tryItText: "Add 300,200,400,100",
+                                operationList: [
+                                    { methodName: "insert", params: [300], },
+                                    { methodName: "insert", params: [200], },
+                                    { methodName: "insert", params: [400], },
+                                    { methodName: "insert", params: [100], },
+                                ],
+                                needsReset: true,
+                            },
+                            {
+                                exampleText: "To get a full and complete BST, you can add 4,2,5,1,3, in that order",
+                                tryItText: "Add 400,200,500,100,300",
+                                operationList: [
+                                    { methodName: "insert", params: [400], },
+                                    { methodName: "insert", params: [200], },
+                                    { methodName: "insert", params: [500], },
+                                    { methodName: "insert", params: [100], },
+                                    { methodName: "insert", params: [300], },
+                                ],
+                                needsReset: true,
+                            },
+                        ],
                         bigOData: {
                             defaultConfig: {
                                 rows: ["Efficiency"],

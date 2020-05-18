@@ -38,8 +38,8 @@ const BigOWindow = React.forwardRef((props, ref) => {
     return (
             <div className="big-o-window-container" ref={ref}>
                 <div className="big-o-window" ref={containerRef}>
-                    <FontAwesomeIcon id="exit-big-o" icon={["far","times-circle"]} className="hoverable-icon" onClick={closeBigODisplay }/>
-                    <p id="close-box-tip">(Click outside to close.)</p>
+                    <FontAwesomeIcon id="exit-big-o" icon={["far","times-circle"]} className="hoverable-icon" onClick={closeBigODisplay} />
+                    <p id="close-box-tip">(Click outside or press Esc. to close.)</p>
                     <h2 id="big-o-title">
                         {props.title.split("").map((char, i) => {
                             if (i > 0 && char === char.toUpperCase()) {

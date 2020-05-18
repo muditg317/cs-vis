@@ -92,7 +92,7 @@ export default class BST extends Visualization {
     }
 
 
-    insert(data) {
+    insert(data, callback, calledFromCallback) {
         if (this.animationQueue.length !== 0) {
             return false;
         }
@@ -120,12 +120,14 @@ export default class BST extends Visualization {
             animation.push({method:this.showText,params:[`Failed to insert duplicate ${data} into BST.`, Colors.RED],noAnim:true});
         }
         this.addAnimation(animation);
-        this.endDrawLoop();
-        this.stepForward();
+        this.endDrawLoop(callback);
+        if (!calledFromCallback || !this.paused) {
+            this.stepForward();
+        }
         return true;
     }
 
-    delete(data) {
+    delete(data, callback, calledFromCallback) {
         if (this.animationQueue.length !== 0) {
             return false;
         }
@@ -157,12 +159,14 @@ export default class BST extends Visualization {
             animation.push({method:this.showText,params:[`Failed to delete ${data} from BST.`, Colors.RED],noAnim:true});
         }
         this.addAnimation(animation);
-        this.endDrawLoop();
-        this.stepForward();
+        this.endDrawLoop(callback);
+        if (!calledFromCallback || !this.paused) {
+            this.stepForward();
+        }
         return true;
     }
 
-    find(data) {
+    find(data, callback, calledFromCallback) {
         if (this.animationQueue.length !== 0) {
             return false;
         }
@@ -179,12 +183,14 @@ export default class BST extends Visualization {
         animation.push(...recurredAnimation);
         animation.push({method:this.setHighlighter,params:[null],noAnim:true,customUndoEnd:true,returnsUndoData:true,});
         this.addAnimation(animation);
-        this.endDrawLoop();
-        this.stepForward();
+        this.endDrawLoop(callback);
+        if (!calledFromCallback || !this.paused) {
+            this.stepForward();
+        }
         return true;
     }
 
-    print() {
+    print(callback, calledFromCallback) {
         if (this.animationQueue.length !== 0) {
             return false;
         }
@@ -202,12 +208,14 @@ export default class BST extends Visualization {
         animation.push({method:this.setHighlighter,params:[null],noAnim:true,customUndoEnd:true,returnsUndoData:true,isBackStep:true,});
         animation.push({method:this.showText,params:[`[${inOrder.join(",    ")}]`],quick:true});
         this.addAnimation(animation);
-        this.endDrawLoop();
-        this.stepForward();
+        this.endDrawLoop(callback);
+        if (!calledFromCallback || !this.paused) {
+            this.stepForward();
+        }
         return true;
     }
 
-    togglePredecessorSuccessor(which) {
+    togglePredecessorSuccessor(which, callback, calledFromCallback) {
         if (this.animationQueue.length !== 0) {
             return false;
         }
@@ -216,8 +224,10 @@ export default class BST extends Visualization {
         animation.push({method:this.switchMode,params:[which],explanation:`Switching BST modes`,quick:true});
         animation.push({method:this.showText,params:[`Successfully changed to ${which} mode.`, Colors.GREEN],noAnim:true});
         this.addAnimation(animation);
-        this.endDrawLoop();
-        this.stepForward();
+        this.endDrawLoop(callback);
+        if (!calledFromCallback || !this.paused) {
+            this.stepForward();
+        }
         return true;
     }
 

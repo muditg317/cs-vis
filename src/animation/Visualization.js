@@ -98,10 +98,15 @@ export default class Visualization {
 
             delete this.undo;
             delete this.undoAction;
+            delete this.doExample;
         }
 
         if (this.constructor.SUPPORTS_STOP_ID) {
             this.stopID = 0;
+        }
+
+        if (!Utils.isDev()) {
+            delete this.testAnimation;
         }
 
         this.reset();
@@ -395,21 +400,6 @@ export default class Visualization {
         if (doDraw && !lastRedo.customRedoEnd) {
             this.ensureDrawn();
         }
-        // if (!nextAnimation.customRedoEnd && !this.isEndDrawLoopTrigger(nextAnimation)) {
-        //     if (!(this.animationQueue[0].isAnimationStep || this.animationQueue[0].isForwardStep)) {
-        //         while (!(this.animationQueue[0].isAnimationStep || this.animationQueue[0].isForwardStep) && !this.isEndDrawLoopTrigger(this.animationQueue[0])) {
-        //             nextAnimation = this.animationQueue.shift();
-        //             this.redoAnimation(nextAnimation);
-        //             if (!nextAnimation) {
-        //                 return;
-        //             }
-        //         }
-        //     }
-        //     if (this.isEndDrawLoopTrigger(this.animationQueue[0])) {
-        //         nextAnimation = this.animationQueue.shift();
-        //         this.redoAnimation(nextAnimation);
-        //     }
-        // }
     }
 
     canStepForward() {
@@ -549,6 +539,21 @@ export default class Visualization {
             this.animator.disable("stepForward");
             this.animator.disable("skipForward");
         }
+    }
+
+    doExample(operationList, needsReset) {
+        if (needsReset) {
+            this.reset();
+        }
+        let f;
+        for (let i = operationList.length - 1; i > 0; i--) {
+            let temp = f;
+            f = () => {
+                this[operationList[i].methodName](...operationList[i].params, temp, true);
+            }
+        }
+        this[operationList[0].methodName](...operationList[0].params, f);
+        this.play();
     }
 
     ensureDrawn() {
@@ -704,16 +709,19 @@ export default class Visualization {
         this.drawing = true;
     }
 
-    endDrawLoop() {
+    endDrawLoop(callback) {
         if (this.drawing) {
-            this.animationQueue.push({method:this.stopDrawing,params:this.constructor.SUPPORTS_STOP_ID ? [++this.stopID,true] : [],noAnim:true});
+            this.animationQueue.push({method:this.stopDrawing,params:this.constructor.SUPPORTS_STOP_ID ? [++this.stopID,true,callback] : [null,null,callback],noAnim:true});
         }
     }
 
-    stopDrawing(stopID,force) {
+    stopDrawing(stopID,force,callback) {
         if (!this.constructor.SUPPORTS_STOP_ID || force || stopID === this.stopID) {
             this.animator.noLoop();
             this.drawing = false;
+            if (callback) {
+                callback();
+            }
         }
     }
 

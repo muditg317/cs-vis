@@ -4,6 +4,7 @@ import './visualizer.scss';
 
 import ControlBar from './controlBar';
 import BigOWindow from './bigOWindow';
+import ExamplesWindow from './examplesWindow';
 
 import { ControlBuilder, Utils } from 'utils';
 import { Animator } from 'animation';
@@ -85,10 +86,12 @@ export default class Visualizer extends PureComponent {
         this.addDefaultControls();
 
         this.state = {
-            showBigO: false
+            showBigO: false,
+            showExamples: false
         };
         this.disabledControls = [];
         this.bigOWindow = React.createRef();
+        this.examplesWindow = React.createRef();
     }
 
     addDefaultControls() {
@@ -472,12 +475,37 @@ export default class Visualizer extends PureComponent {
         }
     }
 
+    showExamplesDisplay() {
+        this.setState({showExamples: true});
+        this.disabledControls = [];
+        document.querySelectorAll(".control-bar input, .control-bar button").forEach((input) => {
+            if (!input.disabled) {
+                this.disabledControls.push(input);
+                input.disabled = true;
+            }
+        });
+
+    }
+
+    closeExamplesDisplay(...exampleParams) {
+        this.setState({showExamples: false});
+        while (this.disabledControls.length) {
+            this.disabledControls.pop().disabled = false;
+        }
+        if (exampleParams && exampleParams.length) {
+            this.visualization.doExample(...exampleParams);
+        }
+    }
+
     render() {
         return (
                 <div className={`visualizer ${this.constructor.DIV_CLASS}`}>
-                    <ControlBar ref={this.controlBarRef} showBigODisplay={this.showBigODisplay.bind(this)} hasExamples={!!this.props.visualizerClass.examples && this.props.visualizerClass.examples.length > 0}/>
+                    <ControlBar ref={this.controlBarRef} showBigODisplay={this.showBigODisplay.bind(this)} showExamplesDisplay={this.showExamplesDisplay.bind(this)} hasExamples={this.props.visualizerClass.examples && this.props.visualizerClass.examples.length > 0}/>
                     {this.state.showBigO &&
                         <BigOWindow ref={this.bigOWindow} title={this.mainLabel} closeBigODisplay={this.closeBigODisplay.bind(this)}/>
+                    }
+                    {this.state.showExamples &&
+                        <ExamplesWindow ref={this.examplesWindow} title={this.mainLabel} closeExamplesDisplay={this.closeExamplesDisplay.bind(this)}/>
                     }
                     {
                         !Utils.isReactComponent(this.constructor.VISUALIZATION_CLASS) ?
