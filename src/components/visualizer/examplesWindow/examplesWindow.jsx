@@ -70,8 +70,8 @@ const ExamplesWindow = React.forwardRef((props, ref) => {
                         })} Examples
                     </h2>
                     <ul className={`examples-display-list`}>
-                        {visualizerClass.examples.map(example => {
-                            return <ExamplesDisplay example={example} callback={callback} />
+                        {visualizerClass.examples.map((example,i) => {
+                            return <ExamplesDisplay key={i} example={example} callback={callback} />
                         })}
                     </ul>
                 </div>

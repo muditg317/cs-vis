@@ -457,15 +457,16 @@ export default class Visualizer extends PureComponent {
     }
 
     showBigODisplay() {
-        this.setState({showBigO: true});
-        this.disabledControls = [];
-        document.querySelectorAll(".control-bar input, .control-bar button").forEach((input) => {
-            if (!input.disabled) {
-                this.disabledControls.push(input);
-                input.disabled = true;
-            }
-        });
-
+        if (!this.state.showBigO) {
+            this.setState({showBigO: true});
+            this.disabledControls = [];
+            document.querySelectorAll(".control-bar input, .control-bar button").forEach((input) => {
+                if (!input.disabled) {
+                    this.disabledControls.push(input);
+                    input.disabled = true;
+                }
+            });
+        }
     }
 
     closeBigODisplay() {
@@ -476,15 +477,16 @@ export default class Visualizer extends PureComponent {
     }
 
     showExamplesDisplay() {
-        this.setState({showExamples: true});
-        this.disabledControls = [];
-        document.querySelectorAll(".control-bar input, .control-bar button").forEach((input) => {
-            if (!input.disabled) {
-                this.disabledControls.push(input);
-                input.disabled = true;
-            }
-        });
-
+        if (!this.state.showExamples) {
+            this.setState({showExamples: true});
+            this.disabledControls = [];
+            document.querySelectorAll(".control-bar input, .control-bar button").forEach((input) => {
+                if (!input.disabled) {
+                    this.disabledControls.push(input);
+                    input.disabled = true;
+                }
+            });
+        }
     }
 
     closeExamplesDisplay(...exampleParams) {

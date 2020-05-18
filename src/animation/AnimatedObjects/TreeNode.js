@@ -48,12 +48,12 @@ export default class TreeNode extends AttractedDraggableObject {
 
     update(animationSpeed, p5) {
         super.update(animationSpeed, p5)
-        if (this.left) {
-            this.left.update(animationSpeed, p5);
-        }
-        if (this.right) {
-            this.right.update(animationSpeed, p5);
-        }
+        // if (this.left) {
+        //     this.left.update(animationSpeed, p5);
+        // }
+        // if (this.right) {
+        //     this.right.update(animationSpeed, p5);
+        // }
     }
 
     draw(p5) {
@@ -93,11 +93,11 @@ export default class TreeNode extends AttractedDraggableObject {
             // p5.line(this.currentX + this.constructor.SIZE, this.currentY, this.currentX + this.constructor.SIZE, this.currentY + this.constructor.SIZE);
         }
         p5.pop();
-        if (this.left) {
-            this.left.draw(p5);
-        }
-        if (this.right) {
-            this.right.draw(p5);
-        }
+        // if (this.left) {
+        //     this.left.draw(p5);
+        // }
+        // if (this.right) {
+        //     this.right.draw(p5);
+        // }
     }
 }

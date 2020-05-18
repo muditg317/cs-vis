@@ -28,6 +28,7 @@ export default class BST extends Visualization {
     reset() {
         super.reset(() => {
             this.root = null;
+            this.inOrder = [];
             this.size = 0;
             this.predSuccMode = this.predSuccMode !== undefined ? this.predSuccMode : true;
             this.tempNode = null;
@@ -295,8 +296,8 @@ export default class BST extends Visualization {
         return [oldTarget, oldColor];
     }
 
-    getInOrder() {
-        return this.getInOrderRecursive(this.root, 0, []);
+    getInOrder(recalculate) {
+        return this.inOrder = (recalculate ? this.getInOrderRecursive(this.root, 0, []) : this.inOrder);
     }
     getInOrderRecursive(curr, depth, list) {
         if (curr) {
@@ -309,7 +310,7 @@ export default class BST extends Visualization {
     }
 
     shiftByInOrder() {
-        let order = this.getInOrder();
+        let order = this.getInOrder(true);
         let oldPositions = order.map(node => [node.desiredX - ((this.width - this.constructor.ELEMENT_SIZE)/2),node.desiredY]);
         let centerIndex = order.indexOf(this.root);
         let displaced = null;
@@ -764,7 +765,9 @@ export default class BST extends Visualization {
 
     update(animationSpeed, p5) {
         super.update(animationSpeed, p5, () => {
-            this.updateNode(this.root, animationSpeed, p5);
+            this.getInOrder().forEach((node) => {
+                this.updateNode(node, animationSpeed, p5);
+            });
             this.updateNode(this.tempNode, animationSpeed, p5);
             this.highlighter.update(animationSpeed, p5);
             this.updateNode(this.dataMover, animationSpeed, p5);
@@ -797,9 +800,9 @@ export default class BST extends Visualization {
         }
 
 
-        if (this.root) {
-            this.root.draw(p5);
-        }
+        this.getInOrder().forEach((node) => {
+            node.draw(p5);
+        });
         if (this.tempNode) {
             this.tempNode.draw(p5);
         }
