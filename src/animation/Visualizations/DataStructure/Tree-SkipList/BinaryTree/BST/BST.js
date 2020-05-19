@@ -354,7 +354,7 @@ export default class BST extends Visualization {
         }
     }
     redo_shiftByInOrder() {
-        let order = this.getInOrder();
+        let order = this.getInOrder(true);
         let oldPositions = order.map(node => [node.desiredX - ((this.width - this.constructor.ELEMENT_SIZE)/2),node.desiredY]);
         let centerIndex = order.indexOf(this.root);
         let displaced = null;
@@ -740,7 +740,7 @@ export default class BST extends Visualization {
         if (!this.root) {
             return this.constructor.ROOT_SIZE + 80;
         }
-        let order = this.getInOrder();
+        let order = this.getInOrder(true);
         let centerIndex = order.indexOf(this.root);
         let leftOffset = centerIndex * order[0].constructor.HSPACE;
         let rightOffset = (order.length - 1 - centerIndex) * order[0].constructor.HSPACE;
@@ -765,7 +765,7 @@ export default class BST extends Visualization {
 
     update(animationSpeed, p5) {
         super.update(animationSpeed, p5, () => {
-            this.getInOrder().forEach((node) => {
+            this.getInOrder(true).forEach((node) => {
                 this.updateNode(node, animationSpeed, p5);
             });
             this.updateNode(this.tempNode, animationSpeed, p5);
@@ -800,7 +800,7 @@ export default class BST extends Visualization {
         }
 
 
-        this.getInOrder().forEach((node) => {
+        this.getInOrder(true).forEach((node) => {
             node.draw(p5);
         });
         if (this.tempNode) {
@@ -827,8 +827,10 @@ export default class BST extends Visualization {
 
     mouseReleased(p5) {
         if (this.pinnedNode) {
-            this.pinnedNode.addOnStop(() => {
-                this.ensureDrawn();
+            this.pinnedNode.addOnStop((element) => {
+                if (!this.animating) {
+                    this.ensureDrawn();
+                }
             });
             this.unpin();
         } else {
@@ -842,7 +844,7 @@ export default class BST extends Visualization {
             this.rootPointerPos.currentX = this.getRootPointerX() + this.constructor.ROOT_SIZE / 2 - this.constructor.ROOT_HIGHLIGHT_DIAMETER / 2;
             let shiftTemp = this.tempNode && this.tempNode.desiredX === 20 && this.tempNode.desiredY === 20;
             if (this.root) {
-                let order = this.getInOrder();
+                let order = this.getInOrder(true);
                 let centerIndex = order.indexOf(this.root);
                 order.forEach((node, i) => {
                     node.shiftX(((this.width - this.constructor.ELEMENT_SIZE)/2) + (i - centerIndex) * node.constructor.HSPACE);

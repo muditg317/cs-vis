@@ -68,9 +68,10 @@ export function spannifyText(text, afterTheseString) {
         return text.split("").map((char, i) => {
             if (i > 0 && char === char.toUpperCase()) {
                 return (
-                    <span key={i}>
-                        <wbr />{char}
-                    </span>
+                    <>
+                        <wbr key={i} />
+                        {char}
+                    </>
                 );
             }
             return char;
@@ -91,9 +92,10 @@ export function spannifyText(text, afterTheseString) {
         return text.split("").map((char, i) => {
             if (i > 0) {
                 return (
-                    <span key={i}>
-                        <wbr />{char}
-                    </span>
+                    <>
+                        <wbr key={i} />
+                        {char}
+                    </>
                 );
             }
             return char;
