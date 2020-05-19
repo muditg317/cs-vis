@@ -10,6 +10,7 @@ const bigODatumToDivClass = (bigODatum) => {
 }
 
 const extractDataFromSpecs = (BIG_O_DATA, bigOSpecs) => {
+    console.log(BIG_O_DATA, bigOSpecs);
     const DATA = [];
     let headers = [bigOSpecs.col1Name, ...bigOSpecs.cols].map(header => { return { dataString: header, styleClass: "big-o-header col"}});
     headers[0].explanation = bigOSpecs.explanation;
@@ -59,9 +60,14 @@ const extractDataFromSpecs = (BIG_O_DATA, bigOSpecs) => {
                         styleClass = bigODatumToDivClass(BIG_O_OP_INFO.unamortized);
                     }
                 }
+                // for (let bigOValue in BIG_O_OP_INFO) {
+                //     if (!["best","average","amortized","worst","unamortized"].includes(bigOValue)) {
+                //         dataString += `\n${bigOValue}: ${BIG_O_OP_INFO[bigOValue]}`;
+                //     }
+                // }
                 if (extraConfigData.length > 0) {
                     extraConfigData.forEach((extraConfig) => {
-                        dataString += `\n${extraConfig.name}: ${extraConfig.data.newBigO}`;
+                        dataString += `\n${extraConfig.name.trim()}: ${extraConfig.data.newBigO}`;
                     });
                 }
                 dataString = dataString.trim();

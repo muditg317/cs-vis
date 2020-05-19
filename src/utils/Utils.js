@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function addArray(array, ...arrays) {
     let newArr = [...array];
     arrays.forEach(array => {
@@ -59,4 +61,42 @@ export function windowWidth() {
 
 export function windowHeight() {
     return Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+}
+
+export function spannifyText(text, afterTheseString) {
+    if (afterTheseString === "CAPITALS") {
+        return text.split("").map((char, i) => {
+            if (i > 0 && char === char.toUpperCase()) {
+                return (
+                    <span key={i}>
+                        <wbr />{char}
+                    </span>
+                );
+            }
+            return char;
+        });
+    } else if (afterTheseString) {
+        return text.split(new RegExp(`([${afterTheseString}])`,"g")).map((str, i) => {
+            if (i > 0) {
+                return (
+                    <>
+                        <wbr key={i} />
+                        {str}
+                    </>
+                );
+            }
+            return str;
+        });
+    } else {
+        return text.split("").map((char, i) => {
+            if (i > 0) {
+                return (
+                    <span key={i}>
+                        <wbr />{char}
+                    </span>
+                );
+            }
+            return char;
+        });
+    }
 }

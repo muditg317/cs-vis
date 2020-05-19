@@ -30,7 +30,7 @@ export const VisualizerType = (props) => {
                         <h4 className={`visualizer-type-title${typeMatch ? " large-title" : ""}`} onClick={typeMatch ? null : () => {window.location.hash = `#/${props.group}/${props.type}`;}}>{type.title_text}</h4>
                         <div className="visualizer-title-container">
                             {type.classes.map( (visualizer) => {
-                                return (
+                                return visualizer.component && (
                                         <VisualizerTitle key={visualizer.link} group={props.group} type={props.type} title={visualizer.title_text} link={visualizer.link} />
                                     );
                             })}

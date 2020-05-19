@@ -580,7 +580,7 @@ export const SiteMap =
                                 },
                                 Space: {
                                     average: "O(n)",
-                                    worst: "O(log(n))",
+                                    worst: "O(n log(n))",
                                 },
                             },
                         },
@@ -761,19 +761,15 @@ export const SiteMap =
                                 cols: ["Time", "Stable", "Adaptive", "Extra Space"],
                                 col1Name: "",
                                 Time: {
-                                    average: "O(log(n))",
+                                    average: "O(n log(n))",
+                                    worst: "O(n)",
+                                    explanation: "worst O(n): pivot always @ min/max",
                                 },
                                 Stable: ["fas", "times-circle"],
                                 Adaptive: ["fas", "times-circle"],
                                 Extra: {
                                     average: "O(1)",
                                 },
-                            },
-                            pivotConfig: {
-                                name: "Pivot always @ min/max",
-                                Time: {
-                                    newBigO: "O(n²)"
-                                }
                             },
                         },
                     },
@@ -787,18 +783,14 @@ export const SiteMap =
                                 cols: ["Time", "Stable", "Extra Space"],
                                 col1Name: "",
                                 Time: {
-                                    average: "O(log(n))",
+                                    average: "O(n log(n))",
+                                    worst: "O(n)",
+                                    explanation: "worst O(n): pivot always @ min/max",
                                 },
                                 Stable: ["fas", "times-circle"],
                                 Extra: {
                                     average: "O(1)",
                                 },
-                            },
-                            pivotConfig: {
-                                name: "Pivot always @ min/max",
-                                Time: {
-                                    newBigO: "O(n²)"
-                                }
                             },
                         },
                     },

@@ -33,13 +33,25 @@ export const BigOType = (props) => {
                         data.cols = currClass.bigOData.defaultConfig.cols;
                         data.colExplanations = currClass.bigOData.defaultConfig.colExplanations;
                     }
+                    let title = currClass.title_text.substring(0, currClass.title_text.search(/\W|$/));
                     for (let col in currClass.bigOData.defaultConfig) {
                         if (col !== "rows" && col !== "cols" && col !== "col1Name") {
-                            let title = currClass.title_text.substring(0, currClass.title_text.search(/\W|$/));
                             // console.log(col, currClass.title_text, title);
                             data[`${title}_${col}`] = currClass.bigOData.defaultConfig[col];
                         }
                     }
+                    for (let config in currClass.bigOData) {
+                        if (config !== "defaultConfig") {
+                            console.log(config);
+                            for (let col in currClass.bigOData[config]) {
+                                if (col !== "name") {
+                                    console.log(col);
+                                    data[`${title}_${col}`][currClass.bigOData[config].name] = currClass.bigOData[config][col].newBigO;
+                                }
+                            }
+                        }
+                    }
+                    console.log(data);
                     return data;
                 }, {
                     rows: [],
@@ -57,11 +69,21 @@ export const BigOType = (props) => {
                     // console.log(data, currClass);
                     data.cols.push(currClass.title_text);
                     data.rows = currClass.bigOData.defaultConfig.cols;
+                    let title = currClass.title_text.substring(0, currClass.title_text.search(/\W|$/));
                     for (let col in currClass.bigOData.defaultConfig) {
                         if (col !== "rows" && col !== "cols" && col !== "col1Name") {
-                            let title = currClass.title_text.substring(0, currClass.title_text.search(/\W|$/));
                             // console.log(col, currClass.title_text, title);
                             data[`${col}_${title}`] = currClass.bigOData.defaultConfig[col];
+                        }
+                    }
+                    for (let config in currClass.bigOData) {
+                        if (config !== "defaultConfig") {
+                            console.log(config);
+                            for (let col in currClass.bigOData[config]) {
+                                if (col !== "name") {
+                                    data[`${col}_${title}`][currClass.bigOData[config].name] = currClass.bigOData[config][col].newBigO;
+                                }
+                            }
                         }
                     }
                     return data;

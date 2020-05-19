@@ -4,6 +4,8 @@ import './nav-bar.scss';
 
 import logo from 'res/images/logo.svg';
 
+import { Utils } from 'utils';
+
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -358,7 +360,9 @@ class NavBarDropDownItemTitle extends Component {
     render() {
         return (
                 this.state.parentDropDownItem.state.side_pane_items ?
-                    <div onMouseDown={this.onMouseDown} className="nav-bar-drop-down-item-title nav-item-title" id={`nav-${this.state.link}`}>{this.state.title_text}</div>
+                    <div onMouseDown={this.onMouseDown} className="nav-bar-drop-down-item-title nav-item-title" id={`nav-${this.state.link}`}>
+                        {Utils.spannifyText(this.state.title_text,"/")}
+                    </div>
                 :
                     <Link onMouseDown={this.clear} className="nav-bar-drop-down-item-title nav-item-title" id={`nav-${this.state.link}`} to={`${this.state.parentRoute}/${this.state.link}`}>{this.state.title_text}</Link>
             );
