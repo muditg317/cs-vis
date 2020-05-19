@@ -384,9 +384,9 @@ export default class BST extends Visualization {
         let added = false;
         animation.push({method:this.setHighlighter,params:[curr],customEnd:curr!==null,noAnim:curr===null,isBackStep:true,customUndoEnd:true,customRedoEnd:curr!==null,returnsUndoData:true});
         if (!curr) {
-            animation.push({method:this.showText,params:[`Reached null: ${value} not found in tree`],quick:true,isForwardStep:true,});
+            animation.push({method:this.showText,params:[`Reached null: ${value} not found in tree`],isForwardStep:true,});
             curr = new BSTNode({data: value});
-            animation.push({method:this.makeNode,params:[curr],explanation:`Create value: ${value}`,quick:true,isAnimationStep:true});
+            animation.push({method:this.makeNode,params:[curr],explanation:`Create value: ${value}`,isAnimationStep:true});
             animation.push({method:this.sizeIncr,noAnim:true,});
             justAdded = true;
             added = true;
@@ -656,10 +656,10 @@ export default class BST extends Visualization {
             let [leftAnimation] = this.printInOrderRecursive(curr.left, list);
             animation.push(...leftAnimation);
             animation.push({method:this.setHighlighter,params:[curr],customEnd:true,isBackStep:false,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
-            animation.push({method:this.setHighlighter,params:[curr, Colors.GREEN],customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
             list.push(curr.data);
+            animation.push({method:this.setHighlighter,params:[curr, Colors.GREEN],explanation:`[${list.join(",    ")}]`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
+            animation.push({method:this.noAction,quick:true});
             animation.push({method:this.setHighlighter,params:[curr, Colors.BLUE],customEnd:true,isBackStep:false,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
-            animation.push({method:this.showText,params:[`[${list.join(",    ")}]`],noAnim:true});
             let [rightAnimation] = this.printInOrderRecursive(curr.right, list);
             animation.push(...rightAnimation);
         }

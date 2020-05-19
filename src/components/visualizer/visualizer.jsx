@@ -14,12 +14,11 @@ export default class Visualizer extends PureComponent {
 
     static CONTROLS_ONLY_ACTIVE_UNPAUSED = ["radio","checkbox"];
 
-    static INITIAL_SPEED = 50;
     static MAX_SPEED = 20;
     static SPEED_SLIDER_DEGREE = 1.5;
 
     static maxAnimationSpeed() {
-        return Math.pow(Visualizer.MAX_SPEED, Visualizer.SPEED_SLIDER_DEGREE);
+        return Math.pow(this.constructor.MAX_SPEED, this.constructor.SPEED_SLIDER_DEGREE);
     }
 
     constructor(props) {
@@ -61,7 +60,7 @@ export default class Visualizer extends PureComponent {
         this.defaultControlGroups = [];
         this.controls = [];
 
-        // this.animationSpeed = Visualizer.INITIAL_SPEED;
+        // this.animationSpeed = this.constructor.VISUALIZATION_CLASS.INITIAL_SPEED;
 
         this.onAnimStart = this.onAnimStart.bind(this);
         this.onAnimEnd = this.onAnimEnd.bind(this);
@@ -95,7 +94,7 @@ export default class Visualizer extends PureComponent {
     }
 
     addDefaultControls() {
-        this.speedSlider = ControlBuilder.createSlider(1, Visualizer.MAX_SPEED, Math.pow(Visualizer.INITIAL_SPEED,1/Visualizer.SPEED_SLIDER_DEGREE), 0);
+        this.speedSlider = ControlBuilder.createSlider(1, this.constructor.MAX_SPEED, Math.pow(this.constructor.INITIAL_SPEED,1/this.constructor.SPEED_SLIDER_DEGREE), 0);
         let sliderLabel = ControlBuilder.createLabel("Animation Speed", this.speedSlider);
         let speedSliderGroup = ControlBuilder.createControlGroup("speedSliderGroup", this.speedSlider, sliderLabel);
         let extraGroups = []
@@ -393,7 +392,7 @@ export default class Visualizer extends PureComponent {
     }
     draw(p5) {
         //inputs
-        let animationSpeed = Math.pow(this.speedSlider.value,Visualizer.SPEED_SLIDER_DEGREE);
+        let animationSpeed = Math.pow(this.speedSlider.value,this.constructor.SPEED_SLIDER_DEGREE);
 
         p5.background(255);
 

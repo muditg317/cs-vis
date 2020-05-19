@@ -43,7 +43,7 @@
     width: -webkit-fill-available;
 }
 
-.controls{
+.controls {
     display: flex;
     flex-flow: row nowrap;
     width: -webkit-fill-available;
@@ -401,14 +401,11 @@
 
     }
 
-    &>.visualizer-icons {
+    &>.visualizer-icons-container {
         display: flex;
         flex-flow: row nowrap;
 
-        &>#big-o-icon {
-            margin-left: 1em;
-        }
-        &>#examples-icon {
+        &>.visualizer-icon {
             margin-left: 1em;
         }
     }

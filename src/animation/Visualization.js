@@ -3,6 +3,8 @@ import { Utils, Colors } from 'utils';
 
 export default class Visualization {
 
+    static INITIAL_SPEED = 50;
+
     static LOG_UNDO_REDO = false;
     static LOG_ANIMATIONS = false;
     static LOG_DONE_ANIMATING = false;

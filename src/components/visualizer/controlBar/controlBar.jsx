@@ -95,14 +95,14 @@ export default class ControlBar extends PureComponent {
                                     <p className="control-label">
                                         {this.mainLabel}
                                     </p>
-                                    <div className="visualizer-icons">
-                                        <div id="big-o-icon" data-tooltip="Big-O Info" tt-bottom="" tt-right="" onClick={this.props.showBigODisplay}>
+                                    <div className="visualizer-icons-container">
+                                        <div id="big-o-icon" className="visualizer-icon" data-tooltip="Big-O Info" tt-bottom="" tt-right="" onClick={this.props.showBigODisplay}>
                                             <FontAwesomeIcon icon={["far","clock"]} size="lg" className="hoverable-icon" />
                                             {// <span id="big-o-tooltip" className="tooltip tt-bottom tt-right">Big-O Info</span>
                                             }
                                         </div>
                                         {this.props.hasExamples &&
-                                            <div id="examples-icon" data-tooltip="Examples" tt-bottom="" tt-right="" onClick={this.props.showExamplesDisplay}>
+                                            <div id="examples-icon" className="visualizer-icon" data-tooltip="Examples" tt-bottom="" tt-right="" onClick={this.props.showExamplesDisplay}>
                                                 <FontAwesomeIcon icon={["far","lightbulb"]} size="lg" className="hoverable-icon" />
                                                 {// <span id="big-o-tooltip" className="tooltip tt-bottom tt-right">Big-O Info</span>
                                                 }
