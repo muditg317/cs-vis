@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useRouteMatch } from "react-router-dom";
 import './big-o-type.scss';
 
-import { SiteMap } from 'utils';
+import { SiteMap, Utils } from 'utils';
 import { default as BigODisplay } from './big-o-display';
 
 export const BigOType = (props) => {
@@ -104,7 +104,9 @@ export const BigOType = (props) => {
     }
     return (
             <div className="big-o-type">
-                    <h3 className="big-o-type-title">{type.title_text} Big-O Summary</h3>
+                    <h3 className="big-o-type-title">
+                        {Utils.spannifyText(type.title_text,"CAPITALS")} Big-O Summary
+                    </h3>
                     <div className="big-o-display-list-container">
                         {classes.map( (visualizer) => {
                             return (

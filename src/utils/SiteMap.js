@@ -383,9 +383,9 @@ export const SiteMap =
                                 exampleText: "To get a degenerate BST, add ascending/descending data, such as 1,2,3,...",
                                 tryItText: "Add 100,200,300",
                                 operationList: [
-                                    { methodName: "insert", params: [1], },
-                                    { methodName: "insert", params: [2], },
-                                    { methodName: "insert", params: [3], },
+                                    { methodName: "insert", params: [100], },
+                                    { methodName: "insert", params: [200], },
+                                    { methodName: "insert", params: [300], },
                                 ],
                                 needsReset: true,
                             },

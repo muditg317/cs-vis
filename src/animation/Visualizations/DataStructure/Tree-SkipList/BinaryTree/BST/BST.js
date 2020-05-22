@@ -21,7 +21,7 @@ export default class BST extends Visualization {
 
     static ROOT_SIZE = 25;
     static ROOT_X_MIN = 50;
-    static ROOT_X_OFFSET = -40;
+    static ROOT_X_OFFSET = 0;
     static ROOT_Y = 20;
     static ROOT_HIGHLIGHT_DIAMETER = 10;
 
@@ -267,7 +267,7 @@ export default class BST extends Visualization {
         this.highlighter.highlightColor = color;
         if (node) {
             this.highlighter.addOnStop((highlighter) => {
-                this.doneAnimating(0, "setHighlighter"+(node ? node.data : ""));
+                this.doneAnimating(0, "setHighlighter "+(node ? node.data : ""));
             });
         }
         return [oldTarget, oldColor];
@@ -719,7 +719,7 @@ export default class BST extends Visualization {
     }
 
     getRootPointerX() {
-        return Math.max(this.width / 2 - this.constructor.ROOT_SIZE - 50, this.constructor.ROOT_X_MIN);
+        return Math.max(this.width / 2 - this.constructor.ROOT_SIZE/2 - this.constructor.ROOT_X_OFFSET, this.constructor.ROOT_X_MIN);
     }
 
     getHeight() {

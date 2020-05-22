@@ -4,13 +4,17 @@
     align-items: center;
 
     &>.big-o-type-title {
-        margin: 0;
-        padding: 1rem 2.5rem 0;
+        // margin: 0;
+        // border: solid #fff0;
+        margin: 1rem 2.5rem 0;
         font-size: 1.8em;
 
-        width: max-content;
-        box-sizing: border-box;
-        max-width: 100%;
+        position: sticky;
+        left: 2.5rem;
+        // right: 2.5rem;
+        width: fit-content;
+        // box-sizing: border-box;
+        max-width: 80%;
     }
 
     &>.big-o-display-list-container {

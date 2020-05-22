@@ -346,38 +346,13 @@ export default class Visualization {
             }
             retVal = method.apply(scope, params);
         }
-        if (this.isAnimStart(nextAnimation)) {
-            this.runningAnimation = [];
-        } else if (this.isAnimEnd(nextAnimation)) {
-            this.animationHistory.push(this.runningAnimation);
-            this.runningAnimation = null;
-        } else if (this.isEndDrawLoopTrigger(nextAnimation)) {
-
-        } else if (this.isPauseTrigger(nextAnimation)) {
-
-        } else {
-            if (this.runningAnimation) {
-                this.runningAnimation.push(nextAnimation);
-            } else {
-                if (!this.constructor.SUPPORTS_ANIMATION_CONTROL) {
-                    this.animationHistory.push(nextAnimation);
-                }
-            }
-        }
-        if (nextAnimation.explanation) {
-            if (nextAnimation.explanationUsesReturn) {
-                nextAnimation.explanation = nextAnimation.explanation.replace("|RETURN|", retVal);
-            }
-            this.showText(nextAnimation.explanation);
-        }
+        nextAnimation.returnValue = retVal;
         if (!nextAnimation.customRedoEnd) {
             this.stopDrawing(++this.stopID);
         }
-        if (nextAnimation.returnsUndoData && !nextAnimation.undoData) {
-            nextAnimation.undoData = nextAnimation.explanationUsesReturn ? retVal[1] : retVal;
-        }
-        if (nextAnimation.returnsRedoData && !nextAnimation.redoData) {
-            nextAnimation.redoData = nextAnimation.explanationUsesReturn ? retVal[1] : retVal;
+        let testsWindowSize = this.processCompletedAnimation(nextAnimation);
+        if (this.constructor.SUPPORTS_INFREQUENT_RESIZE && testsWindowSize) {
+            this.animator.testWindowSize();
         }
     }
 
@@ -642,6 +617,53 @@ export default class Visualization {
                 || false;
     }
 
+    processCompletedAnimation(animation,animationSpeed) {
+        let isPopNotStep = !isNaN(animationSpeed);
+        if (this.isAnimStart(animation)) {
+            this.runningAnimation = [];
+        } else if (this.isAnimEnd(animation)) {
+            this.animationHistory.push(this.runningAnimation);
+            if (this.constructor.TEST_ANIMATION_STEPS) {
+                this.testAnimation();
+            }
+            this.runningAnimation = null;
+        } else if (this.isEndDrawLoopTrigger(animation)) {
+            if (isPopNotStep) {
+                if (this.animationQueue.length > 0) {
+                    this.beginDrawLoop();
+                }
+            }
+        } else if (this.isPauseTrigger(animation)) {
+
+        } else if (this.isUndoTrigger(animation)) {
+
+        } else {
+            if (this.runningAnimation) {
+                this.runningAnimation.push(animation);
+            } else {
+                if (!this.constructor.SUPPORTS_ANIMATION_CONTROL) {
+                    this.animationHistory.push(animation);
+                }
+            }
+        }
+        if (animation.explanation) {
+            if (animation.explanationUsesReturn) {
+                animation.explanation = animation.explanation.replace("|RETURN|", animation.returnsUndoData ? animation.returnValue[0] : animation.returnValue);
+                if (animation.returnsUndoData) {
+                    // console.log(animation.returnValue);
+                }
+            }
+            this.showText(animation.explanation);
+        }
+        if (animation.returnsUndoData) {
+            animation.undoData = animation.explanationUsesReturn ? animation.returnValue[1] : animation.returnValue;
+        }
+        if (animation.returnsRedoData) {
+            animation.redoData = animation.explanationUsesReturn ? animation.returnValue[1] : animation.returnValue;
+        }
+        return animation.testsWindowSize;
+    }
+
     popAnimation(animationSpeed) {
         if (!this.animating) {
             if (this.animationQueue.length > 0) {
@@ -652,44 +674,6 @@ export default class Visualization {
                 }
                 let retVal = animation.method.apply(animation.scope || this, animation.params);
                 animation.returnValue = retVal;
-                if (this.isAnimStart(animation)) {
-                    this.runningAnimation = [];
-                } else if (this.isAnimEnd(animation)) {
-                    this.animationHistory.push(this.runningAnimation);
-                    if (this.constructor.TEST_ANIMATION_STEPS) {
-                        this.testAnimation();
-                    }
-                    this.runningAnimation = null;
-                } else if (this.isEndDrawLoopTrigger(animation)) {
-                    if (this.animationQueue.length > 0) {
-                        this.beginDrawLoop();
-                    }
-                } else if (this.isPauseTrigger(animation) || this.isUndoTrigger(animation)) {
-
-                } else {
-                    if (this.runningAnimation) {
-                        this.runningAnimation.push(animation);
-                    } else {
-                        if (!this.constructor.SUPPORTS_ANIMATION_CONTROL) {
-                            this.animationHistory.push(animation);
-                        }
-                    }
-                }
-                if (animation.explanation) {
-                    if (animation.explanationUsesReturn) {
-                        animation.explanation = animation.explanation.replace("|RETURN|", animation.returnsUndoData ? retVal[0] : retVal);
-                        if (animation.returnsUndoData) {
-                            // console.log(retVal);
-                        }
-                    }
-                    this.showText(animation.explanation);
-                }
-                if (animation.returnsUndoData) {
-                    animation.undoData = animation.explanationUsesReturn ? retVal[1] : retVal;
-                }
-                if (animation.returnsRedoData) {
-                    animation.redoData = animation.explanationUsesReturn ? retVal[1] : retVal;
-                }
                 if (this.constructor.SUPPORTS_CUSTOM_END) {
                     if (this.noAnimation(animation)) {
                         this.animating = false;
@@ -701,7 +685,7 @@ export default class Visualization {
                         }
                     }
                 }
-                return animation.testsWindowSize;
+                return this.processCompletedAnimation(animation, animationSpeed);
             }
         }
     }
@@ -808,9 +792,11 @@ export default class Visualization {
             callback();
         }
         try {
-            this.ensureDrawn(this.animationQueue.length === 0);
-            if (this.animationQueue.length > 0 && !this.paused) {
-                this.stopID++;
+            if (this.paused) {
+                this.ensureDrawn(this.animationQueue.length === 0);
+                if (this.animationQueue.length > 0 && !this.paused) {
+                    this.stopID++;
+                }
             }
         } catch (e) {
 

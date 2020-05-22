@@ -153,10 +153,8 @@ export default class Visualizer extends PureComponent {
 
             extraGroups.push(ControlBuilder.createControlGroup("stepButtonGroup",this.skipBackButton,this.stepBackButton,this.playPauseButton,this.stepForwardButton,this.skipForwardButton));
             let animationControls = ControlBuilder.createControlGroup("animationControls",...extraGroups);
-            // ControlBuilder.applyStyle(animationControls,"width","441px");
+            ControlBuilder.applyStyle(animationControls,"width","27.6em");//needed to prevent overlap from slider?????????????
             this.defaultControlGroups.push(animationControls);
-
-
         }
         this.defaultControlGroups.push(speedSliderGroup);
         this.defaultsLabel = "Animation controls";

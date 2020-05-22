@@ -68,10 +68,10 @@ export function spannifyText(text, afterTheseString) {
         return text.split("").map((char, i) => {
             if (i > 0 && char === char.toUpperCase()) {
                 return (
-                    <>
-                        <wbr key={i} />
+                    <React.Fragment key={i}>
+                        <wbr />
                         {char}
-                    </>
+                    </React.Fragment>
                 );
             }
             return char;
@@ -80,10 +80,10 @@ export function spannifyText(text, afterTheseString) {
         return text.split(new RegExp(`([${afterTheseString}])`,"g")).map((str, i) => {
             if (i > 0) {
                 return (
-                    <>
-                        <wbr key={i} />
+                    <React.Fragment key={i}>
+                        <wbr />
                         {str}
-                    </>
+                    </React.Fragment>
                 );
             }
             return str;
@@ -92,10 +92,10 @@ export function spannifyText(text, afterTheseString) {
         return text.split("").map((char, i) => {
             if (i > 0) {
                 return (
-                    <>
-                        <wbr key={i} />
+                    <React.Fragment key={i}>
+                        <wbr />
                         {char}
-                    </>
+                    </React.Fragment>
                 );
             }
             return char;
