@@ -195,7 +195,9 @@
         }
 
         .nav-item {
-            width: 50vw;
+            &:not(:last-child) {
+                width: 50vw;
+            }
             >.nav-item-title {
                 line-height: 1;
             }
