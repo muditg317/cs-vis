@@ -4,6 +4,7 @@ import { Utils, Colors } from 'utils';
 export default class Visualization {
 
     static INITIAL_SPEED = 50;
+    static LONGEST_TEXT = "Animation Ready | Press ctrl-z to undo! (permanantly deletes action) | Click and drag on a node to move it!";
 
     static LOG_UNDO_REDO = false;
     static LOG_ANIMATIONS = false;
@@ -739,7 +740,7 @@ export default class Visualization {
     getDisplayTextExtraLines(p5) {
         p5.push();
         p5.textSize(15);
-        let width = p5.textWidth(this.displayText);
+        let width = p5.textWidth(this.constructor.LONGEST_TEXT);
         let lines = Math.ceil(width / (p5.width - 10));
         // console.log(width,lines);
         p5.pop();

@@ -80,33 +80,42 @@
 
     &[tt-top]::after {
         bottom: 70%;
+        top: unset;
     }
     &[tt-bottom]::after {
         top: 70%;
+        bottom: unset;
     }
     &[tt-right]::after {
         left: 60%;
+        right: unset;
     }
     &[tt-left]::after {
         right: 60%;
+        left: unset;
     }
     &[tt-h-mid]::after {
         left: 50%;
+        right: unset;
         transform: translateX(-50%);
     }
 
     @for $perc from 0 through 12 {
         &[tt-top-#{$perc*10}]::after {
             bottom: #{$perc*10%};
+            top: unset;
         }
         &[tt-bottom-#{$perc*10}]::after {
             top: #{$perc*10%};
+            bottom: unset;
         }
         &[tt-right-#{$perc*10}]::after {
             left: #{$perc*10%};
+            right: unset;
         }
         &[tt-left-#{$perc*10}]::after {
             right: #{$perc*10%};
+            left: unset;
         }
     }
 }

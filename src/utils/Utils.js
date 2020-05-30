@@ -102,3 +102,7 @@ export function spannifyText(text, afterTheseString) {
         });
     }
 }
+
+export function upperFirstChar(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

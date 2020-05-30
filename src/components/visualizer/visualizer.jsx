@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import Sketch from 'react-p5';
+import { Helmet } from 'react-helmet';
 import './visualizer.scss';
 
 import ControlBar from './controlBar';
@@ -499,6 +500,9 @@ export default class Visualizer extends PureComponent {
     render() {
         return (
                 <div className={`visualizer ${this.constructor.DIV_CLASS}`}>
+                    <Helmet>
+                        <title>{this.mainLabel} – CS-Vis</title>
+                    </Helmet>
                     <ControlBar ref={this.controlBarRef} showBigODisplay={this.showBigODisplay.bind(this)} showExamplesDisplay={this.showExamplesDisplay.bind(this)} hasExamples={this.props.visualizerClass.examples && this.props.visualizerClass.examples.length > 0}/>
                     {this.state.showBigO &&
                         <BigOWindow ref={this.bigOWindow} title={this.mainLabel} closeBigODisplay={this.closeBigODisplay.bind(this)}/>

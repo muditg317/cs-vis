@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { HashRouter, Switch, Route } from "react-router-dom";
+import { Helmet } from 'react-helmet';
 import './app.scss';
 import './universal.scss';
 
@@ -18,6 +19,9 @@ export default function App(props) {
             <HashRouter basename='/'>
                 <React.StrictMode>
                     <div className="app">
+                        <Helmet>
+                            <title>CS-Vis</title>
+                        </Helmet>
                         <AppHeader />
                         <div className="app-content">
                             <Switch>
