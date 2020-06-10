@@ -405,8 +405,12 @@
         display: flex;
         flex-flow: row nowrap;
 
-        &>.visualizer-icon {
+        &.left>.visualizer-icon {
             margin-left: 1em;
+        }
+
+        &.right>.visualizer-icon {
+            margin-right: 1em;
         }
     }
 }

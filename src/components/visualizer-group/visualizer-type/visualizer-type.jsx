@@ -30,7 +30,7 @@ export const VisualizerType = (props) => {
                 : <div className="visualizer-type">
                     {typeMatch &&
                         <Helmet>
-                            <title>{Utils.upperFirstChar(props.type)} – CS-Vis</title>
+                            <title>{type.title_text} – CS-Vis</title>
                         </Helmet>
                     }
                     <h4 className={`visualizer-type-title${typeMatch ? "" : " clickable-type-title"}`} onClick={typeMatch ? null : () => {window.location.hash = `#/${props.group}/${props.type}`;}}>

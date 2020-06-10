@@ -6,6 +6,7 @@ import './visualizer.scss';
 import ControlBar from './controlBar';
 import BigOWindow from './bigOWindow';
 import ExamplesWindow from './examplesWindow';
+import DescriptionWindow from './descriptionWindow';
 
 import { ControlBuilder, Utils } from 'utils';
 import { Animator } from 'animation';
@@ -87,11 +88,13 @@ export default class Visualizer extends PureComponent {
 
         this.state = {
             showBigO: false,
-            showExamples: false
+            showExamples: false,
+            showDescription: false
         };
         this.disabledControls = [];
         this.bigOWindow = React.createRef();
         this.examplesWindow = React.createRef();
+        this.descriptionWindow = React.createRef();
     }
 
     addDefaultControls() {
@@ -497,13 +500,41 @@ export default class Visualizer extends PureComponent {
         }
     }
 
+    showDescriptionDisplay() {
+        if (!this.state.showDescription) {
+            this.setState({showDescription: true});
+            this.disabledControls = [];
+            document.querySelectorAll(".control-bar input, .control-bar button").forEach((input) => {
+                if (!input.disabled) {
+                    this.disabledControls.push(input);
+                    input.disabled = true;
+                }
+            });
+        }
+    }
+
+    closeDescriptionDisplay(...exampleParams) {
+        this.setState({showDescription: false});
+        while (this.disabledControls.length) {
+            this.disabledControls.pop().disabled = false;
+        }
+    }
+
     render() {
         return (
                 <div className={`visualizer ${this.constructor.DIV_CLASS}`}>
                     <Helmet>
                         <title>{this.mainLabel} – CS-Vis</title>
                     </Helmet>
-                    <ControlBar ref={this.controlBarRef} showBigODisplay={this.showBigODisplay.bind(this)} showExamplesDisplay={this.showExamplesDisplay.bind(this)} hasExamples={this.props.visualizerClass.examples && this.props.visualizerClass.examples.length > 0}/>
+                    <ControlBar ref={this.controlBarRef}
+                            showBigODisplay={this.showBigODisplay.bind(this)}
+                            hasExamples={this.props.visualizerClass.examples && this.props.visualizerClass.examples.length > 0}
+                            showExamplesDisplay={this.showExamplesDisplay.bind(this)}
+                            hasDescription={this.props.visualizerClass.description && this.props.visualizerClass.description.length > 0}
+                            showDescriptionDisplay={this.showDescriptionDisplay.bind(this)} />
+                    {this.state.showDescription &&
+                        <DescriptionWindow ref={this.descriptionWindow} title={this.mainLabel} closeDescriptionDisplay={this.closeDescriptionDisplay.bind(this)}/>
+                    }
                     {this.state.showBigO &&
                         <BigOWindow ref={this.bigOWindow} title={this.mainLabel} closeBigODisplay={this.closeBigODisplay.bind(this)}/>
                     }

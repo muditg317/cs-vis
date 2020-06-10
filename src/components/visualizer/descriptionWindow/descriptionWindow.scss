@@ -1,0 +1,54 @@
+@import 'components/app/constants.scss';
+
+.description-window-container {
+    width: max-content;
+    max-width: 80%;
+    height: min-content;
+    max-height: 80%;
+    position: absolute;
+    margin: auto;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+
+    &>.description-window {
+        width: 100%;
+        height: max-content;
+        // max-height: 100%;
+        // margin: 0 8em;
+        background: #f7f7f7;
+        border-radius: 1em;
+        border-width: thick;
+        border-color: #778beb;
+        border-style: solid;
+
+        &>#exit-description {
+            position: absolute;
+            top: 1em;
+            right: 1em;
+        }
+        &>#close-box-tip {
+            position: absolute;
+            top: 0.5em;
+            left: 0.5em;
+            font-size: 0.8em;
+            margin: 0;
+        }
+
+        &>#description-title {
+            margin-left: 1em;
+            margin-right: 1em;
+        }
+
+        &>.description-text {
+            max-width: 100%;
+            // margin: 0;
+            padding: 0 1em;
+        }
+    }
+}

@@ -151,7 +151,7 @@ export const BigODisplay = (props) => {
 
     useEffect(() => {
         const mouseEnterHandler = (event) => {
-            let explanationNode = event.target.lastChild;
+            let explanationNode = event.target.querySelector(".big-o-explanation-container");
             let tableCellBounds = event.target.getBoundingClientRect();
             let explanationNodeBounds = explanationNode.getBoundingClientRect();
             let left, top;
@@ -214,7 +214,10 @@ export const BigODisplay = (props) => {
                                         : cell.dataString
                                     }
                                     {cell.explanation
-                                        ? <p className="big-o-explanation-container">{cell.explanation}</p>
+                                        ? <>
+                                            <p className="big-o-explanation-container">{cell.explanation}</p>
+                                            <FontAwesomeIcon icon={["far","question-circle"]} size="lg" className="big-o-explanation-hint" />
+                                        </>
                                         : null
                                     }
                                 </Cell>

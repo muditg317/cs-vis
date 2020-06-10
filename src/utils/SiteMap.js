@@ -378,6 +378,7 @@ export const SiteMap =
                         link: "bst",
                         title_text: "Binary Search Tree",
                         component: BSTVisualizer,
+                        description: "A BST is a binary tree (each node has 0-2 children) in which the left child is less than the parent and the right child is greater than the parent.",
                         examples: [
                             {
                                 exampleText: "To get a degenerate BST, add ascending/descending data, such as 1,2,3,...",
@@ -878,6 +879,9 @@ export const SiteMap =
                                 rows: ["Specs"],
                                 cols: ["Single Occurrence", "All Occurrences", "General"],
                                 col1Name: "",
+                                No: {
+                                    worst: "O(m+n)",
+                                },
                                 Single: {
                                     best: "O(m)",
                                     explanation: "match at beginning of text",
@@ -903,6 +907,9 @@ export const SiteMap =
                                 rows: ["Specs"],
                                 cols: ["Single Occurrence", "All Occurrences", "General"],
                                 col1Name: "",
+                                No: {
+                                    average: "O(m+n)",
+                                },
                                 Single: {
                                     best: "O(m)",
                                     explanation: "match at beginning of text",
@@ -912,8 +919,7 @@ export const SiteMap =
                                 },
                                 General: {
                                     average: "O(m+n)",
-                                    worst: "O(m+n)",
-                                    explanation: "O(m) creating failure table\nO(n) tracing",
+                                    explanation: "best = average = worst\nO(m) creating failure table\nO(n) tracing",
                                 },
                             },
                         },
@@ -927,6 +933,9 @@ export const SiteMap =
                                 rows: ["Specs"],
                                 cols: ["Single Occurrence", "All Occurrences", "General"],
                                 col1Name: "",
+                                No: {
+                                    best: "O(m+n)",
+                                },
                                 Single: {
                                     best: "O(m)",
                                     explanation: "match at beginning of text",
@@ -937,6 +946,7 @@ export const SiteMap =
                                 General: {
                                     average: "O(m+n)",
                                     worst: "O(mn)",
+                                    explanation: "O(m) calculate intial hash\nO(n) tracing",
                                 },
                             },
                         },

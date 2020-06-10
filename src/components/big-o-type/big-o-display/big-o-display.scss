@@ -114,10 +114,8 @@
                     }
 
                     &>.big-o-datum {
-                        // width: -webkit-fill-available;
-                        &:first-child:last-child {
-                            text-align: center;
-                        }
+                        text-align: center;
+
                         &>.big-o-datum-inner {
                             display: flex;
                             flex-flow: row nowrap;
@@ -163,19 +161,22 @@
 
                     &.big-o-has-explanation {
                         position: relative;
+                        padding-right: 2em;
 
-                        &::before {
-                            content: "?";
+                        &>.big-o-explanation-hint {
+                            // content: "?";
                             text-align: center;
                             display: inline-block;
                             position: absolute;
-                            left: 0.3em;
-                            top: 0.3em;
-                            border-radius: 50%;
-                            border: solid thin black;
-                            font-size: 0.5em;
-                            min-width: 1.2em;
-                            min-height: 1.2em;
+                            right: 0.5em;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            // border-radius: 50% 50%;
+                            // border: solid thin black;
+                            font-size: 0.875em;
+                            font-weight: 800;
+                            min-width: 1.35em;
+                            min-height: 1.35em;
                         }
                         &>.big-o-explanation-container {
                             visibility: hidden;
@@ -202,7 +203,7 @@
                         &:hover {
 
                             &>.big-o-explanation-container {
-                                $delay: 0.4s;
+                                $delay: 0.2s;
                                 visibility: visible;
                                 transition: visibility $delay step-end;
                             }
