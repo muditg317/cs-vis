@@ -23,12 +23,12 @@ Feel free to suggest any new features or request entire new visualizations.
 
 ### Current To-Do List
 **These are all on my list, I'm getting to them as soon as I finish things by order of importance to the tool.**
-* Fix BST big, when removing root, the "reset root pointer to node containing: XXX is incorrect. it says the old value when the root value is replaced.
+* Fix BST bug, when removing root, the "reset root pointer to node containing: XXX is incorrect. it says the old value when the root value is replaced.
 * Complete the basic visualizations of each datastructure/algorithms
 * Add examples with automatic animation
 * Implement checkbox for tail-pointer use on `LinkedList`s
 * Refactor `Visualizer` components/cub-class components to use React functional components and hooks<br />
-   Hooks and functional components are [React's](https://reactjs.org/docs/hooks-intro.html) suggested method of development.  
+   Hooks and functional components are [React's](https://reactjs.org/docs/hooks-intro.html) suggested method of development.
 <br />
 <br />
 <br />

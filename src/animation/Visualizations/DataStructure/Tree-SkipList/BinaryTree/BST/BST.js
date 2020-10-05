@@ -145,10 +145,10 @@ export default class BST extends Visualization {
         animation.push({method:this.showText,params:[`Attempt delete: ${data} to BST`],noAnim:true});
         animation.push({method:this.setHighlighter,params:[this.rootPointerPos],customEnd:true,customRedoEnd:true,returnsUndoData:true,});
         animation.push({method:this.showText,params:[`Searching tree for value: ${data}`],quick:true,isForwardStep:true,customRedoEnd:true});
-        let [ recurredAnimation, newRoot, nodeJustDeleted, deleted ] = this.deleteRecursive(this.root, data);
+        let [ recurredAnimation, newRoot, nodeJustDeleted, deleted, replacementValue ] = this.deleteRecursive(this.root, data);
         animation.push(...recurredAnimation);
         animation.push({method:this.setHighlighter,params:[this.rootPointerPos],customEnd:true,isBackStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true,});
-        animation.push({method:this.setRoot,params:[newRoot],explanation:`${this.root ? "Res" : "S"}et root pointer to ${newRoot ? `node containing ${newRoot.data}` : "null"}`,quick:true,isForwardStep:true,returnsUndoData:true,customRedoEnd:true});
+        animation.push({method:this.setRoot,params:[newRoot],explanation:`${this.root ? "Res" : "S"}et root pointer to ${newRoot ? `node containing ${replacementValue !== null ? replacementValue : newRoot.data}` : "null"}`,quick:true,isForwardStep:true,returnsUndoData:true,customRedoEnd:true});
         if (nodeJustDeleted) {
             animation.push({method:this.clearTemp,noAnim:true,returnsUndoData:true,});
             animation.push({method:this.shiftByInOrder,testsWindowSize:true,explanation:`Remove node:${data} from root of tree`,customEnd:true,isAnimationStep:true,customUndoEnd:true,customRedoEnd:true,returnsUndoData:true});
@@ -429,6 +429,7 @@ export default class BST extends Visualization {
         let animation = [];
         let justDeleted = false;
         let deleted = false;
+        let replacementValue = null;
         animation.push({method:this.setHighlighter,params:[curr],customEnd:curr!==null,noAnim:curr===null,isBackStep:true,customUndoEnd:true,customRedoEnd:curr!==null,returnsUndoData:true});
         if (!curr) {
             animation.push({method:this.showText,params:[`Reached null: ${value} not found in tree`],quick:true,isForwardStep:true,});
@@ -459,6 +460,7 @@ export default class BST extends Visualization {
                 if (justFoundPredSucc) {
                     animation.push({method:this.shiftByInOrder,testsWindowSize:true,explanation:`Remove ${this.predSuccMode ? "predecessor" : "successor"}:${predSuccValue} of node:${curr.data}`,customEnd:true,isAnimationStep:true,returnsUndoData:true});
                 }
+                replacementValue = predSuccValue;
             }
             animation.push({method:this.sizeDecr,noAnim:true,});
             deleted = true;
@@ -485,7 +487,7 @@ export default class BST extends Visualization {
             }
             deleted = nodeDeleted;
         }
-        return [animation, curr, justDeleted, deleted];
+        return [animation, curr, justDeleted, deleted, replacementValue];
     }
 
     findPredecessorRecursive(curr) {

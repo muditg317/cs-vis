@@ -5,7 +5,7 @@
     background-clip: border-box;
     background-color: #f7f7f7;
     @media screen and (min-width: 75em) {
-        font-size: 1.5vmin;
+        font-size: calc(1.05rem + 0.3vw);
     }
 }
 
