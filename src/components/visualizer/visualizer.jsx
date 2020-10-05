@@ -38,7 +38,6 @@ export default class Visualizer extends PureComponent {
                     } else {
                         if (Utils.isDev()) {
                             console.log(this[this.constructor.ADT_NAME], methodName, ...args);
-                            return true;
                         }
                     }
                     // return this[this.constructor.ADT_NAME][methodName](...args);
