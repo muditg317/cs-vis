@@ -36,7 +36,7 @@ export function createButton(label, options) {
     return button;
 };
 
-export function addButtonSubmit(button, callback, ...fields) {
+export function addButtonSubmit(visualizer, button, callback, ...fields) {
     if (button.type !== "button") {
         console.log("cannot add callback to nonbutton");
         return;
@@ -59,16 +59,23 @@ export function addButtonSubmit(button, callback, ...fields) {
             }
         });
         if (args) {
-            callback(...args);
-            fields.forEach((field) => {
-                let f = field.field || field;
-                if (f.clearOnSuccess) {
-                    f.value = "";
+            let success = callback(...args);
+            if (success) {
+                if (button.innerText !== "reset") {
+                  visualizer.enableOnReset.forEach(strictControl => {
+                    strictControl.disabled = true;
+                  });
                 }
-                if (field.focus === true || fields.length === 1) {
-                    f.focus();
-                }
-            });
+                fields.forEach((field) => {
+                    let f = field.field || field;
+                    if (f.clearOnSuccess) {
+                        f.value = "";
+                    }
+                    if (field.focus === true || fields.length === 1) {
+                        f.focus();
+                    }
+                });
+            }
         }
     });
 }
@@ -78,7 +85,7 @@ export function applyNewCallbackButton(visualizer, name, ...fields) {
     let options = name.options || undefined;
     name = name.name || name;
     visualizer[name + "Button"] = createButton(longName, options);
-    addButtonSubmit(visualizer[name + "Button"], visualizer[name], ...fields);
+    addButtonSubmit(visualizer, visualizer[name + "Button"], visualizer[name], ...fields);
     if (options && options.addAnimatorEnableDisable) {
         visualizer.animator.on(`disable-${name}`, () => {
             visualizer[name + "Button"].disabled = true;
@@ -97,11 +104,15 @@ export function applyResetButton(visualizer, prompt, fieldToFocus) {
                 visualizer[property].value = "";
             }
         }
+        visualizer.enableOnReset.forEach(control => {
+            control.disabled = false;
+        });
+
         if (fieldToFocus) {
             fieldToFocus.focus();
         }
     });
-    addButtonSubmit(visualizer[prompt + "Button"], visualizer[prompt]);
+    addButtonSubmit(visualizer, visualizer[prompt + "Button"], visualizer[prompt]);
 }
 
 export function createField(prompt, ...validators) {
@@ -251,7 +262,7 @@ export function validatorSkipListHeads() {
     return validator;
 }
 
-export function addFieldSubmit(field, callback, {secondaryRequired = false, secondary = {field: undefined, isFirstParam: false, callback: undefined, clear: false}} = {}) {
+export function addFieldSubmit(visualizer, field, callback, {secondaryRequired = false, secondary = {field: undefined, isFirstParam: false, callback: undefined, clear: false}} = {}) {
     if (field.type !== "text") {
         console.log("cannot add callback to nontextfield");
         return;
@@ -279,6 +290,9 @@ export function addFieldSubmit(field, callback, {secondaryRequired = false, seco
                     success = callback(value) !== false;
                 }
                 if (success) {
+                    visualizer.enableOnReset.forEach(strictControl => {
+                      strictControl.disabled = true;
+                    });
                     if (field.clearOnSuccess) {
                         field.value = "";
                     }
@@ -307,7 +321,7 @@ export function applyFieldWithOptions(visualizer, name, ...validators) {
     }
     visualizer[name + "Field"].classList.add(...classes);
     if (callback) {
-        addFieldSubmit(visualizer[name + "Field"], visualizer[callback]);
+        addFieldSubmit(visualizer, visualizer[name + "Field"], visualizer[callback]);
     }
 }
 
@@ -370,6 +384,16 @@ export function addRadioSubmit(radioContainer, callback) {
     radioContainer.childNodes.forEach((radioButtonContainer) => {
         radioButtonContainer.childNodes[0].addEventListener("change", () => {
             callback(radioButtonContainer.childNodes[0].value);
+        });
+    });
+}
+
+export function addStrictRadioSubmit(visualizer, radioContainer, callback) {
+    let radioButtons = Array.prototype.map.apply(radioContainer.childNodes, [radioButtonContainer => radioButtonContainer.childNodes[0]]);
+    visualizer.enableOnReset.push(...radioButtons);
+    radioButtons.forEach(radioButton => {
+        radioButton.addEventListener("change", () => {
+            callback(radioButton.value);
         });
     });
 }

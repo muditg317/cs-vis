@@ -9,7 +9,7 @@ export default class ListVisualizer extends Visualizer {
     addControls() {
         ControlBuilder.applyFieldWithOptions(this, {name: "value", callback: false}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorIntOnly());
         ControlBuilder.applyFieldWithOptions(this, {name: "index", callback: false, args: {size: 10}}, ControlBuilder.validatorMaxLength(6), ControlBuilder.validatorPositiveIntOnly());
-        ControlBuilder.addFieldSubmit(this.valueField, this.addToBack,
+        ControlBuilder.addFieldSubmit(this, this.valueField, this.addToBack,
                 {
                     secondary: {
                         field: this.indexField,
@@ -18,7 +18,7 @@ export default class ListVisualizer extends Visualizer {
                     }
                 }
             );
-        ControlBuilder.addFieldSubmit(this.indexField, this.addAtIndex,
+        ControlBuilder.addFieldSubmit(this, this.indexField, this.addAtIndex,
                 {
                     secondaryRequired: true,
                     secondary: {

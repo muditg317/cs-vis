@@ -9,7 +9,7 @@ export default class SearchVisualizer extends Visualizer {
     addControls(offerTable = false) {
         ControlBuilder.applyFieldWithOptions(this, {name: "searchText", prompt: "text", callback: false}, ControlBuilder.validatorMaxLength(100));
         ControlBuilder.applyFieldWithOptions(this, {name: "pattern", callback: false, args: {size: 15}}, ControlBuilder.validatorMaxLength(100));
-        ControlBuilder.addFieldSubmit(this.searchTextField, this.search,
+        ControlBuilder.addFieldSubmit(this, this.searchTextField, this.search,
                 {
                     secondaryRequired: true,
                     secondary: {
@@ -18,7 +18,7 @@ export default class SearchVisualizer extends Visualizer {
                     }
                 }
             );
-        ControlBuilder.addFieldSubmit(this.patternField, offerTable ? this.buildTable : this.search,
+        ControlBuilder.addFieldSubmit(this, this.patternField, offerTable ? this.buildTable : this.search,
                 {
                     secondaryRequired: !offerTable,
                     secondary: {

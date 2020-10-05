@@ -38,6 +38,7 @@ export default class Visualizer extends PureComponent {
                     } else {
                         if (Utils.isDev()) {
                             console.log(this[this.constructor.ADT_NAME], methodName, ...args);
+                            return true;
                         }
                     }
                     // return this[this.constructor.ADT_NAME][methodName](...args);
@@ -82,6 +83,7 @@ export default class Visualizer extends PureComponent {
         this.animator.on("anim-start", this.onAnimStart);
         this.animator.on("anim-end", this.onAnimEnd);
 
+        this.enableOnReset = [];
         this.addControlLabel(this.constructor.NAME);
         this.addControls();
         this.addDefaultControls();

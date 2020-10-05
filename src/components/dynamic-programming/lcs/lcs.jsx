@@ -16,7 +16,7 @@ export default class LCSVisualizer extends Visualizer {
     addControls() {
         ControlBuilder.applyFieldWithOptions(this, {name: "firstString", prompt: "first string", callback: false}, ControlBuilder.validatorMaxLength(100));
         ControlBuilder.applyFieldWithOptions(this, {name: "secondString", prompt: "second string", callback: false}, ControlBuilder.validatorMaxLength(100));
-        ControlBuilder.addFieldSubmit(this.firstStringField, this.findLCS,
+        ControlBuilder.addFieldSubmit(this, this.firstStringField, this.findLCS,
                 {
                     secondaryRequired: true,
                     secondary: {
@@ -25,7 +25,7 @@ export default class LCSVisualizer extends Visualizer {
                     }
                 }
             );
-        ControlBuilder.addFieldSubmit(this.secondStringField, this.findLCS,
+        ControlBuilder.addFieldSubmit(this, this.secondStringField, this.findLCS,
                 {
                     secondaryRequired: true,
                     secondary: {

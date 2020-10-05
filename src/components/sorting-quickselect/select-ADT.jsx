@@ -9,7 +9,7 @@ export default class SelectVisualizer extends Visualizer {
     addControls() {
         ControlBuilder.applyFieldWithOptions(this, {name: "list", prompt: "1,-4,23,3-8,... [max 50 elements]", callback: false}, ControlBuilder.validatorIntList(4,50));
         ControlBuilder.applyFieldWithOptions(this, {name: "kth", prompt: "k (1-indexed)", callback: false, args: {size: 8}}, ControlBuilder.validatorPositiveIntOnly());
-        ControlBuilder.addFieldSubmit(this.listField, this.select,
+        ControlBuilder.addFieldSubmit(this, this.listField, this.select,
                 {
                     secondaryRequired: true,
                     secondary: {
@@ -18,7 +18,7 @@ export default class SelectVisualizer extends Visualizer {
                     }
                 }
             );
-        ControlBuilder.addFieldSubmit(this.kthField, this.select,
+        ControlBuilder.addFieldSubmit(this, this.kthField, this.select,
                 {
                     secondaryRequired: true,
                     secondary: {
